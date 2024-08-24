@@ -1,16 +1,18 @@
 package com.redis.riot;
 
 import java.time.Duration;
-import java.util.Arrays;
 
 import com.redis.lettucemod.RedisURIBuilder;
+import com.redis.riot.core.RiotUtils;
 import com.redis.riot.core.RiotVersion;
 
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.SslVerifyMode;
+import io.lettuce.core.protocol.ProtocolVersion;
+import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
 
-public class RedisURIArgs {
+public class RedisArgs {
 
 	@Option(names = { "-u", "--uri" }, description = "Server URI.", paramLabel = "<uri>")
 	private RedisURI uri;
@@ -48,7 +50,29 @@ public class RedisURIArgs {
 	@Option(names = "--client", description = "Client name used to connect to Redis (default: ${DEFAULT-VALUE}).", paramLabel = "<name>")
 	private String clientName = RiotVersion.riotVersion();
 
-	public RedisURI redisURI() {
+	@Option(names = { "-c", "--cluster" }, description = "Enable cluster mode.")
+	private boolean cluster;
+
+	@Option(names = "--auto-reconnect", description = "Automatically reconnect on connection loss. True by default.", negatable = true, defaultValue = "true", fallbackValue = "true", hidden = true)
+	private boolean autoReconnect = RedisContext.DEFAULT_AUTO_RECONNECT;
+
+	@Option(names = "--resp", description = "Redis protocol version used to connect to Redis: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<ver>")
+	private ProtocolVersion protocolVersion = RedisContext.DEFAULT_PROTOCOL_VERSION;
+
+	@Option(names = "--pool", description = "Max number of Redis connections in pool (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
+	private int poolSize = RedisContext.DEFAULT_POOL_SIZE;
+
+	@ArgGroup(exclusive = false, heading = "TLS options%n")
+	private SslArgs sslArgs = new SslArgs();
+
+	public RedisContext redisContext() {
+		RedisContext context = RedisContext.create(redisURI(), cluster, autoReconnect, protocolVersion,
+				sslArgs.sslOptions());
+		context.setPoolSize(poolSize);
+		return context;
+	}
+
+	private RedisURI redisURI() {
 		RedisURIBuilder builder = new RedisURIBuilder();
 		builder.clientName(clientName);
 		builder.database(database);
@@ -64,6 +88,46 @@ public class RedisURIArgs {
 			builder.verifyMode(SslVerifyMode.NONE);
 		}
 		return builder.build();
+	}
+
+	public boolean isCluster() {
+		return cluster;
+	}
+
+	public void setCluster(boolean cluster) {
+		this.cluster = cluster;
+	}
+
+	public boolean isAutoReconnect() {
+		return autoReconnect;
+	}
+
+	public void setAutoReconnect(boolean autoReconnect) {
+		this.autoReconnect = autoReconnect;
+	}
+
+	public ProtocolVersion getProtocolVersion() {
+		return protocolVersion;
+	}
+
+	public void setProtocolVersion(ProtocolVersion version) {
+		this.protocolVersion = version;
+	}
+
+	public int getPoolSize() {
+		return poolSize;
+	}
+
+	public void setPoolSize(int poolSize) {
+		this.poolSize = poolSize;
+	}
+
+	public SslArgs getSslArgs() {
+		return sslArgs;
+	}
+
+	public void setSslArgs(SslArgs sslArgs) {
+		this.sslArgs = sslArgs;
 	}
 
 	public RedisURI getUri() {
@@ -156,9 +220,11 @@ public class RedisURIArgs {
 
 	@Override
 	public String toString() {
-		return "RedisURIArgs [uri=" + uri + ", host=" + host + ", port=" + port + ", socket=" + socket + ", username="
-				+ username + ", password=" + Arrays.toString(password) + ", timeout=" + timeout + ", database="
-				+ database + ", tls=" + tls + ", insecure=" + insecure + ", clientName=" + clientName + "]";
+		return "RedisClientArgs [uri=" + uri + ", host=" + host + ", port=" + port + ", socket=" + socket
+				+ ", username=" + username + ", password=" + RiotUtils.mask(password) + ", timeout=" + timeout
+				+ ", database=" + database + ", tls=" + tls + ", insecure=" + insecure + ", clientName=" + clientName
+				+ ", cluster=" + cluster + ", autoReconnect=" + autoReconnect + ", protocolVersion=" + protocolVersion
+				+ ", poolSize=" + poolSize + ", sslArgs=" + sslArgs + "]";
 	}
 
 }

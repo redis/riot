@@ -22,7 +22,7 @@ public class Step<I, O> {
 	private static final long NO_MAX_ITEM_COUNT = -1;
 	private static final String EMPTY_STRING = "";
 
-	private final String name;
+	protected final String name;
 	private final ItemReader<I> reader;
 	private final ItemWriter<O> writer;
 	private String taskName;

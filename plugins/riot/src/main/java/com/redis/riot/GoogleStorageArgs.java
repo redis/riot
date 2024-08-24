@@ -16,6 +16,7 @@ import com.google.cloud.spring.core.GcpScope;
 import com.google.cloud.spring.core.UserAgentHeaderProvider;
 import com.google.cloud.spring.storage.GoogleStorageResource;
 import com.google.cloud.storage.StorageOptions;
+import com.redis.riot.core.RiotUtils;
 
 import picocli.CommandLine.Option;
 
@@ -86,8 +87,8 @@ public class GoogleStorageArgs {
 
 	@Override
 	public String toString() {
-		return "GoogleStorageArgs [keyFile=" + keyFile + ", projectId=" + projectId + ", encodedKey=" + encodedKey
-				+ ", scope=" + scope + "]";
+		return "GoogleStorageArgs [keyFile=" + keyFile + ", projectId=" + projectId + ", encodedKey="
+				+ RiotUtils.mask(encodedKey) + ", scope=" + scope + "]";
 	}
 
 }

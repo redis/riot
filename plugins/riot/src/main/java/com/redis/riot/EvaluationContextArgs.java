@@ -72,6 +72,14 @@ public class EvaluationContextArgs {
 		this.vars = variables;
 	}
 
+	public String getNumberFormat() {
+		return numberFormat;
+	}
+
+	public void setNumberFormat(String numberFormat) {
+		this.numberFormat = numberFormat;
+	}
+
 	@Override
 	public String toString() {
 		return "EvaluationContextArgs [varExpressions=" + varExpressions + ", dateFormat=" + dateFormat

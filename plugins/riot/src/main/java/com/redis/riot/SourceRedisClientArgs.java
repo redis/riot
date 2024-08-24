@@ -11,7 +11,7 @@ public class SourceRedisClientArgs {
 	@Option(names = "--source-auto-reconnect", description = "Automatically reconnect on connection loss. True by default.", negatable = true, defaultValue = "true", fallbackValue = "true", hidden = true)
 	private boolean autoReconnect = RedisContext.DEFAULT_AUTO_RECONNECT;
 
-	@Option(names = "--source-resp", description = "Redis protocol version used to connect to Redis: ${COMPLETION-CANDIDATES}.", paramLabel = "<ver>")
+	@Option(names = "--source-resp", description = "Redis protocol version used to connect to Redis: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<ver>")
 	private ProtocolVersion protocolVersion = RedisContext.DEFAULT_PROTOCOL_VERSION;
 
 	@Option(names = "--source-pool", description = "Max pool connections used for source Redis (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")

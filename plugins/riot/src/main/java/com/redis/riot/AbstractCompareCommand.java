@@ -15,7 +15,7 @@ import com.redis.spring.batch.item.redis.reader.RedisScanSizeEstimator;
 import io.lettuce.core.codec.ByteArrayCodec;
 import picocli.CommandLine.Option;
 
-public abstract class AbstractCompareCommand extends AbstractTargetCommand {
+public abstract class AbstractCompareCommand extends AbstractRedisToRedisCommand {
 
 	public static final Duration DEFAULT_TTL_TOLERANCE = DefaultKeyComparator.DEFAULT_TTL_TOLERANCE;
 	public static final String COMPARE_STEP_NAME = "compare";
@@ -36,8 +36,8 @@ public abstract class AbstractCompareCommand extends AbstractTargetCommand {
 		return builder.toString();
 	}
 
-	protected Step<KeyComparison<byte[]>, KeyComparison<byte[]>> compareStep(TargetRedisExecutionContext context) {
-		KeyComparisonItemReader<byte[], byte[]> reader = compareReader(context);
+	protected Step<KeyComparison<byte[]>, KeyComparison<byte[]>> compareStep() {
+		KeyComparisonItemReader<byte[], byte[]> reader = compareReader();
 		CompareStatusItemWriter<byte[]> writer = new CompareStatusItemWriter<>();
 		Step<KeyComparison<byte[]>, KeyComparison<byte[]>> step = new Step<>(COMPARE_STEP_NAME, reader, writer);
 		step.taskName(COMPARE_TASK_NAME);
@@ -53,16 +53,18 @@ public abstract class AbstractCompareCommand extends AbstractTargetCommand {
 
 	private RedisItemReader<byte[], byte[], Object> compareRedisReader() {
 		if (isQuickCompare()) {
+			log.info("Creating Redis quick compare reader");
 			return RedisItemReader.type(ByteArrayCodec.INSTANCE);
 		}
+		log.info("Creating Redis full compare reader");
 		return RedisItemReader.struct(ByteArrayCodec.INSTANCE);
 	}
 
 	protected abstract boolean isQuickCompare();
 
-	protected KeyComparisonItemReader<byte[], byte[]> compareReader(TargetRedisExecutionContext context) {
-		RedisItemReader<byte[], byte[], Object> source = compareSourceReader(context);
-		RedisItemReader<byte[], byte[], Object> target = compareTargetReader(context);
+	protected KeyComparisonItemReader<byte[], byte[]> compareReader() {
+		RedisItemReader<byte[], byte[], Object> source = compareSourceReader();
+		RedisItemReader<byte[], byte[], Object> target = compareTargetReader();
 		KeyComparisonItemReader<byte[], byte[]> reader = new KeyComparisonItemReader<>(source, target);
 		reader.setComparator(keyComparator());
 		return reader;
@@ -80,15 +82,15 @@ public abstract class AbstractCompareCommand extends AbstractTargetCommand {
 
 	protected abstract boolean isIgnoreStreamMessageId();
 
-	private RedisItemReader<byte[], byte[], Object> compareSourceReader(TargetRedisExecutionContext context) {
+	private RedisItemReader<byte[], byte[], Object> compareSourceReader() {
 		RedisItemReader<byte[], byte[], Object> reader = compareRedisReader();
-		configureSourceReader(context, reader);
+		configureSourceReader(reader);
 		return reader;
 	}
 
-	private RedisItemReader<byte[], byte[], Object> compareTargetReader(TargetRedisExecutionContext context) {
+	private RedisItemReader<byte[], byte[], Object> compareTargetReader() {
 		RedisItemReader<byte[], byte[], Object> reader = compareRedisReader();
-		configureTargetReader(context, reader);
+		configureTargetReader(reader);
 		return reader;
 	}
 

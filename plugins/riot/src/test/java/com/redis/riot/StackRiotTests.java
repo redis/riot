@@ -762,10 +762,10 @@ class StackRiotTests extends RiotTests {
 	void testMapProcessor() throws Exception {
 		Map<String, Expression> expressions = new LinkedHashMap<>();
 		expressions.put("field1", Expression.parse("'test:1'"));
-		ImportProcessorArgs processorArgs = new ImportProcessorArgs();
-		processorArgs.setExpressions(expressions);
-		ItemProcessor<Map<String, Object>, Map<String, Object>> processor = processorArgs
-				.processor(evaluationContext());
+		ImportProcessorArgs args = new ImportProcessorArgs();
+		args.setExpressions(expressions);
+		ItemProcessor<Map<String, Object>, Map<String, Object>> processor = AbstractImportCommand
+				.processor(evaluationContext(), args);
 		Map<String, Object> map = processor.process(new HashMap<>());
 		Assertions.assertEquals("test:1", map.get("field1"));
 		// Assertions.assertEquals("1", map.get("id"));
@@ -779,9 +779,10 @@ class StackRiotTests extends RiotTests {
 		expressions.put("field3", Expression.parse("1"));
 		expressions.put("field4", Expression.parse("2"));
 		expressions.put("field5", Expression.parse("field3+field4"));
-		ImportProcessorArgs options = new ImportProcessorArgs();
-		options.setExpressions(expressions);
-		ItemProcessor<Map<String, Object>, Map<String, Object>> processor = options.processor(evaluationContext());
+		ImportProcessorArgs args = new ImportProcessorArgs();
+		args.setExpressions(expressions);
+		ItemProcessor<Map<String, Object>, Map<String, Object>> processor = AbstractImportCommand
+				.processor(evaluationContext(), args);
 		for (int index = 0; index < 10; index++) {
 			Map<String, Object> result = processor.process(new HashMap<>());
 			assertEquals(5, result.size());
@@ -799,9 +800,10 @@ class StackRiotTests extends RiotTests {
 
 	@Test
 	void processorFilter() throws Exception {
-		ImportProcessorArgs options = new ImportProcessorArgs();
-		options.setFilter(Expression.parse("index<10"));
-		ItemProcessor<Map<String, Object>, Map<String, Object>> processor = options.processor(evaluationContext());
+		ImportProcessorArgs args = new ImportProcessorArgs();
+		args.setFilter(Expression.parse("index<10"));
+		ItemProcessor<Map<String, Object>, Map<String, Object>> processor = AbstractImportCommand
+				.processor(evaluationContext(), args);
 		for (int index = 0; index < 100; index++) {
 			Map<String, Object> map = new HashMap<>();
 			map.put("index", index);

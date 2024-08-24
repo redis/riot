@@ -25,8 +25,8 @@ public class Compare extends AbstractCompareCommand {
 	}
 
 	@Override
-	protected Job job(TargetRedisExecutionContext context) {
-		return job(context, compareStep(context));
+	protected Job job() {
+		return job(compareStep());
 	}
 
 	public boolean isCompareStreamMessageId() {

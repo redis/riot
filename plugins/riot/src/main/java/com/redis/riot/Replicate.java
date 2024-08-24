@@ -69,14 +69,14 @@ public class Replicate extends AbstractCompareCommand {
 	}
 
 	@Override
-	protected Job job(TargetRedisExecutionContext context) {
+	protected Job job() {
 		List<Step<?, ?>> steps = new ArrayList<>();
-		Step<KeyValue<byte[], Object>, KeyValue<byte[], Object>> replicateStep = step(context);
+		Step<KeyValue<byte[], Object>, KeyValue<byte[], Object>> replicateStep = step();
 		steps.add(replicateStep);
 		if (shouldCompare()) {
-			steps.add(compareStep(context));
+			steps.add(compareStep());
 		}
-		return job(context, steps);
+		return job(steps);
 	}
 
 	@Override
@@ -84,18 +84,18 @@ public class Replicate extends AbstractCompareCommand {
 		return !processorArgs.isPropagateIds();
 	}
 
-	private ItemProcessor<KeyValue<byte[], Object>, KeyValue<byte[], Object>> processor(
-			TargetRedisExecutionContext context) {
-		return RiotUtils.processor(new KeyValueFilter<>(ByteArrayCodec.INSTANCE, log), keyValueProcessor(context));
+	private ItemProcessor<KeyValue<byte[], Object>, KeyValue<byte[], Object>> processor() {
+		return RiotUtils.processor(new KeyValueFilter<>(ByteArrayCodec.INSTANCE, log), keyValueProcessor());
 	}
 
-	private ItemProcessor<KeyValue<byte[], Object>, KeyValue<byte[], Object>> keyValueProcessor(
-			TargetRedisExecutionContext context) {
+	private ItemProcessor<KeyValue<byte[], Object>, KeyValue<byte[], Object>> keyValueProcessor() {
 		if (isIgnoreStreamMessageId()) {
-			Assert.isTrue(isStruct(), "'--no-stream-ids' can only be used with '--struct'");
+			Assert.isTrue(isStruct(), "--no-stream-ids can only be used with --struct");
 		}
+		StandardEvaluationContext evaluationContext = evaluationContext();
+		log.info("Creating processor with {}", processorArgs);
 		ItemProcessor<KeyValue<String, Object>, KeyValue<String, Object>> processor = processorArgs
-				.processor(evaluationContext(context));
+				.processor(evaluationContext);
 		if (processor == null) {
 			return null;
 		}
@@ -104,28 +104,29 @@ public class Replicate extends AbstractCompareCommand {
 		return RiotUtils.processor(new FunctionItemProcessor<>(code), processor, new FunctionItemProcessor<>(decode));
 	}
 
-	private StandardEvaluationContext evaluationContext(TargetRedisExecutionContext context) {
+	private StandardEvaluationContext evaluationContext() {
+		log.info("Creating SpEL evaluation context with {}", evaluationContextArgs);
 		StandardEvaluationContext evaluationContext = evaluationContextArgs.evaluationContext();
-		evaluationContext.setVariable(VAR_SOURCE, context.getSourceRedisContext().getConnection().sync());
-		evaluationContext.setVariable(VAR_TARGET, context.getTargetRedisContext().getConnection().sync());
+		evaluationContext.setVariable(VAR_SOURCE, sourceRedisContext.getConnection().sync());
+		evaluationContext.setVariable(VAR_TARGET, targetRedisContext.getConnection().sync());
 		return evaluationContext;
 	}
 
-	protected void configureTargetWriter(TargetRedisExecutionContext context, RedisItemWriter<?, ?, ?> writer) {
+	protected void configureTargetWriter(RedisItemWriter<?, ?, ?> writer) {
+		targetRedisContext.configure(writer);
 		log.info("Configuring target Redis writer with {}", targetRedisWriterArgs);
 		targetRedisWriterArgs.configure(writer);
-		context.configureTargetWriter(writer);
 	}
 
-	private Step<KeyValue<byte[], Object>, KeyValue<byte[], Object>> step(TargetRedisExecutionContext context) {
+	private Step<KeyValue<byte[], Object>, KeyValue<byte[], Object>> step() {
 		RedisItemReader<byte[], byte[], Object> reader = reader();
-		configureSourceReader(context, reader);
+		configureSourceReader(reader);
 		RedisItemWriter<byte[], byte[], KeyValue<byte[], Object>> writer = writer();
-		configureTargetWriter(context, writer);
-		Step<KeyValue<byte[], Object>, KeyValue<byte[], Object>> step = new Step<>(STEP_NAME, reader, writer);
-		step.processor(processor(context));
+		configureTargetWriter(writer);
+		RedisExportStep<byte[], byte[], Object, KeyValue<byte[], Object>> step = new RedisExportStep<>(STEP_NAME,
+				reader, writer);
+		step.processor(processor());
 		step.taskName(taskName(reader));
-		AbstractExportCommand.configure(step);
 		if (reader.getMode() != ReaderMode.SCAN) {
 			step.statusMessageSupplier(() -> liveExtraMessage(reader));
 		}
@@ -138,6 +139,7 @@ public class Replicate extends AbstractCompareCommand {
 			reader.addItemReadListener(readLogger);
 			reader.addItemWriteListener(readLogger);
 		}
+		step.afterPropertiesSet();
 		return step;
 	}
 
@@ -148,18 +150,20 @@ public class Replicate extends AbstractCompareCommand {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private RedisItemReader<byte[], byte[], Object> reader() {
 		if (struct) {
-			log.info("Creating data-structure type Redis reader");
+			log.info("Creating Redis data-structure reader");
 			return RedisItemReader.struct(ByteArrayCodec.INSTANCE);
 		}
-		log.info("Creating dump Redis reader");
+		log.info("Creating Redis dump reader");
 		return (RedisItemReader) RedisItemReader.dump();
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private RedisItemWriter<byte[], byte[], KeyValue<byte[], Object>> writer() {
 		if (struct) {
+			log.info("Creating Redis data-structure writer");
 			return RedisItemWriter.struct(ByteArrayCodec.INSTANCE);
 		}
+		log.info("Creating Redis dump writer");
 		return (RedisItemWriter) RedisItemWriter.dump();
 	}
 
@@ -185,9 +189,9 @@ public class Replicate extends AbstractCompareCommand {
 	}
 
 	@Override
-	protected KeyComparisonItemReader<byte[], byte[]> compareReader(TargetRedisExecutionContext context) {
-		KeyComparisonItemReader<byte[], byte[]> reader = super.compareReader(context);
-		reader.setProcessor(processor(context));
+	protected KeyComparisonItemReader<byte[], byte[]> compareReader() {
+		KeyComparisonItemReader<byte[], byte[]> reader = super.compareReader();
+		reader.setProcessor(processor());
 		return reader;
 	}
 

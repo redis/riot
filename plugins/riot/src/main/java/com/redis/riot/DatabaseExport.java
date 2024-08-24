@@ -7,6 +7,8 @@ import javax.sql.DataSource;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
 import picocli.CommandLine.ArgGroup;
@@ -15,7 +17,7 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 @Command(name = "db-export", description = "Export Redis data to a relational database.")
-public class DatabaseExport extends AbstractExportCommand<RedisExecutionContext> {
+public class DatabaseExport extends AbstractExportCommand {
 
 	public static final boolean DEFAULT_ASSERT_UPDATES = true;
 
@@ -29,19 +31,14 @@ public class DatabaseExport extends AbstractExportCommand<RedisExecutionContext>
 	private boolean assertUpdates = DEFAULT_ASSERT_UPDATES;
 
 	@Override
-	protected RedisExecutionContext newExecutionContext() {
-		return new RedisExecutionContext();
-	}
-
-	@Override
-	protected Job job(RedisExecutionContext context) {
-		return job(context, step(context, writer()).processor(mapProcessor()));
+	protected Job job() {
+		return job(step(writer()).processor(mapProcessor()));
 	}
 
 	private JdbcBatchItemWriter<Map<String, Object>> writer() {
 		Assert.hasLength(sql, "No SQL statement specified");
 		log.info("Creating data source with {}", dataSourceArgs);
-		DataSource dataSource = DatabaseHelper.dataSource(dataSourceArgs);
+		DataSource dataSource = dataSourceArgs.dataSource();
 		log.info("Creating JDBC writer with sql=\"{}\" assertUpdates={}", sql, assertUpdates);
 		JdbcBatchItemWriterBuilder<Map<String, Object>> builder = new JdbcBatchItemWriterBuilder<>();
 		builder.itemSqlParameterSourceProvider(NullableSqlParameterSource::new);
@@ -51,6 +48,23 @@ public class DatabaseExport extends AbstractExportCommand<RedisExecutionContext>
 		JdbcBatchItemWriter<Map<String, Object>> writer = builder.build();
 		writer.afterPropertiesSet();
 		return writer;
+	}
+
+	private static class NullableSqlParameterSource extends MapSqlParameterSource {
+
+		public NullableSqlParameterSource(@Nullable Map<String, ?> values) {
+			super(values);
+		}
+
+		@Override
+		@Nullable
+		public Object getValue(String paramName) {
+			if (!hasValue(paramName)) {
+				return null;
+			}
+			return super.getValue(paramName);
+		}
+
 	}
 
 	public String getSql() {

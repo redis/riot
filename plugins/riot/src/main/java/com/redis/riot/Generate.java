@@ -19,7 +19,7 @@ import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 
 @Command(name = "generate", description = "Generate Redis data structures.")
-public class Generate extends AbstractRedisCommand<RedisExecutionContext> {
+public class Generate extends AbstractRedisCommand {
 
 	private static final String TASK_NAME = "Generating";
 	private static final String STEP_NAME = "step";
@@ -31,24 +31,24 @@ public class Generate extends AbstractRedisCommand<RedisExecutionContext> {
 	private RedisWriterArgs redisWriterArgs = new RedisWriterArgs();
 
 	@Override
-	protected RedisExecutionContext newExecutionContext() {
-		return new RedisExecutionContext();
-	}
-
-	@Override
-	protected Job job(RedisExecutionContext context) {
+	protected Job job() {
 		if (StringUtils.hasLength(generateArgs.getIndex())) {
-			StatefulRedisModulesConnection<String, String> connection = context.getRedisContext().getConnection();
+			StatefulRedisModulesConnection<String, String> connection = redisContext.getConnection();
 			connection.sync().ftCreate(generateArgs.getIndex(), indexCreateOptions(), indexFields());
 		}
-		RedisItemWriter<String, String, KeyValue<String, Object>> writer = RedisItemWriter.struct();
-		log.info("Configuring Redis writer with {}", redisWriterArgs);
-		redisWriterArgs.configure(writer);
-		context.configure(writer);
+		RedisItemWriter<String, String, KeyValue<String, Object>> writer = writer();
 		Step<KeyValue<String, Object>, KeyValue<String, Object>> step = new Step<>(STEP_NAME, reader(), writer);
 		step.taskName(TASK_NAME);
 		step.maxItemCount(generateArgs.getCount());
-		return job(context, step);
+		return job(step);
+	}
+
+	private RedisItemWriter<String, String, KeyValue<String, Object>> writer() {
+		RedisItemWriter<String, String, KeyValue<String, Object>> writer = RedisItemWriter.struct();
+		configure(writer);
+		log.info("Configuring Redis writer with {}", redisWriterArgs);
+		redisWriterArgs.configure(writer);
+		return writer;
 	}
 
 	private CreateOptions<String, String> indexCreateOptions() {

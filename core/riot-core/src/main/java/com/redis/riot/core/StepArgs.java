@@ -1,11 +1,6 @@
 package com.redis.riot.core;
 
-import org.springframework.batch.core.step.skip.AlwaysSkipItemSkipPolicy;
-import org.springframework.batch.core.step.skip.LimitCheckingItemSkipPolicy;
-import org.springframework.batch.core.step.skip.NeverSkipItemSkipPolicy;
-import org.springframework.retry.policy.AlwaysRetryPolicy;
 import org.springframework.retry.policy.MaxAttemptsRetryPolicy;
-import org.springframework.retry.policy.NeverRetryPolicy;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
@@ -122,29 +117,6 @@ public class StepArgs {
 		return "StepArgs [sleep=" + sleep + ", threads=" + threads + ", chunkSize=" + chunkSize + ", dryRun=" + dryRun
 				+ ", skipPolicy=" + skipPolicy + ", skipLimit=" + skipLimit + ", retryPolicy=" + retryPolicy
 				+ ", retryLimit=" + retryLimit + ", progressArgs=" + progressArgs + "]";
-	}
-
-	public org.springframework.batch.core.step.skip.SkipPolicy skipPolicy() {
-		switch (skipPolicy) {
-		case ALWAYS:
-			return new AlwaysSkipItemSkipPolicy();
-		case NEVER:
-			return new NeverSkipItemSkipPolicy();
-		default:
-			return new LimitCheckingItemSkipPolicy();
-		}
-	}
-
-	public org.springframework.retry.RetryPolicy retryPolicy() {
-		switch (retryPolicy) {
-		case ALWAYS:
-			return new AlwaysRetryPolicy();
-		case NEVER:
-			return new NeverRetryPolicy();
-		default:
-			return new MaxAttemptsRetryPolicy();
-		}
-
 	}
 
 }

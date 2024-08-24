@@ -9,7 +9,7 @@ public class PrintExceptionMessageHandler implements IExecutionExceptionHandler 
 	public int handleExecutionException(Exception ex, CommandLine cmd, ParseResult parseResult) {
 
 		if (cmd.getCommand() instanceof AbstractCommand) {
-			if (((AbstractCommand<?>) cmd.getCommand()).getLoggingArgs().isStacktrace()) {
+			if (((AbstractCommand) cmd.getCommand()).getLoggingArgs().isStacktrace()) {
 				ex.printStackTrace(cmd.getErr());
 			}
 		}

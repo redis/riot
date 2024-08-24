@@ -84,7 +84,7 @@ public class Main extends BaseCommand implements Runnable, IO {
 		for (ParseResult subcommand : parseResult.subcommands()) {
 			Object command = subcommand.commandSpec().userObject();
 			if (AbstractImportCommand.class.isAssignableFrom(command.getClass())) {
-				AbstractImportCommand<?> importCommand = (AbstractImportCommand<?>) command;
+				AbstractImportCommand importCommand = (AbstractImportCommand) command;
 				for (ParseResult redisCommand : subcommand.subcommands()) {
 					if (redisCommand.isUsageHelpRequested()) {
 						return new RunLast().execute(redisCommand);

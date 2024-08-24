@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -23,10 +24,29 @@ import org.springframework.batch.item.function.FunctionItemProcessor;
 import org.springframework.batch.item.support.CompositeItemProcessor;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.ClassUtils;
+import org.springframework.util.ObjectUtils;
 
 public abstract class RiotUtils {
 
 	private RiotUtils() {
+	}
+
+	public static String mask(char[] password) {
+		if (ObjectUtils.isEmpty(password)) {
+			return null;
+		}
+		return mask(password.length);
+	}
+
+	private static String mask(int length) {
+		return IntStream.range(0, length).mapToObj(i -> "*").collect(Collectors.joining());
+	}
+
+	public static String mask(String password) {
+		if (ObjectUtils.isEmpty(password)) {
+			return null;
+		}
+		return mask(password.length());
 	}
 
 	public static <S, T> ItemProcessor<S, T> processor(Collection<? extends Function<?, ?>> functions) {

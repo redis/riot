@@ -13,7 +13,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Command
-public abstract class AbstractCommand<C extends ExecutionContext> extends BaseCommand implements Callable<Integer> {
+public abstract class AbstractCommand extends BaseCommand implements Callable<Integer> {
 
 	@Option(names = "--help", usageHelp = true, description = "Show this help message and exit.")
 	private boolean helpRequested;
@@ -29,14 +29,11 @@ public abstract class AbstractCommand<C extends ExecutionContext> extends BaseCo
 			setupLogging();
 			log = LoggerFactory.getLogger(getClass());
 		}
-		try (C context = executionContext()) {
-			context.afterPropertiesSet();
-			execute(context);
-		}
+		execute();
 		return 0;
 	}
 
-	protected abstract C executionContext();
+	protected abstract void execute() throws Exception;
 
 	private void setupLogging() {
 		Level level = logLevel();
@@ -72,8 +69,6 @@ public abstract class AbstractCommand<C extends ExecutionContext> extends BaseCo
 	private static void setBoolean(String property, boolean value) {
 		System.setProperty(property, String.valueOf(value));
 	}
-
-	protected abstract void execute(C context);
 
 	public LoggingArgs getLoggingArgs() {
 		return loggingArgs;

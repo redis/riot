@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
+import org.springframework.batch.item.function.FunctionItemProcessor;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.Assert;
@@ -15,7 +16,9 @@ import org.springframework.util.CollectionUtils;
 
 import com.redis.riot.core.Expression;
 import com.redis.riot.core.QuietMapAccessor;
+import com.redis.riot.core.RiotUtils;
 import com.redis.riot.core.Step;
+import com.redis.riot.core.processor.PredicateOperator;
 import com.redis.riot.operation.DelCommand;
 import com.redis.riot.operation.ExpireCommand;
 import com.redis.riot.operation.GeoaddCommand;
@@ -41,7 +44,7 @@ import picocli.CommandLine.Command;
 		LpushCommand.class, RpushCommand.class, SaddCommand.class, SetCommand.class, XaddCommand.class,
 		ZaddCommand.class, SugaddCommand.class, JsonSetCommand.class,
 		TsAddCommand.class }, subcommandsRepeatable = true, synopsisSubcommandLabel = "[REDIS COMMAND...]", commandListHeading = "Redis commands:%n")
-public abstract class AbstractImportCommand<C extends RedisExecutionContext> extends AbstractRedisCommand<C> {
+public abstract class AbstractImportCommand extends AbstractRedisCommand {
 
 	private static final String TASK_NAME = "Importing";
 	private static final String STEP_NAME = "step";
@@ -69,29 +72,43 @@ public abstract class AbstractImportCommand<C extends RedisExecutionContext> ext
 		return !CollectionUtils.isEmpty(importOperationCommands);
 	}
 
-	protected Step<Map<String, Object>, Map<String, Object>> step(C context, ItemReader<Map<String, Object>> reader) {
+	protected Step<Map<String, Object>, Map<String, Object>> step(ItemReader<Map<String, Object>> reader) {
 		Assert.isTrue(hasOperations(), "No Redis command specified");
 		RedisItemWriter<String, String, Map<String, Object>> writer = operationWriter();
-		configure(context, writer);
+		configure(writer);
 		Step<Map<String, Object>, Map<String, Object>> step = new Step<>(STEP_NAME, reader, writer);
-		step.processor(processor(context));
+		step.processor(processor());
 		step.taskName(TASK_NAME);
 		return step;
 	}
 
-	protected ItemProcessor<Map<String, Object>, Map<String, Object>> processor(C context) {
+	protected ItemProcessor<Map<String, Object>, Map<String, Object>> processor() {
+		log.info("Creating SpEL evaluation context with {}", evaluationContextArgs);
 		StandardEvaluationContext evaluationContext = evaluationContextArgs.evaluationContext();
-		evaluationContext.setVariable(VAR_REDIS, context.getRedisContext().getConnection().sync());
+		evaluationContext.setVariable(VAR_REDIS, redisContext.getConnection().sync());
 		evaluationContext.addPropertyAccessor(new QuietMapAccessor());
-		return processorArgs.processor(evaluationContext);
+		return processor(evaluationContext, processorArgs);
+	}
+
+	public static ItemProcessor<Map<String, Object>, Map<String, Object>> processor(EvaluationContext evaluationContext,
+			ImportProcessorArgs args) {
+		List<ItemProcessor<Map<String, Object>, Map<String, Object>>> processors = new ArrayList<>();
+		if (args.getFilter() != null) {
+			processors.add(new FunctionItemProcessor<>(
+					new PredicateOperator<>(args.getFilter().predicate(evaluationContext))));
+		}
+		if (!CollectionUtils.isEmpty(args.getExpressions())) {
+			processors.add(new ExpressionProcessor(evaluationContext, args.getExpressions()));
+		}
+		return RiotUtils.processor(processors);
 	}
 
 	protected RedisItemWriter<String, String, Map<String, Object>> operationWriter() {
 		return RedisItemWriter.operation(new MultiOperation<>(operations()));
 	}
 
-	protected void configure(C context, RedisItemWriter<?, ?, ?> writer) {
-		context.configure(writer);
+	protected void configure(RedisItemWriter<?, ?, ?> writer) {
+		super.configure(writer);
 		log.info("Configuring Redis writer with {}", redisWriterArgs);
 		redisWriterArgs.configure(writer);
 	}

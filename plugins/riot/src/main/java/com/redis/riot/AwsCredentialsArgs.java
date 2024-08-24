@@ -1,5 +1,7 @@
 package com.redis.riot;
 
+import com.redis.riot.core.RiotUtils;
+
 import picocli.CommandLine.Option;
 
 public class AwsCredentialsArgs {
@@ -28,7 +30,7 @@ public class AwsCredentialsArgs {
 
 	@Override
 	public String toString() {
-		return "AwsCredentialsArgs [accessKey=" + accessKey + ", secretKey=" + secretKey + "]";
+		return "AwsCredentialsArgs [accessKey=" + accessKey + ", secretKey=" + RiotUtils.mask(secretKey) + "]";
 	}
 
 }

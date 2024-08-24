@@ -1,7 +1,8 @@
 package com.redis.riot;
 
 import java.io.File;
-import java.util.Arrays;
+
+import com.redis.riot.core.RiotUtils;
 
 import io.lettuce.core.SslOptions;
 import io.lettuce.core.SslOptions.Builder;
@@ -117,9 +118,9 @@ public class SslArgs {
 
 	@Override
 	public String toString() {
-		return "SslArgs [keystore=" + keystore + ", keystorePassword=" + Arrays.toString(keystorePassword)
-				+ ", truststore=" + truststore + ", truststorePassword=" + Arrays.toString(truststorePassword)
-				+ ", keyCert=" + keyCert + ", key=" + key + ", keyPassword=" + Arrays.toString(keyPassword)
+		return "SslArgs [keystore=" + keystore + ", keystorePassword=" + RiotUtils.mask(keystorePassword)
+				+ ", truststore=" + truststore + ", truststorePassword=" + RiotUtils.mask(truststorePassword)
+				+ ", keyCert=" + keyCert + ", key=" + key + ", keyPassword=" + RiotUtils.mask(keyPassword)
 				+ ", trustedCerts=" + trustedCerts + "]";
 	}
 

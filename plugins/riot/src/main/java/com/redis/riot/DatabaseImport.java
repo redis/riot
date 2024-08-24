@@ -15,7 +15,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
 
 @Command(name = "db-import", description = "Import from a relational database.")
-public class DatabaseImport extends AbstractImportCommand<RedisExecutionContext> {
+public class DatabaseImport extends AbstractImportCommand {
 
 	@ArgGroup(exclusive = false)
 	private DataSourceArgs dataSourceArgs = new DataSourceArgs();
@@ -27,19 +27,14 @@ public class DatabaseImport extends AbstractImportCommand<RedisExecutionContext>
 	private DatabaseReaderArgs readerArgs = new DatabaseReaderArgs();
 
 	@Override
-	protected RedisExecutionContext newExecutionContext() {
-		return new RedisExecutionContext();
-	}
-
-	@Override
-	protected Job job(RedisExecutionContext context) {
-		return job(context, step(context, reader()));
+	protected Job job() {
+		return job(step(reader()));
 	}
 
 	private JdbcCursorItemReader<Map<String, Object>> reader() {
 		Assert.hasLength(sql, "No SQL statement specified");
 		log.info("Creating data source with {}", dataSourceArgs);
-		DataSource dataSource = DatabaseHelper.dataSource(dataSourceArgs);
+		DataSource dataSource = dataSourceArgs.dataSource();
 		log.info("Creating JDBC reader with sql=\"{}\" {}", sql, readerArgs);
 		JdbcCursorItemReaderBuilder<Map<String, Object>> reader = new JdbcCursorItemReaderBuilder<>();
 		reader.dataSource(dataSource);

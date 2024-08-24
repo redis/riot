@@ -1,11 +1,7 @@
 package com.redis.riot;
 
-import java.util.Arrays;
+import com.redis.riot.core.RiotUtils;
 
-import com.redis.lettucemod.RedisURIBuilder;
-
-import io.lettuce.core.RedisURI;
-import io.lettuce.core.SslVerifyMode;
 import picocli.CommandLine.Option;
 
 public class TargetRedisURIArgs {
@@ -18,17 +14,6 @@ public class TargetRedisURIArgs {
 
 	@Option(names = "--target-insecure", description = "Allow insecure TLS connection to target by skipping cert validation.")
 	private boolean insecure;
-
-	public RedisURI redisURI(RedisURI uri) {
-		RedisURIBuilder builder = new RedisURIBuilder();
-		builder.password(password);
-		builder.uri(uri);
-		builder.username(username);
-		if (insecure) {
-			builder.verifyMode(SslVerifyMode.NONE);
-		}
-		return builder.build();
-	}
 
 	public String getUsername() {
 		return username;
@@ -56,7 +41,7 @@ public class TargetRedisURIArgs {
 
 	@Override
 	public String toString() {
-		return "TargetRedisURIArgs [username=" + username + ", password=" + Arrays.toString(password) + ", insecure="
+		return "TargetRedisURIArgs [username=" + username + ", password=" + RiotUtils.mask(password) + ", insecure="
 				+ insecure + "]";
 	}
 

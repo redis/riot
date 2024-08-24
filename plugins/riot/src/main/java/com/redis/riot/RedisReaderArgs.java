@@ -25,7 +25,6 @@ public class RedisReaderArgs {
 	public static final Duration DEFAULT_POLL_TIMEOUT = AbstractPollableItemReader.DEFAULT_POLL_TIMEOUT;
 	public static final int DEFAULT_THREADS = AbstractAsyncItemReader.DEFAULT_THREADS;
 	public static final int DEFAULT_CHUNK_SIZE = AbstractAsyncItemReader.DEFAULT_CHUNK_SIZE;
-	public static final DataSize DEFAULT_MEMORY_USAGE_LIMIT = DataSize.ofBytes(-1);
 	public static final int DEFAULT_MEMORY_USAGE_SAMPLES = KeyValueRead.DEFAULT_MEM_USAGE_SAMPLES;
 	public static final long DEFAULT_SCAN_COUNT = 1000;
 	public static final Duration DEFAULT_FLUSH_INTERVAL = RedisItemReader.DEFAULT_FLUSH_INTERVAL;
@@ -55,8 +54,8 @@ public class RedisReaderArgs {
 	@Option(names = "--read-from", description = "Which Redis cluster nodes to read from: ${COMPLETION-CANDIDATES}.", paramLabel = "<name>")
 	private RedisReadFrom readFrom;
 
-	@Option(names = "--mem-limit", description = "Max mem usage for a key to be read. Use 0 for no limit, -1 to disable (default). Examples: 12KB, 5MB", paramLabel = "<size>")
-	private DataSize memUsageLimit = DEFAULT_MEMORY_USAGE_LIMIT;
+	@Option(names = "--mem-limit", description = "Max mem usage for a key to be read, for example 12KB 5MB. Use 0 for no limit but still read mem usage.", paramLabel = "<size>")
+	private DataSize memUsageLimit;
 
 	@Option(names = "--mem-samples", description = "Number of memory usage samples for a key (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	private int memUsageSamples = DEFAULT_MEMORY_USAGE_SAMPLES;
@@ -82,7 +81,7 @@ public class RedisReaderArgs {
 	@Option(names = "--read-poll", description = "Interval in millis between queue polls (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>", hidden = true)
 	private long pollTimeout = DEFAULT_POLL_TIMEOUT.toMillis();
 
-	public <K, V, T> void configure(RedisItemReader<K, V, T> reader) {
+	public <K> void configure(RedisItemReader<K, ?, ?> reader) {
 		reader.setChunkSize(chunkSize);
 		reader.setFlushInterval(Duration.ofMillis(flushInterval));
 		if (idleTimeout > 0) {
@@ -93,7 +92,7 @@ public class RedisReaderArgs {
 		reader.setMode(mode);
 		reader.setNotificationQueueCapacity(notificationQueueCapacity);
 		reader.setPollTimeout(Duration.ofMillis(pollTimeout));
-		reader.setProcessor(keyProcessor(reader.getCodec()));
+		reader.setProcessor(keyProcessor(reader.getCodec(), keyFilterArgs));
 		reader.setQueueCapacity(queueCapacity);
 		if (readFrom != null) {
 			reader.setReadFrom(readFrom.getReadFrom());
@@ -102,16 +101,16 @@ public class RedisReaderArgs {
 		reader.setScanCount(scanCount);
 		reader.setSkipLimit(skipLimit);
 		reader.setThreads(threads);
-		if (reader.getOperation() instanceof KeyValueRead) {
+		if (memUsageLimit != null && reader.getOperation() instanceof KeyValueRead) {
 			@SuppressWarnings("rawtypes")
 			KeyValueRead operation = (KeyValueRead) reader.getOperation();
-			operation.setMemUsageLimit(memUsageLimit);
+			operation.setMemUsageLimit(memUsageLimit.toBytes());
 			operation.setMemUsageSamples(memUsageSamples);
 		}
 	}
 
-	private <K> ItemProcessor<KeyEvent<K>, KeyEvent<K>> keyProcessor(RedisCodec<K, ?> codec) {
-		return keyFilterArgs.predicate(codec).map(p -> new FunctionPredicate<KeyEvent<K>, K>(KeyEvent::getKey, p))
+	private <K> ItemProcessor<KeyEvent<K>, KeyEvent<K>> keyProcessor(RedisCodec<K, ?> codec, KeyFilterArgs args) {
+		return args.predicate(codec).map(p -> new FunctionPredicate<KeyEvent<K>, K>(KeyEvent::getKey, p))
 				.map(PredicateOperator::new).map(FunctionItemProcessor::new).orElse(null);
 	}
 
@@ -225,6 +224,30 @@ public class RedisReaderArgs {
 
 	public void setMode(ReaderMode mode) {
 		this.mode = mode;
+	}
+
+	public long getPollTimeout() {
+		return pollTimeout;
+	}
+
+	public void setPollTimeout(long pollTimeout) {
+		this.pollTimeout = pollTimeout;
+	}
+
+	public int getRetryLimit() {
+		return retryLimit;
+	}
+
+	public void setRetryLimit(int retryLimit) {
+		this.retryLimit = retryLimit;
+	}
+
+	public int getSkipLimit() {
+		return skipLimit;
+	}
+
+	public void setSkipLimit(int skipLimit) {
+		this.skipLimit = skipLimit;
 	}
 
 	@Override

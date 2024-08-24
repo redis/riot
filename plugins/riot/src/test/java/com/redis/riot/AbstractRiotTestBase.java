@@ -102,21 +102,21 @@ abstract class AbstractRiotTestBase extends AbstractTargetTestBase {
 				command = subParseResult.commandSpec().parent().commandLine().getCommand();
 			}
 			if (command instanceof AbstractJobCommand) {
-				AbstractJobCommand<?> jobCommand = ((AbstractJobCommand<?>) command);
+				AbstractJobCommand jobCommand = ((AbstractJobCommand) command);
 				jobCommand.getJobArgs().getProgressArgs().setStyle(ProgressStyle.NONE);
 				jobCommand.setJobName(name(info));
 			}
 			if (command instanceof AbstractRedisCommand) {
-				AbstractRedisCommand<?> redisCommand = (AbstractRedisCommand<?>) command;
-				redisCommand.getRedisURIArgs().setUri(redisURI);
-				redisCommand.getRedisClientArgs().setCluster(getRedisServer().isRedisCluster());
+				AbstractRedisCommand redisCommand = (AbstractRedisCommand) command;
+				redisCommand.getRedisArgs().setUri(redisURI);
+				redisCommand.getRedisArgs().setCluster(getRedisServer().isRedisCluster());
 			}
 			if (command instanceof AbstractExportCommand) {
-				AbstractExportCommand<?> exportCommand = (AbstractExportCommand<?>) command;
+				AbstractExportCommand exportCommand = (AbstractExportCommand) command;
 				configure(exportCommand.getRedisReaderArgs());
 			}
-			if (command instanceof AbstractTargetCommand) {
-				AbstractTargetCommand targetCommand = (AbstractTargetCommand) command;
+			if (command instanceof AbstractRedisToRedisCommand) {
+				AbstractRedisToRedisCommand targetCommand = (AbstractRedisToRedisCommand) command;
 				configure(targetCommand.getSourceRedisReaderArgs());
 				targetCommand.setSourceRedisURI(redisURI);
 				targetCommand.getSourceRedisClientArgs().setCluster(getRedisServer().isRedisCluster());

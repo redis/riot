@@ -13,7 +13,7 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 @Command(name = "faker", description = "Import Faker data.")
-public class FakerImport extends AbstractImportCommand<RedisExecutionContext> {
+public class FakerImport extends AbstractImportCommand {
 
 	public static final int DEFAULT_COUNT = 1000;
 	public static final Locale DEFAULT_LOCALE = Locale.ENGLISH;
@@ -31,13 +31,8 @@ public class FakerImport extends AbstractImportCommand<RedisExecutionContext> {
 	private Locale locale = DEFAULT_LOCALE;
 
 	@Override
-	protected RedisExecutionContext newExecutionContext() {
-		return new RedisExecutionContext();
-	}
-
-	@Override
-	protected Job job(RedisExecutionContext context) {
-		return job(context, step(context, reader()).maxItemCount(count));
+	protected Job job() {
+		return job(step(reader()).maxItemCount(count));
 	}
 
 	private FakerItemReader reader() {

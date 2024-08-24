@@ -1,5 +1,11 @@
 package com.redis.riot;
 
+import javax.sql.DataSource;
+
+import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
+
+import com.redis.riot.core.RiotUtils;
+
 import picocli.CommandLine.Option;
 
 public class DataSourceArgs {
@@ -50,8 +56,17 @@ public class DataSourceArgs {
 
 	@Override
 	public String toString() {
-		return "DataSourceArgs [driver=" + driver + ", url=" + url + ", username=" + username + ", password=" + password
-				+ "]";
+		return "DataSourceArgs [driver=" + driver + ", url=" + url + ", username=" + username + ", password="
+				+ RiotUtils.mask(password) + "]";
+	}
+
+	public DataSource dataSource() {
+		DataSourceProperties properties = new DataSourceProperties();
+		properties.setUrl(url);
+		properties.setDriverClassName(driver);
+		properties.setUsername(username);
+		properties.setPassword(password);
+		return properties.initializeDataSourceBuilder().build();
 	}
 
 }

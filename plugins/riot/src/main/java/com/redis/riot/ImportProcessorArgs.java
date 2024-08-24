@@ -1,18 +1,8 @@
 package com.redis.riot;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
-import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.function.FunctionItemProcessor;
-import org.springframework.expression.EvaluationContext;
-import org.springframework.util.CollectionUtils;
-
-import com.redis.riot.AbstractImportCommand.ExpressionProcessor;
 import com.redis.riot.core.Expression;
-import com.redis.riot.core.RiotUtils;
-import com.redis.riot.core.processor.PredicateOperator;
 
 import picocli.CommandLine.Option;
 
@@ -23,17 +13,6 @@ public class ImportProcessorArgs {
 
 	@Option(names = "--filter", description = "Discard records using a SpEL expression.", paramLabel = "<exp>")
 	private Expression filter;
-
-	public ItemProcessor<Map<String, Object>, Map<String, Object>> processor(EvaluationContext context) {
-		List<ItemProcessor<Map<String, Object>, Map<String, Object>>> processors = new ArrayList<>();
-		if (filter != null) {
-			processors.add(new FunctionItemProcessor<>(new PredicateOperator<>(filter.predicate(context))));
-		}
-		if (!CollectionUtils.isEmpty(expressions)) {
-			processors.add(new ExpressionProcessor(context, expressions));
-		}
-		return RiotUtils.processor(processors);
-	}
 
 	public Map<String, Expression> getExpressions() {
 		return expressions;

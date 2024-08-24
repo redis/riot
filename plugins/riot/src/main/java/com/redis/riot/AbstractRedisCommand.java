@@ -1,52 +1,43 @@
 package com.redis.riot;
 
 import com.redis.riot.core.AbstractJobCommand;
+import com.redis.spring.batch.item.redis.RedisItemReader;
+import com.redis.spring.batch.item.redis.RedisItemWriter;
 
-import io.lettuce.core.RedisURI;
 import picocli.CommandLine.ArgGroup;
 
-public abstract class AbstractRedisCommand<C extends RedisExecutionContext> extends AbstractJobCommand<C> {
+public abstract class AbstractRedisCommand extends AbstractJobCommand {
 
 	@ArgGroup(exclusive = false)
-	private RedisURIArgs redisURIArgs = new RedisURIArgs();
+	private RedisArgs redisArgs = new RedisArgs();
 
-	@ArgGroup(exclusive = false)
-	private RedisClientArgs redisClientArgs = new RedisClientArgs();
+	protected RedisContext redisContext;
 
 	@Override
-	protected C executionContext() {
-		C context = super.executionContext();
-		context.setRedisContext(redisContext());
-		return context;
+	protected void execute() throws Exception {
+		redisContext = redisArgs.redisContext();
+		try {
+			super.execute();
+		} finally {
+			redisContext.close();
+		}
 	}
 
-	private RedisContext redisContext() {
-		RedisURI redisURI = redisURIArgs.redisURI();
-		log.info("Creating Redis context with URI {} and {}", redisURI, redisClientArgs);
-		RedisContext context = new RedisContext();
-		context.setAutoReconnect(redisClientArgs.isAutoReconnect());
-		context.setCluster(redisClientArgs.isCluster());
-		context.setPoolSize(redisClientArgs.getPoolSize());
-		context.setProtocolVersion(redisClientArgs.getProtocolVersion());
-		context.setSslOptions(redisClientArgs.getSslArgs().sslOptions());
-		context.setUri(redisURI);
-		return context;
+	protected void configure(RedisItemReader<?, ?, ?> reader) {
+		configureAsyncReader(reader);
+		redisContext.configure(reader);
 	}
 
-	public RedisURIArgs getRedisURIArgs() {
-		return redisURIArgs;
+	protected void configure(RedisItemWriter<?, ?, ?> writer) {
+		redisContext.configure(writer);
 	}
 
-	public void setRedisURIArgs(RedisURIArgs argfs) {
-		this.redisURIArgs = argfs;
+	public RedisArgs getRedisArgs() {
+		return redisArgs;
 	}
 
-	public RedisClientArgs getRedisClientArgs() {
-		return redisClientArgs;
-	}
-
-	public void setRedisClientArgs(RedisClientArgs clientArgs) {
-		this.redisClientArgs = clientArgs;
+	public void setRedisArgs(RedisArgs clientArgs) {
+		this.redisArgs = clientArgs;
 	}
 
 }
