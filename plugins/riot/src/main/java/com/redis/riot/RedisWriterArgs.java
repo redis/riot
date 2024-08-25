@@ -25,7 +25,7 @@ public class RedisWriterArgs {
 	@Option(names = "--merge", description = "Merge properties from collection data structures (`hash`, `set`, ...) instead of overwriting them.")
 	private boolean merge;
 
-	protected <K, V, T> void configure(RedisItemWriter<K, V, T> writer) {
+	public <K, V, T> void configure(RedisItemWriter<K, V, T> writer) {
 		writer.setMultiExec(multiExec);
 		writer.setWaitReplicas(waitReplicas);
 		writer.setWaitTimeout(waitTimeout);
