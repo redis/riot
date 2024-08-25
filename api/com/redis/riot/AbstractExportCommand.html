@@ -70,14 +70,14 @@ loadScripts(document, 'script');</script>
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
 <div class="sub-title"><span class="package-label-in-type">Package</span>&nbsp;<a href="package-summary.html">com.redis.riot</a></div>
-<h1 title="Class AbstractExportCommand" class="title">Class AbstractExportCommand&lt;C extends <a href="RedisExecutionContext.html" title="class in com.redis.riot">RedisExecutionContext</a>&gt;</h1>
+<h1 title="Class AbstractExportCommand" class="title">Class AbstractExportCommand</h1>
 </div>
 <div class="inheritance" title="Inheritance Tree"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">java.lang.Object</a>
 <div class="inheritance"><a href="core/BaseCommand.html" title="class in com.redis.riot.core">com.redis.riot.core.BaseCommand</a>
-<div class="inheritance"><a href="core/AbstractCommand.html" title="class in com.redis.riot.core">com.redis.riot.core.AbstractCommand</a>&lt;C&gt;
-<div class="inheritance"><a href="core/AbstractJobCommand.html" title="class in com.redis.riot.core">com.redis.riot.core.AbstractJobCommand</a>&lt;C&gt;
-<div class="inheritance"><a href="AbstractRedisCommand.html" title="class in com.redis.riot">com.redis.riot.AbstractRedisCommand</a>&lt;C&gt;
-<div class="inheritance">com.redis.riot.AbstractExportCommand&lt;C&gt;</div>
+<div class="inheritance"><a href="core/AbstractCommand.html" title="class in com.redis.riot.core">com.redis.riot.core.AbstractCommand</a>
+<div class="inheritance"><a href="core/AbstractJobCommand.html" title="class in com.redis.riot.core">com.redis.riot.core.AbstractJobCommand</a>
+<div class="inheritance"><a href="AbstractRedisCommand.html" title="class in com.redis.riot">com.redis.riot.AbstractRedisCommand</a>
+<div class="inheritance">com.redis.riot.AbstractExportCommand</div>
 </div>
 </div>
 </div>
@@ -93,8 +93,8 @@ loadScripts(document, 'script');</script>
 <dd><code><a href="DatabaseExport.html" title="class in com.redis.riot">DatabaseExport</a></code>, <code><a href="FileExport.html" title="class in com.redis.riot">FileExport</a></code></dd>
 </dl>
 <hr>
-<div class="type-signature"><span class="modifiers">public abstract class </span><span class="element-name type-name-label">AbstractExportCommand&lt;C extends <a href="RedisExecutionContext.html" title="class in com.redis.riot">RedisExecutionContext</a>&gt;</span>
-<span class="extends-implements">extends <a href="AbstractRedisCommand.html" title="class in com.redis.riot">AbstractRedisCommand</a>&lt;C&gt;</span></div>
+<div class="type-signature"><span class="modifiers">public abstract class </span><span class="element-name type-name-label">AbstractExportCommand</span>
+<span class="extends-implements">extends <a href="AbstractRedisCommand.html" title="class in com.redis.riot">AbstractRedisCommand</a></span></div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -102,6 +102,9 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="field-summary" id="field-summary">
 <h2>Field Summary</h2>
+<div class="inherited-list">
+<h3 id="fields-inherited-from-class-com.redis.riot.AbstractRedisCommand">Fields inherited from class&nbsp;com.redis.riot.<a href="AbstractRedisCommand.html" title="class in com.redis.riot">AbstractRedisCommand</a></h3>
+<code><a href="AbstractRedisCommand.html#redisContext">redisContext</a></code></div>
 <div class="inherited-list">
 <h3 id="fields-inherited-from-class-com.redis.riot.core.AbstractJobCommand">Fields inherited from class&nbsp;com.redis.riot.core.<a href="core/AbstractJobCommand.html" title="class in com.redis.riot.core">AbstractJobCommand</a></h3>
 <code><a href="core/AbstractJobCommand.html#DEFAULT_JOB_REPOSITORY_NAME">DEFAULT_JOB_REPOSITORY_NAME</a></code></div>
@@ -131,47 +134,42 @@ loadScripts(document, 'script');</script>
 <section class="method-summary" id="method-summary">
 <h2>Method Summary</h2>
 <div id="method-summary-table">
-<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="method-summary-table-tab0" role="tab" aria-selected="true" aria-controls="method-summary-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table', 3)" class="active-table-tab">All Methods</button><button id="method-summary-table-tab1" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab1', 3)" class="table-tab">Static Methods</button><button id="method-summary-table-tab2" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab2', 3)" class="table-tab">Instance Methods</button><button id="method-summary-table-tab4" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab4', 3)" class="table-tab">Concrete Methods</button></div>
+<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="method-summary-table-tab0" role="tab" aria-selected="true" aria-controls="method-summary-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table', 3)" class="active-table-tab">All Methods</button><button id="method-summary-table-tab2" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab2', 3)" class="table-tab">Instance Methods</button><button id="method-summary-table-tab4" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab4', 3)" class="table-tab">Concrete Methods</button></div>
 <div id="method-summary-table.tabpanel" role="tabpanel" aria-labelledby="method-summary-table-tab0">
 <div class="summary-table three-column-summary">
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#configure(com.redis.riot.core.Step)" class="member-name-link">configure</a><wbr>(<a href="core/Step.html" title="class in com.redis.riot.core">Step</a>&lt;?,<wbr>?&gt;&nbsp;step)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#configure(C,com.redis.spring.batch.item.redis.RedisItemReader)" class="member-name-link">configure</a><wbr>(<a href="AbstractExportCommand.html" title="type parameter in AbstractExportCommand">C</a>&nbsp;context,
- com.redis.spring.batch.item.redis.RedisItemReader&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;&nbsp;reader)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/regex/Pattern.html" title="class or interface in java.util.regex" class="external-link">Pattern</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getKeyRegex()" class="member-name-link">getKeyRegex</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#configure(com.redis.spring.batch.item.redis.RedisItemReader)" class="member-name-link">configure</a><wbr>(com.redis.spring.batch.item.redis.RedisItemReader&lt;?,<wbr>?,<wbr>?&gt;&nbsp;reader)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="RedisReaderArgs.html" title="class in com.redis.riot">RedisReaderArgs</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getRedisReaderArgs()" class="member-name-link">getRedisReaderArgs</a>()</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/regex/Pattern.html" title="class or interface in java.util.regex" class="external-link">Pattern</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getKeyRegex()" class="member-name-link">getKeyRegex</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected org.springframework.batch.item.ItemProcessor&lt;com.redis.spring.batch.item.redis.common.KeyValue&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#mapProcessor()" class="member-name-link">mapProcessor</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="RedisReaderArgs.html" title="class in com.redis.riot">RedisReaderArgs</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getRedisReaderArgs()" class="member-name-link">getRedisReaderArgs</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setKeyRegex(java.util.regex.Pattern)" class="member-name-link">setKeyRegex</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/regex/Pattern.html" title="class or interface in java.util.regex" class="external-link">Pattern</a>&nbsp;regex)</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected org.springframework.batch.item.ItemProcessor&lt;com.redis.spring.batch.item.redis.common.KeyValue&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#mapProcessor()" class="member-name-link">mapProcessor</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setRedisReaderArgs(com.redis.riot.RedisReaderArgs)" class="member-name-link">setRedisReaderArgs</a><wbr>(<a href="RedisReaderArgs.html" title="class in com.redis.riot">RedisReaderArgs</a>&nbsp;args)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setKeyRegex(java.util.regex.Pattern)" class="member-name-link">setKeyRegex</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/regex/Pattern.html" title="class or interface in java.util.regex" class="external-link">Pattern</a>&nbsp;regex)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected &lt;T&gt;&nbsp;<a href="core/Step.html" title="class in com.redis.riot.core">Step</a>&lt;com.redis.spring.batch.item.redis.common.KeyValue&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;,<wbr>T&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#step(C,org.springframework.batch.item.ItemWriter)" class="member-name-link">step</a><wbr>(<a href="AbstractExportCommand.html" title="type parameter in AbstractExportCommand">C</a>&nbsp;context,
- org.springframework.batch.item.ItemWriter&lt;T&gt;&nbsp;writer)</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setRedisReaderArgs(com.redis.riot.RedisReaderArgs)" class="member-name-link">setRedisReaderArgs</a><wbr>(<a href="RedisReaderArgs.html" title="class in com.redis.riot">RedisReaderArgs</a>&nbsp;args)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected &lt;T&gt;&nbsp;<a href="core/Step.html" title="class in com.redis.riot.core">Step</a>&lt;com.redis.spring.batch.item.redis.common.KeyValue&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;,<wbr>T&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#step(org.springframework.batch.item.ItemWriter)" class="member-name-link">step</a><wbr>(org.springframework.batch.item.ItemWriter&lt;T&gt;&nbsp;writer)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
 </div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-com.redis.riot.AbstractRedisCommand">Methods inherited from class&nbsp;com.redis.riot.<a href="AbstractRedisCommand.html" title="class in com.redis.riot">AbstractRedisCommand</a></h3>
-<code><a href="AbstractRedisCommand.html#executionContext()">executionContext</a>, <a href="AbstractRedisCommand.html#getRedisClientArgs()">getRedisClientArgs</a>, <a href="AbstractRedisCommand.html#getRedisURIArgs()">getRedisURIArgs</a>, <a href="AbstractRedisCommand.html#setRedisClientArgs(com.redis.riot.RedisClientArgs)">setRedisClientArgs</a>, <a href="AbstractRedisCommand.html#setRedisURIArgs(com.redis.riot.RedisURIArgs)">setRedisURIArgs</a></code></div>
+<code><a href="AbstractRedisCommand.html#configure(com.redis.spring.batch.item.redis.RedisItemWriter)">configure</a>, <a href="AbstractRedisCommand.html#execute()">execute</a>, <a href="AbstractRedisCommand.html#getRedisArgs()">getRedisArgs</a>, <a href="AbstractRedisCommand.html#setRedisArgs(com.redis.riot.RedisArgs)">setRedisArgs</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-com.redis.riot.core.AbstractJobCommand">Methods inherited from class&nbsp;com.redis.riot.core.<a href="core/AbstractJobCommand.html" title="class in com.redis.riot.core">AbstractJobCommand</a></h3>
-<code><a href="core/AbstractJobCommand.html#execute(C)">execute</a>, <a href="core/AbstractJobCommand.html#getJobArgs()">getJobArgs</a>, <a href="core/AbstractJobCommand.html#getJobLauncher()">getJobLauncher</a>, <a href="core/AbstractJobCommand.html#getJobName()">getJobName</a>, <a href="core/AbstractJobCommand.html#getJobRepository()">getJobRepository</a>, <a href="core/AbstractJobCommand.html#getJobRepositoryName()">getJobRepositoryName</a>, <a href="core/AbstractJobCommand.html#getTransactionManager()">getTransactionManager</a>, <a href="core/AbstractJobCommand.html#job(C)">job</a>, <a href="core/AbstractJobCommand.html#job(C,com.redis.riot.core.Step...)">job</a>, <a href="core/AbstractJobCommand.html#job(C,java.util.Collection)">job</a>, <a href="core/AbstractJobCommand.html#newExecutionContext()">newExecutionContext</a>, <a href="core/AbstractJobCommand.html#setJobArgs(com.redis.riot.core.StepArgs)">setJobArgs</a>, <a href="core/AbstractJobCommand.html#setJobLauncher(org.springframework.batch.core.launch.JobLauncher)">setJobLauncher</a>, <a href="core/AbstractJobCommand.html#setJobName(java.lang.String)">setJobName</a>, <a href="core/AbstractJobCommand.html#setJobRepository(org.springframework.batch.core.repository.JobRepository)">setJobRepository</a>, <a href="core/AbstractJobCommand.html#setJobRepositoryName(java.lang.String)">setJobRepositoryName</a>, <a href="core/AbstractJobCommand.html#setTransactionManager(org.springframework.transaction.PlatformTransactionManager)">setTransactionManager</a>, <a href="core/AbstractJobCommand.html#shouldShowProgress()">shouldShowProgress</a></code></div>
+<code><a href="core/AbstractJobCommand.html#configureAsyncReader(com.redis.spring.batch.item.AbstractAsyncItemReader)">configureAsyncReader</a>, <a href="core/AbstractJobCommand.html#getJobArgs()">getJobArgs</a>, <a href="core/AbstractJobCommand.html#getJobLauncher()">getJobLauncher</a>, <a href="core/AbstractJobCommand.html#getJobName()">getJobName</a>, <a href="core/AbstractJobCommand.html#getJobRepository()">getJobRepository</a>, <a href="core/AbstractJobCommand.html#getJobRepositoryName()">getJobRepositoryName</a>, <a href="core/AbstractJobCommand.html#getTransactionManager()">getTransactionManager</a>, <a href="core/AbstractJobCommand.html#job()">job</a>, <a href="core/AbstractJobCommand.html#job(com.redis.riot.core.Step...)">job</a>, <a href="core/AbstractJobCommand.html#job(java.util.Collection)">job</a>, <a href="core/AbstractJobCommand.html#setJobArgs(com.redis.riot.core.StepArgs)">setJobArgs</a>, <a href="core/AbstractJobCommand.html#setJobLauncher(org.springframework.batch.core.launch.JobLauncher)">setJobLauncher</a>, <a href="core/AbstractJobCommand.html#setJobName(java.lang.String)">setJobName</a>, <a href="core/AbstractJobCommand.html#setJobRepository(org.springframework.batch.core.repository.JobRepository)">setJobRepository</a>, <a href="core/AbstractJobCommand.html#setJobRepositoryName(java.lang.String)">setJobRepositoryName</a>, <a href="core/AbstractJobCommand.html#setTransactionManager(org.springframework.transaction.PlatformTransactionManager)">setTransactionManager</a>, <a href="core/AbstractJobCommand.html#shouldShowProgress()">shouldShowProgress</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-com.redis.riot.core.AbstractCommand">Methods inherited from class&nbsp;com.redis.riot.core.<a href="core/AbstractCommand.html" title="class in com.redis.riot.core">AbstractCommand</a></h3>
 <code><a href="core/AbstractCommand.html#call()">call</a>, <a href="core/AbstractCommand.html#getLog()">getLog</a>, <a href="core/AbstractCommand.html#getLoggingArgs()">getLoggingArgs</a>, <a href="core/AbstractCommand.html#logLevel()">logLevel</a>, <a href="core/AbstractCommand.html#setLog(org.slf4j.Logger)">setLog</a>, <a href="core/AbstractCommand.html#setLoggingArgs(com.redis.riot.core.LoggingArgs)">setLoggingArgs</a></code></div>
@@ -204,30 +202,26 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
+<section class="detail" id="configure(com.redis.spring.batch.item.redis.RedisItemReader)">
+<h3>configure</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">configure</span><wbr><span class="parameters">(com.redis.spring.batch.item.redis.RedisItemReader&lt;?,<wbr>?,<wbr>?&gt;&nbsp;reader)</span></div>
+<dl class="notes">
+<dt>Overrides:</dt>
+<dd><code><a href="AbstractRedisCommand.html#configure(com.redis.spring.batch.item.redis.RedisItemReader)">configure</a></code>&nbsp;in class&nbsp;<code><a href="AbstractRedisCommand.html" title="class in com.redis.riot">AbstractRedisCommand</a></code></dd>
+</dl>
+</section>
+</li>
+<li>
 <section class="detail" id="mapProcessor()">
 <h3>mapProcessor</h3>
 <div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">org.springframework.batch.item.ItemProcessor&lt;com.redis.spring.batch.item.redis.common.KeyValue&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;&gt;</span>&nbsp;<span class="element-name">mapProcessor</span>()</div>
 </section>
 </li>
 <li>
-<section class="detail" id="step(C,org.springframework.batch.item.ItemWriter)">
-<h3 id="step(com.redis.riot.RedisExecutionContext,org.springframework.batch.item.ItemWriter)">step</h3>
+<section class="detail" id="step(org.springframework.batch.item.ItemWriter)">
+<h3>step</h3>
 <div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="type-parameters">&lt;T&gt;</span>
-<span class="return-type"><a href="core/Step.html" title="class in com.redis.riot.core">Step</a>&lt;com.redis.spring.batch.item.redis.common.KeyValue&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;,<wbr>T&gt;</span>&nbsp;<span class="element-name">step</span><wbr><span class="parameters">(<a href="AbstractExportCommand.html" title="type parameter in AbstractExportCommand">C</a>&nbsp;context,
- org.springframework.batch.item.ItemWriter&lt;T&gt;&nbsp;writer)</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="configure(C,com.redis.spring.batch.item.redis.RedisItemReader)">
-<h3 id="configure(com.redis.riot.RedisExecutionContext,com.redis.spring.batch.item.redis.RedisItemReader)">configure</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">configure</span><wbr><span class="parameters">(<a href="AbstractExportCommand.html" title="type parameter in AbstractExportCommand">C</a>&nbsp;context,
- com.redis.spring.batch.item.redis.RedisItemReader&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;&nbsp;reader)</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="configure(com.redis.riot.core.Step)">
-<h3>configure</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">configure</span><wbr><span class="parameters">(<a href="core/Step.html" title="class in com.redis.riot.core">Step</a>&lt;?,<wbr>?&gt;&nbsp;step)</span></div>
+<span class="return-type"><a href="core/Step.html" title="class in com.redis.riot.core">Step</a>&lt;com.redis.spring.batch.item.redis.common.KeyValue&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;,<wbr>T&gt;</span>&nbsp;<span class="element-name">step</span><wbr><span class="parameters">(org.springframework.batch.item.ItemWriter&lt;T&gt;&nbsp;writer)</span></div>
 </section>
 </li>
 <li>

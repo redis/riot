@@ -75,7 +75,7 @@ loadScripts(document, 'script');</script>
 </div>
 </li>
 <li>
-<div class="caption"><span>com.redis.riot.<a href="com/redis/riot/AbstractImportCommand.html" title="class in com.redis.riot">AbstractImportCommand</a>&lt;<a href="com/redis/riot/AbstractImportCommand.html" title="type parameter in AbstractImportCommand">C</a> extends <a href="com/redis/riot/RedisExecutionContext.html" title="class in com.redis.riot">RedisExecutionContext</a>&gt;</span></div>
+<div class="caption"><span>com.redis.riot.<a href="com/redis/riot/AbstractImportCommand.html" title="class in com.redis.riot">AbstractImportCommand</a></span></div>
 <div class="summary-table three-column-summary">
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Constant Field</div>
@@ -86,14 +86,42 @@ loadScripts(document, 'script');</script>
 </div>
 </li>
 <li>
-<div class="caption"><span>com.redis.riot.<a href="com/redis/riot/AbstractTargetCommand.html" title="class in com.redis.riot">AbstractTargetCommand</a></span></div>
+<div class="caption"><span>com.redis.riot.<a href="com/redis/riot/AbstractRedisToRedisCommand.html" title="class in com.redis.riot">AbstractRedisToRedisCommand</a></span></div>
 <div class="summary-table three-column-summary">
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Constant Field</div>
 <div class="table-header col-last">Value</div>
-<div class="col-first even-row-color"><code id="com.redis.riot.AbstractTargetCommand.DEFAULT_TARGET_POOL_SIZE">public&nbsp;static&nbsp;final&nbsp;int</code></div>
-<div class="col-second even-row-color"><code><a href="com/redis/riot/AbstractTargetCommand.html#DEFAULT_TARGET_POOL_SIZE">DEFAULT_TARGET_POOL_SIZE</a></code></div>
+<div class="col-first even-row-color"><code id="com.redis.riot.AbstractRedisToRedisCommand.DEFAULT_TARGET_POOL_SIZE">public&nbsp;static&nbsp;final&nbsp;int</code></div>
+<div class="col-second even-row-color"><code><a href="com/redis/riot/AbstractRedisToRedisCommand.html#DEFAULT_TARGET_POOL_SIZE">DEFAULT_TARGET_POOL_SIZE</a></code></div>
 <div class="col-last even-row-color"><code>8</code></div>
+</div>
+</li>
+<li>
+<div class="caption"><span>com.redis.riot.<a href="com/redis/riot/DatabaseExport.html" title="class in com.redis.riot">DatabaseExport</a></span></div>
+<div class="summary-table three-column-summary">
+<div class="table-header col-first">Modifier and Type</div>
+<div class="table-header col-second">Constant Field</div>
+<div class="table-header col-last">Value</div>
+<div class="col-first even-row-color"><code id="com.redis.riot.DatabaseExport.DEFAULT_ASSERT_UPDATES">public&nbsp;static&nbsp;final&nbsp;boolean</code></div>
+<div class="col-second even-row-color"><code><a href="com/redis/riot/DatabaseExport.html#DEFAULT_ASSERT_UPDATES">DEFAULT_ASSERT_UPDATES</a></code></div>
+<div class="col-last even-row-color"><code>true</code></div>
+</div>
+</li>
+<li>
+<div class="caption"><span>com.redis.riot.<a href="com/redis/riot/DatabaseReaderArgs.html" title="class in com.redis.riot">DatabaseReaderArgs</a></span></div>
+<div class="summary-table three-column-summary">
+<div class="table-header col-first">Modifier and Type</div>
+<div class="table-header col-second">Constant Field</div>
+<div class="table-header col-last">Value</div>
+<div class="col-first even-row-color"><code id="com.redis.riot.DatabaseReaderArgs.DEFAULT_FETCH_SIZE">public&nbsp;static&nbsp;final&nbsp;int</code></div>
+<div class="col-second even-row-color"><code><a href="com/redis/riot/DatabaseReaderArgs.html#DEFAULT_FETCH_SIZE">DEFAULT_FETCH_SIZE</a></code></div>
+<div class="col-last even-row-color"><code>-1</code></div>
+<div class="col-first odd-row-color"><code id="com.redis.riot.DatabaseReaderArgs.DEFAULT_MAX_RESULT_SET_ROWS">public&nbsp;static&nbsp;final&nbsp;int</code></div>
+<div class="col-second odd-row-color"><code><a href="com/redis/riot/DatabaseReaderArgs.html#DEFAULT_MAX_RESULT_SET_ROWS">DEFAULT_MAX_RESULT_SET_ROWS</a></code></div>
+<div class="col-last odd-row-color"><code>-1</code></div>
+<div class="col-first even-row-color"><code id="com.redis.riot.DatabaseReaderArgs.DEFAULT_QUERY_TIMEOUT">public&nbsp;static&nbsp;final&nbsp;int</code></div>
+<div class="col-second even-row-color"><code><a href="com/redis/riot/DatabaseReaderArgs.html#DEFAULT_QUERY_TIMEOUT">DEFAULT_QUERY_TIMEOUT</a></code></div>
+<div class="col-last even-row-color"><code>-1</code></div>
 </div>
 </li>
 <li>
@@ -125,6 +153,62 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color"><code id="com.redis.riot.FakerImport.DEFAULT_COUNT">public&nbsp;static&nbsp;final&nbsp;int</code></div>
 <div class="col-second even-row-color"><code><a href="com/redis/riot/FakerImport.html#DEFAULT_COUNT">DEFAULT_COUNT</a></code></div>
 <div class="col-last even-row-color"><code>1000</code></div>
+</div>
+</li>
+<li>
+<div class="caption"><span>com.redis.riot.<a href="com/redis/riot/FileArgs.html" title="class in com.redis.riot">FileArgs</a></span></div>
+<div class="summary-table three-column-summary">
+<div class="table-header col-first">Modifier and Type</div>
+<div class="table-header col-second">Constant Field</div>
+<div class="table-header col-last">Value</div>
+<div class="col-first even-row-color"><code id="com.redis.riot.FileArgs.DEFAULT_QUOTE_CHARACTER">public&nbsp;static&nbsp;final&nbsp;char</code></div>
+<div class="col-second even-row-color"><code><a href="com/redis/riot/FileArgs.html#DEFAULT_QUOTE_CHARACTER">DEFAULT_QUOTE_CHARACTER</a></code></div>
+<div class="col-last even-row-color"><code>'\"'</code></div>
+</div>
+</li>
+<li>
+<div class="caption"><span>com.redis.riot.<a href="com/redis/riot/FileImport.html" title="class in com.redis.riot">FileImport</a></span></div>
+<div class="summary-table three-column-summary">
+<div class="table-header col-first">Modifier and Type</div>
+<div class="table-header col-second">Constant Field</div>
+<div class="table-header col-last">Value</div>
+<div class="col-first even-row-color"><code id="com.redis.riot.FileImport.PIPE_DELIMITER">public&nbsp;static&nbsp;final&nbsp;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second even-row-color"><code><a href="com/redis/riot/FileImport.html#PIPE_DELIMITER">PIPE_DELIMITER</a></code></div>
+<div class="col-last even-row-color"><code>"|"</code></div>
+</div>
+</li>
+<li>
+<div class="caption"><span>com.redis.riot.<a href="com/redis/riot/FileReaderArgs.html" title="class in com.redis.riot">FileReaderArgs</a></span></div>
+<div class="summary-table three-column-summary">
+<div class="table-header col-first">Modifier and Type</div>
+<div class="table-header col-second">Constant Field</div>
+<div class="table-header col-last">Value</div>
+<div class="col-first even-row-color"><code id="com.redis.riot.FileReaderArgs.DEFAULT_CONTINUATION_STRING">public&nbsp;static&nbsp;final&nbsp;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second even-row-color"><code><a href="com/redis/riot/FileReaderArgs.html#DEFAULT_CONTINUATION_STRING">DEFAULT_CONTINUATION_STRING</a></code></div>
+<div class="col-last even-row-color"><code>"\\"</code></div>
+<div class="col-first odd-row-color"><code id="com.redis.riot.FileReaderArgs.DEFAULT_MAX_ITEM_COUNT">public&nbsp;static&nbsp;final&nbsp;int</code></div>
+<div class="col-second odd-row-color"><code><a href="com/redis/riot/FileReaderArgs.html#DEFAULT_MAX_ITEM_COUNT">DEFAULT_MAX_ITEM_COUNT</a></code></div>
+<div class="col-last odd-row-color"><code>2147483647</code></div>
+</div>
+</li>
+<li>
+<div class="caption"><span>com.redis.riot.<a href="com/redis/riot/FileWriterArgs.html" title="class in com.redis.riot">FileWriterArgs</a></span></div>
+<div class="summary-table three-column-summary">
+<div class="table-header col-first">Modifier and Type</div>
+<div class="table-header col-second">Constant Field</div>
+<div class="table-header col-last">Value</div>
+<div class="col-first even-row-color"><code id="com.redis.riot.FileWriterArgs.DEFAULT_ELEMENT_NAME">public&nbsp;static&nbsp;final&nbsp;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second even-row-color"><code><a href="com/redis/riot/FileWriterArgs.html#DEFAULT_ELEMENT_NAME">DEFAULT_ELEMENT_NAME</a></code></div>
+<div class="col-last even-row-color"><code>"record"</code></div>
+<div class="col-first odd-row-color"><code id="com.redis.riot.FileWriterArgs.DEFAULT_ROOT_NAME">public&nbsp;static&nbsp;final&nbsp;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second odd-row-color"><code><a href="com/redis/riot/FileWriterArgs.html#DEFAULT_ROOT_NAME">DEFAULT_ROOT_NAME</a></code></div>
+<div class="col-last odd-row-color"><code>"root"</code></div>
+<div class="col-first even-row-color"><code id="com.redis.riot.FileWriterArgs.DEFAULT_SHOULD_DELETE_IF_EXISTS">public&nbsp;static&nbsp;final&nbsp;boolean</code></div>
+<div class="col-second even-row-color"><code><a href="com/redis/riot/FileWriterArgs.html#DEFAULT_SHOULD_DELETE_IF_EXISTS">DEFAULT_SHOULD_DELETE_IF_EXISTS</a></code></div>
+<div class="col-last even-row-color"><code>true</code></div>
+<div class="col-first odd-row-color"><code id="com.redis.riot.FileWriterArgs.DEFAULT_TRANSACTIONAL">public&nbsp;static&nbsp;final&nbsp;boolean</code></div>
+<div class="col-second odd-row-color"><code><a href="com/redis/riot/FileWriterArgs.html#DEFAULT_TRANSACTIONAL">DEFAULT_TRANSACTIONAL</a></code></div>
+<div class="col-last odd-row-color"><code>true</code></div>
 </div>
 </li>
 <li>
@@ -188,17 +272,31 @@ loadScripts(document, 'script');</script>
 </div>
 </li>
 <li>
-<div class="caption"><span>com.redis.riot.<a href="com/redis/riot/RedisClientArgs.html" title="class in com.redis.riot">RedisClientArgs</a></span></div>
+<div class="caption"><span>com.redis.riot.<a href="com/redis/riot/RedisContext.html" title="class in com.redis.riot">RedisContext</a></span></div>
 <div class="summary-table three-column-summary">
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Constant Field</div>
 <div class="table-header col-last">Value</div>
-<div class="col-first even-row-color"><code id="com.redis.riot.RedisClientArgs.DEFAULT_AUTO_RECONNECT">public&nbsp;static&nbsp;final&nbsp;boolean</code></div>
-<div class="col-second even-row-color"><code><a href="com/redis/riot/RedisClientArgs.html#DEFAULT_AUTO_RECONNECT">DEFAULT_AUTO_RECONNECT</a></code></div>
+<div class="col-first even-row-color"><code id="com.redis.riot.RedisContext.DEFAULT_AUTO_RECONNECT">public&nbsp;static&nbsp;final&nbsp;boolean</code></div>
+<div class="col-second even-row-color"><code><a href="com/redis/riot/RedisContext.html#DEFAULT_AUTO_RECONNECT">DEFAULT_AUTO_RECONNECT</a></code></div>
 <div class="col-last even-row-color"><code>true</code></div>
-<div class="col-first odd-row-color"><code id="com.redis.riot.RedisClientArgs.DEFAULT_POOL_SIZE">public&nbsp;static&nbsp;final&nbsp;int</code></div>
-<div class="col-second odd-row-color"><code><a href="com/redis/riot/RedisClientArgs.html#DEFAULT_POOL_SIZE">DEFAULT_POOL_SIZE</a></code></div>
+<div class="col-first odd-row-color"><code id="com.redis.riot.RedisContext.DEFAULT_POOL_SIZE">public&nbsp;static&nbsp;final&nbsp;int</code></div>
+<div class="col-second odd-row-color"><code><a href="com/redis/riot/RedisContext.html#DEFAULT_POOL_SIZE">DEFAULT_POOL_SIZE</a></code></div>
 <div class="col-last odd-row-color"><code>8</code></div>
+</div>
+</li>
+<li>
+<div class="caption"><span>com.redis.riot.<a href="com/redis/riot/RedisExportStep.html" title="class in com.redis.riot">RedisExportStep</a>&lt;<a href="com/redis/riot/RedisExportStep.html" title="type parameter in RedisExportStep">K</a>,<wbr><a href="com/redis/riot/RedisExportStep.html" title="type parameter in RedisExportStep">V</a>,<wbr><a href="com/redis/riot/RedisExportStep.html" title="type parameter in RedisExportStep">T</a>,<wbr><a href="com/redis/riot/RedisExportStep.html" title="type parameter in RedisExportStep">O</a>&gt;</span></div>
+<div class="summary-table three-column-summary">
+<div class="table-header col-first">Modifier and Type</div>
+<div class="table-header col-second">Constant Field</div>
+<div class="table-header col-last">Value</div>
+<div class="col-first even-row-color"><code id="com.redis.riot.RedisExportStep.NOTIFY_CONFIG">public&nbsp;static&nbsp;final&nbsp;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second even-row-color"><code><a href="com/redis/riot/RedisExportStep.html#NOTIFY_CONFIG">NOTIFY_CONFIG</a></code></div>
+<div class="col-last even-row-color"><code>"notify-keyspace-events"</code></div>
+<div class="col-first odd-row-color"><code id="com.redis.riot.RedisExportStep.NOTIFY_CONFIG_VALUE">public&nbsp;static&nbsp;final&nbsp;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second odd-row-color"><code><a href="com/redis/riot/RedisExportStep.html#NOTIFY_CONFIG_VALUE">NOTIFY_CONFIG_VALUE</a></code></div>
+<div class="col-last odd-row-color"><code>"KEA"</code></div>
 </div>
 </li>
 <li>
@@ -252,7 +350,7 @@ loadScripts(document, 'script');</script>
 </ul>
 <ul class="block-list">
 <li>
-<div class="caption"><span>com.redis.riot.core.<a href="com/redis/riot/core/AbstractJobCommand.html" title="class in com.redis.riot.core">AbstractJobCommand</a>&lt;<a href="com/redis/riot/core/AbstractJobCommand.html" title="type parameter in AbstractJobCommand">C</a> extends <a href="com/redis/riot/core/JobExecutionContext.html" title="class in com.redis.riot.core">JobExecutionContext</a>&gt;</span></div>
+<div class="caption"><span>com.redis.riot.core.<a href="com/redis/riot/core/AbstractJobCommand.html" title="class in com.redis.riot.core">AbstractJobCommand</a></span></div>
 <div class="summary-table three-column-summary">
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Constant Field</div>
@@ -328,72 +426,6 @@ loadScripts(document, 'script');</script>
 </ul>
 <ul class="block-list">
 <li>
-<div class="caption"><span>com.redis.riot.db.<a href="com/redis/riot/db/DatabaseReaderArgs.html" title="class in com.redis.riot.db">DatabaseReaderArgs</a></span></div>
-<div class="summary-table three-column-summary">
-<div class="table-header col-first">Modifier and Type</div>
-<div class="table-header col-second">Constant Field</div>
-<div class="table-header col-last">Value</div>
-<div class="col-first even-row-color"><code id="com.redis.riot.db.DatabaseReaderArgs.DEFAULT_FETCH_SIZE">public&nbsp;static&nbsp;final&nbsp;int</code></div>
-<div class="col-second even-row-color"><code><a href="com/redis/riot/db/DatabaseReaderArgs.html#DEFAULT_FETCH_SIZE">DEFAULT_FETCH_SIZE</a></code></div>
-<div class="col-last even-row-color"><code>-1</code></div>
-<div class="col-first odd-row-color"><code id="com.redis.riot.db.DatabaseReaderArgs.DEFAULT_MAX_RESULT_SET_ROWS">public&nbsp;static&nbsp;final&nbsp;int</code></div>
-<div class="col-second odd-row-color"><code><a href="com/redis/riot/db/DatabaseReaderArgs.html#DEFAULT_MAX_RESULT_SET_ROWS">DEFAULT_MAX_RESULT_SET_ROWS</a></code></div>
-<div class="col-last odd-row-color"><code>-1</code></div>
-<div class="col-first even-row-color"><code id="com.redis.riot.db.DatabaseReaderArgs.DEFAULT_QUERY_TIMEOUT">public&nbsp;static&nbsp;final&nbsp;int</code></div>
-<div class="col-second even-row-color"><code><a href="com/redis/riot/db/DatabaseReaderArgs.html#DEFAULT_QUERY_TIMEOUT">DEFAULT_QUERY_TIMEOUT</a></code></div>
-<div class="col-last even-row-color"><code>-1</code></div>
-</div>
-</li>
-<li>
-<div class="caption"><span>com.redis.riot.db.<a href="com/redis/riot/db/DatabaseWriterArgs.html" title="class in com.redis.riot.db">DatabaseWriterArgs</a></span></div>
-<div class="summary-table three-column-summary">
-<div class="table-header col-first">Modifier and Type</div>
-<div class="table-header col-second">Constant Field</div>
-<div class="table-header col-last">Value</div>
-<div class="col-first even-row-color"><code id="com.redis.riot.db.DatabaseWriterArgs.DEFAULT_ASSERT_UPDATES">public&nbsp;static&nbsp;final&nbsp;boolean</code></div>
-<div class="col-second even-row-color"><code><a href="com/redis/riot/db/DatabaseWriterArgs.html#DEFAULT_ASSERT_UPDATES">DEFAULT_ASSERT_UPDATES</a></code></div>
-<div class="col-last even-row-color"><code>true</code></div>
-</div>
-</li>
-</ul>
-<ul class="block-list">
-<li>
-<div class="caption"><span>com.redis.riot.file.<a href="com/redis/riot/file/FileArgs.html" title="class in com.redis.riot.file">FileArgs</a></span></div>
-<div class="summary-table three-column-summary">
-<div class="table-header col-first">Modifier and Type</div>
-<div class="table-header col-second">Constant Field</div>
-<div class="table-header col-last">Value</div>
-<div class="col-first even-row-color"><code id="com.redis.riot.file.FileArgs.DEFAULT_QUOTE_CHARACTER">public&nbsp;static&nbsp;final&nbsp;char</code></div>
-<div class="col-second even-row-color"><code><a href="com/redis/riot/file/FileArgs.html#DEFAULT_QUOTE_CHARACTER">DEFAULT_QUOTE_CHARACTER</a></code></div>
-<div class="col-last even-row-color"><code>'\"'</code></div>
-</div>
-</li>
-<li>
-<div class="caption"><span>com.redis.riot.file.<a href="com/redis/riot/file/FileReaderArgs.html" title="class in com.redis.riot.file">FileReaderArgs</a></span></div>
-<div class="summary-table three-column-summary">
-<div class="table-header col-first">Modifier and Type</div>
-<div class="table-header col-second">Constant Field</div>
-<div class="table-header col-last">Value</div>
-<div class="col-first even-row-color"><code id="com.redis.riot.file.FileReaderArgs.DEFAULT_CONTINUATION_STRING">public&nbsp;static&nbsp;final&nbsp;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second even-row-color"><code><a href="com/redis/riot/file/FileReaderArgs.html#DEFAULT_CONTINUATION_STRING">DEFAULT_CONTINUATION_STRING</a></code></div>
-<div class="col-last even-row-color"><code>"\\"</code></div>
-<div class="col-first odd-row-color"><code id="com.redis.riot.file.FileReaderArgs.DEFAULT_MAX_ITEM_COUNT">public&nbsp;static&nbsp;final&nbsp;int</code></div>
-<div class="col-second odd-row-color"><code><a href="com/redis/riot/file/FileReaderArgs.html#DEFAULT_MAX_ITEM_COUNT">DEFAULT_MAX_ITEM_COUNT</a></code></div>
-<div class="col-last odd-row-color"><code>2147483647</code></div>
-</div>
-</li>
-<li>
-<div class="caption"><span>com.redis.riot.file.<a href="com/redis/riot/file/FileReaderFactory.html" title="class in com.redis.riot.file">FileReaderFactory</a></span></div>
-<div class="summary-table three-column-summary">
-<div class="table-header col-first">Modifier and Type</div>
-<div class="table-header col-second">Constant Field</div>
-<div class="table-header col-last">Value</div>
-<div class="col-first even-row-color"><code id="com.redis.riot.file.FileReaderFactory.PIPE_DELIMITER">public&nbsp;static&nbsp;final&nbsp;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second even-row-color"><code><a href="com/redis/riot/file/FileReaderFactory.html#PIPE_DELIMITER">PIPE_DELIMITER</a></code></div>
-<div class="col-last even-row-color"><code>"|"</code></div>
-</div>
-</li>
-<li>
 <div class="caption"><span>com.redis.riot.file.<a href="com/redis/riot/file/FileUtils.html" title="class in com.redis.riot.file">FileUtils</a></span></div>
 <div class="summary-table three-column-summary">
 <div class="table-header col-first">Modifier and Type</div>
@@ -423,26 +455,6 @@ loadScripts(document, 'script');</script>
 <div class="col-first odd-row-color"><code id="com.redis.riot.file.FileUtils.XML">public&nbsp;static&nbsp;final&nbsp;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
 <div class="col-second odd-row-color"><code><a href="com/redis/riot/file/FileUtils.html#XML">XML</a></code></div>
 <div class="col-last odd-row-color"><code>"xml"</code></div>
-</div>
-</li>
-<li>
-<div class="caption"><span>com.redis.riot.file.<a href="com/redis/riot/file/FileWriterArgs.html" title="class in com.redis.riot.file">FileWriterArgs</a></span></div>
-<div class="summary-table three-column-summary">
-<div class="table-header col-first">Modifier and Type</div>
-<div class="table-header col-second">Constant Field</div>
-<div class="table-header col-last">Value</div>
-<div class="col-first even-row-color"><code id="com.redis.riot.file.FileWriterArgs.DEFAULT_ELEMENT_NAME">public&nbsp;static&nbsp;final&nbsp;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second even-row-color"><code><a href="com/redis/riot/file/FileWriterArgs.html#DEFAULT_ELEMENT_NAME">DEFAULT_ELEMENT_NAME</a></code></div>
-<div class="col-last even-row-color"><code>"record"</code></div>
-<div class="col-first odd-row-color"><code id="com.redis.riot.file.FileWriterArgs.DEFAULT_ROOT_NAME">public&nbsp;static&nbsp;final&nbsp;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second odd-row-color"><code><a href="com/redis/riot/file/FileWriterArgs.html#DEFAULT_ROOT_NAME">DEFAULT_ROOT_NAME</a></code></div>
-<div class="col-last odd-row-color"><code>"root"</code></div>
-<div class="col-first even-row-color"><code id="com.redis.riot.file.FileWriterArgs.DEFAULT_SHOULD_DELETE_IF_EXISTS">public&nbsp;static&nbsp;final&nbsp;boolean</code></div>
-<div class="col-second even-row-color"><code><a href="com/redis/riot/file/FileWriterArgs.html#DEFAULT_SHOULD_DELETE_IF_EXISTS">DEFAULT_SHOULD_DELETE_IF_EXISTS</a></code></div>
-<div class="col-last even-row-color"><code>true</code></div>
-<div class="col-first odd-row-color"><code id="com.redis.riot.file.FileWriterArgs.DEFAULT_TRANSACTIONAL">public&nbsp;static&nbsp;final&nbsp;boolean</code></div>
-<div class="col-second odd-row-color"><code><a href="com/redis/riot/file/FileWriterArgs.html#DEFAULT_TRANSACTIONAL">DEFAULT_TRANSACTIONAL</a></code></div>
-<div class="col-last odd-row-color"><code>true</code></div>
 </div>
 </li>
 </ul>

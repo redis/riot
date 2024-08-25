@@ -74,10 +74,10 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="inheritance" title="Inheritance Tree"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">java.lang.Object</a>
 <div class="inheritance"><a href="core/BaseCommand.html" title="class in com.redis.riot.core">com.redis.riot.core.BaseCommand</a>
-<div class="inheritance"><a href="core/AbstractCommand.html" title="class in com.redis.riot.core">com.redis.riot.core.AbstractCommand</a>&lt;C&gt;
-<div class="inheritance"><a href="core/AbstractJobCommand.html" title="class in com.redis.riot.core">com.redis.riot.core.AbstractJobCommand</a>&lt;C&gt;
-<div class="inheritance"><a href="AbstractRedisCommand.html" title="class in com.redis.riot">com.redis.riot.AbstractRedisCommand</a>&lt;C&gt;
-<div class="inheritance"><a href="AbstractImportCommand.html" title="class in com.redis.riot">com.redis.riot.AbstractImportCommand</a>&lt;<a href="RedisExecutionContext.html" title="class in com.redis.riot">RedisExecutionContext</a>&gt;
+<div class="inheritance"><a href="core/AbstractCommand.html" title="class in com.redis.riot.core">com.redis.riot.core.AbstractCommand</a>
+<div class="inheritance"><a href="core/AbstractJobCommand.html" title="class in com.redis.riot.core">com.redis.riot.core.AbstractJobCommand</a>
+<div class="inheritance"><a href="AbstractRedisCommand.html" title="class in com.redis.riot">com.redis.riot.AbstractRedisCommand</a>
+<div class="inheritance"><a href="AbstractImportCommand.html" title="class in com.redis.riot">com.redis.riot.AbstractImportCommand</a>
 <div class="inheritance">com.redis.riot.DatabaseImport</div>
 </div>
 </div>
@@ -92,7 +92,7 @@ loadScripts(document, 'script');</script>
 </dl>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">DatabaseImport</span>
-<span class="extends-implements">extends <a href="AbstractImportCommand.html" title="class in com.redis.riot">AbstractImportCommand</a>&lt;<a href="RedisExecutionContext.html" title="class in com.redis.riot">RedisExecutionContext</a>&gt;</span></div>
+<span class="extends-implements">extends <a href="AbstractImportCommand.html" title="class in com.redis.riot">AbstractImportCommand</a></span></div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -103,6 +103,9 @@ loadScripts(document, 'script');</script>
 <div class="inherited-list">
 <h3 id="fields-inherited-from-class-com.redis.riot.AbstractImportCommand">Fields inherited from class&nbsp;com.redis.riot.<a href="AbstractImportCommand.html" title="class in com.redis.riot">AbstractImportCommand</a></h3>
 <code><a href="AbstractImportCommand.html#VAR_REDIS">VAR_REDIS</a></code></div>
+<div class="inherited-list">
+<h3 id="fields-inherited-from-class-com.redis.riot.AbstractRedisCommand">Fields inherited from class&nbsp;com.redis.riot.<a href="AbstractRedisCommand.html" title="class in com.redis.riot">AbstractRedisCommand</a></h3>
+<code><a href="AbstractRedisCommand.html#redisContext">redisContext</a></code></div>
 <div class="inherited-list">
 <h3 id="fields-inherited-from-class-com.redis.riot.core.AbstractJobCommand">Fields inherited from class&nbsp;com.redis.riot.core.<a href="core/AbstractJobCommand.html" title="class in com.redis.riot.core">AbstractJobCommand</a></h3>
 <code><a href="core/AbstractJobCommand.html#DEFAULT_JOB_REPOSITORY_NAME">DEFAULT_JOB_REPOSITORY_NAME</a></code></div>
@@ -138,30 +141,39 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="db/DatabaseReaderArgs.html" title="class in com.redis.riot.db">DatabaseReaderArgs</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getDatabaseReaderArgs()" class="member-name-link">getDatabaseReaderArgs</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="DataSourceArgs.html" title="class in com.redis.riot">DataSourceArgs</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getDataSourceArgs()" class="member-name-link">getDataSourceArgs</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="DatabaseReaderArgs.html" title="class in com.redis.riot">DatabaseReaderArgs</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getReaderArgs()" class="member-name-link">getReaderArgs</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getSql()" class="member-name-link">getSql</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected org.springframework.batch.core.Job</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#job(com.redis.riot.RedisExecutionContext)" class="member-name-link">job</a><wbr>(<a href="RedisExecutionContext.html" title="class in com.redis.riot">RedisExecutionContext</a>&nbsp;context)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#job()" class="member-name-link">job</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected <a href="RedisExecutionContext.html" title="class in com.redis.riot">RedisExecutionContext</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#newExecutionContext()" class="member-name-link">newExecutionContext</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setDataSourceArgs(com.redis.riot.DataSourceArgs)" class="member-name-link">setDataSourceArgs</a><wbr>(<a href="DataSourceArgs.html" title="class in com.redis.riot">DataSourceArgs</a>&nbsp;args)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setDatabaseReaderArgs(com.redis.riot.db.DatabaseReaderArgs)" class="member-name-link">setDatabaseReaderArgs</a><wbr>(<a href="db/DatabaseReaderArgs.html" title="class in com.redis.riot.db">DatabaseReaderArgs</a>&nbsp;databaseReaderArgs)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setReaderArgs(com.redis.riot.DatabaseReaderArgs)" class="member-name-link">setReaderArgs</a><wbr>(<a href="DatabaseReaderArgs.html" title="class in com.redis.riot">DatabaseReaderArgs</a>&nbsp;args)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setSql(java.lang.String)" class="member-name-link">setSql</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;sql)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
 </div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-com.redis.riot.AbstractImportCommand">Methods inherited from class&nbsp;com.redis.riot.<a href="AbstractImportCommand.html" title="class in com.redis.riot">AbstractImportCommand</a></h3>
-<code><a href="AbstractImportCommand.html#configure(C,com.redis.spring.batch.item.redis.RedisItemWriter)">configure</a>, <a href="AbstractImportCommand.html#getEvaluationContextArgs()">getEvaluationContextArgs</a>, <a href="AbstractImportCommand.html#getImportOperationCommands()">getImportOperationCommands</a>, <a href="AbstractImportCommand.html#getProcessorArgs()">getProcessorArgs</a>, <a href="AbstractImportCommand.html#getRedisWriterArgs()">getRedisWriterArgs</a>, <a href="AbstractImportCommand.html#hasOperations()">hasOperations</a>, <a href="AbstractImportCommand.html#operations()">operations</a>, <a href="AbstractImportCommand.html#operationWriter()">operationWriter</a>, <a href="AbstractImportCommand.html#processor(C)">processor</a>, <a href="AbstractImportCommand.html#setEvaluationContextArgs(com.redis.riot.EvaluationContextArgs)">setEvaluationContextArgs</a>, <a href="AbstractImportCommand.html#setImportOperationCommands(com.redis.riot.operation.OperationCommand...)">setImportOperationCommands</a>, <a href="AbstractImportCommand.html#setImportOperationCommands(java.util.List)">setImportOperationCommands</a>, <a href="AbstractImportCommand.html#setProcessorArgs(com.redis.riot.ImportProcessorArgs)">setProcessorArgs</a>, <a href="AbstractImportCommand.html#setRedisWriterArgs(com.redis.riot.RedisWriterArgs)">setRedisWriterArgs</a>, <a href="AbstractImportCommand.html#step(C,org.springframework.batch.item.ItemReader)">step</a></code></div>
+<code><a href="AbstractImportCommand.html#configure(com.redis.spring.batch.item.redis.RedisItemWriter)">configure</a>, <a href="AbstractImportCommand.html#getEvaluationContextArgs()">getEvaluationContextArgs</a>, <a href="AbstractImportCommand.html#getImportOperationCommands()">getImportOperationCommands</a>, <a href="AbstractImportCommand.html#getProcessorArgs()">getProcessorArgs</a>, <a href="AbstractImportCommand.html#getRedisWriterArgs()">getRedisWriterArgs</a>, <a href="AbstractImportCommand.html#hasOperations()">hasOperations</a>, <a href="AbstractImportCommand.html#operations()">operations</a>, <a href="AbstractImportCommand.html#operationWriter()">operationWriter</a>, <a href="AbstractImportCommand.html#processor()">processor</a>, <a href="AbstractImportCommand.html#processor(org.springframework.expression.EvaluationContext,com.redis.riot.ImportProcessorArgs)">processor</a>, <a href="AbstractImportCommand.html#setEvaluationContextArgs(com.redis.riot.EvaluationContextArgs)">setEvaluationContextArgs</a>, <a href="AbstractImportCommand.html#setImportOperationCommands(com.redis.riot.operation.OperationCommand...)">setImportOperationCommands</a>, <a href="AbstractImportCommand.html#setImportOperationCommands(java.util.List)">setImportOperationCommands</a>, <a href="AbstractImportCommand.html#setProcessorArgs(com.redis.riot.ImportProcessorArgs)">setProcessorArgs</a>, <a href="AbstractImportCommand.html#setRedisWriterArgs(com.redis.riot.RedisWriterArgs)">setRedisWriterArgs</a>, <a href="AbstractImportCommand.html#step(org.springframework.batch.item.ItemReader)">step</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-com.redis.riot.AbstractRedisCommand">Methods inherited from class&nbsp;com.redis.riot.<a href="AbstractRedisCommand.html" title="class in com.redis.riot">AbstractRedisCommand</a></h3>
-<code><a href="AbstractRedisCommand.html#executionContext()">executionContext</a>, <a href="AbstractRedisCommand.html#getRedisClientArgs()">getRedisClientArgs</a>, <a href="AbstractRedisCommand.html#getRedisURIArgs()">getRedisURIArgs</a>, <a href="AbstractRedisCommand.html#setRedisClientArgs(com.redis.riot.RedisClientArgs)">setRedisClientArgs</a>, <a href="AbstractRedisCommand.html#setRedisURIArgs(com.redis.riot.RedisURIArgs)">setRedisURIArgs</a></code></div>
+<code><a href="AbstractRedisCommand.html#configure(com.redis.spring.batch.item.redis.RedisItemReader)">configure</a>, <a href="AbstractRedisCommand.html#execute()">execute</a>, <a href="AbstractRedisCommand.html#getRedisArgs()">getRedisArgs</a>, <a href="AbstractRedisCommand.html#setRedisArgs(com.redis.riot.RedisArgs)">setRedisArgs</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-com.redis.riot.core.AbstractJobCommand">Methods inherited from class&nbsp;com.redis.riot.core.<a href="core/AbstractJobCommand.html" title="class in com.redis.riot.core">AbstractJobCommand</a></h3>
-<code><a href="core/AbstractJobCommand.html#execute(C)">execute</a>, <a href="core/AbstractJobCommand.html#getJobArgs()">getJobArgs</a>, <a href="core/AbstractJobCommand.html#getJobLauncher()">getJobLauncher</a>, <a href="core/AbstractJobCommand.html#getJobName()">getJobName</a>, <a href="core/AbstractJobCommand.html#getJobRepository()">getJobRepository</a>, <a href="core/AbstractJobCommand.html#getJobRepositoryName()">getJobRepositoryName</a>, <a href="core/AbstractJobCommand.html#getTransactionManager()">getTransactionManager</a>, <a href="core/AbstractJobCommand.html#job(C,com.redis.riot.core.Step...)">job</a>, <a href="core/AbstractJobCommand.html#job(C,java.util.Collection)">job</a>, <a href="core/AbstractJobCommand.html#setJobArgs(com.redis.riot.core.StepArgs)">setJobArgs</a>, <a href="core/AbstractJobCommand.html#setJobLauncher(org.springframework.batch.core.launch.JobLauncher)">setJobLauncher</a>, <a href="core/AbstractJobCommand.html#setJobName(java.lang.String)">setJobName</a>, <a href="core/AbstractJobCommand.html#setJobRepository(org.springframework.batch.core.repository.JobRepository)">setJobRepository</a>, <a href="core/AbstractJobCommand.html#setJobRepositoryName(java.lang.String)">setJobRepositoryName</a>, <a href="core/AbstractJobCommand.html#setTransactionManager(org.springframework.transaction.PlatformTransactionManager)">setTransactionManager</a>, <a href="core/AbstractJobCommand.html#shouldShowProgress()">shouldShowProgress</a></code></div>
+<code><a href="core/AbstractJobCommand.html#configureAsyncReader(com.redis.spring.batch.item.AbstractAsyncItemReader)">configureAsyncReader</a>, <a href="core/AbstractJobCommand.html#getJobArgs()">getJobArgs</a>, <a href="core/AbstractJobCommand.html#getJobLauncher()">getJobLauncher</a>, <a href="core/AbstractJobCommand.html#getJobName()">getJobName</a>, <a href="core/AbstractJobCommand.html#getJobRepository()">getJobRepository</a>, <a href="core/AbstractJobCommand.html#getJobRepositoryName()">getJobRepositoryName</a>, <a href="core/AbstractJobCommand.html#getTransactionManager()">getTransactionManager</a>, <a href="core/AbstractJobCommand.html#job(com.redis.riot.core.Step...)">job</a>, <a href="core/AbstractJobCommand.html#job(java.util.Collection)">job</a>, <a href="core/AbstractJobCommand.html#setJobArgs(com.redis.riot.core.StepArgs)">setJobArgs</a>, <a href="core/AbstractJobCommand.html#setJobLauncher(org.springframework.batch.core.launch.JobLauncher)">setJobLauncher</a>, <a href="core/AbstractJobCommand.html#setJobName(java.lang.String)">setJobName</a>, <a href="core/AbstractJobCommand.html#setJobRepository(org.springframework.batch.core.repository.JobRepository)">setJobRepository</a>, <a href="core/AbstractJobCommand.html#setJobRepositoryName(java.lang.String)">setJobRepositoryName</a>, <a href="core/AbstractJobCommand.html#setTransactionManager(org.springframework.transaction.PlatformTransactionManager)">setTransactionManager</a>, <a href="core/AbstractJobCommand.html#shouldShowProgress()">shouldShowProgress</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-com.redis.riot.core.AbstractCommand">Methods inherited from class&nbsp;com.redis.riot.core.<a href="core/AbstractCommand.html" title="class in com.redis.riot.core">AbstractCommand</a></h3>
 <code><a href="core/AbstractCommand.html#call()">call</a>, <a href="core/AbstractCommand.html#getLog()">getLog</a>, <a href="core/AbstractCommand.html#getLoggingArgs()">getLoggingArgs</a>, <a href="core/AbstractCommand.html#logLevel()">logLevel</a>, <a href="core/AbstractCommand.html#setLog(org.slf4j.Logger)">setLog</a>, <a href="core/AbstractCommand.html#setLoggingArgs(com.redis.riot.core.LoggingArgs)">setLoggingArgs</a></code></div>
@@ -194,35 +206,49 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="newExecutionContext()">
-<h3>newExecutionContext</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="RedisExecutionContext.html" title="class in com.redis.riot">RedisExecutionContext</a></span>&nbsp;<span class="element-name">newExecutionContext</span>()</div>
-<dl class="notes">
-<dt>Specified by:</dt>
-<dd><code><a href="core/AbstractJobCommand.html#newExecutionContext()">newExecutionContext</a></code>&nbsp;in class&nbsp;<code><a href="core/AbstractJobCommand.html" title="class in com.redis.riot.core">AbstractJobCommand</a>&lt;<a href="RedisExecutionContext.html" title="class in com.redis.riot">RedisExecutionContext</a>&gt;</code></dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="job(com.redis.riot.RedisExecutionContext)">
+<section class="detail" id="job()">
 <h3>job</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">org.springframework.batch.core.Job</span>&nbsp;<span class="element-name">job</span><wbr><span class="parameters">(<a href="RedisExecutionContext.html" title="class in com.redis.riot">RedisExecutionContext</a>&nbsp;context)</span></div>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">org.springframework.batch.core.Job</span>&nbsp;<span class="element-name">job</span>()</div>
 <dl class="notes">
 <dt>Specified by:</dt>
-<dd><code><a href="core/AbstractJobCommand.html#job(C)">job</a></code>&nbsp;in class&nbsp;<code><a href="core/AbstractJobCommand.html" title="class in com.redis.riot.core">AbstractJobCommand</a>&lt;<a href="RedisExecutionContext.html" title="class in com.redis.riot">RedisExecutionContext</a>&gt;</code></dd>
+<dd><code><a href="core/AbstractJobCommand.html#job()">job</a></code>&nbsp;in class&nbsp;<code><a href="core/AbstractJobCommand.html" title="class in com.redis.riot.core">AbstractJobCommand</a></code></dd>
 </dl>
 </section>
 </li>
 <li>
-<section class="detail" id="getDatabaseReaderArgs()">
-<h3>getDatabaseReaderArgs</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="db/DatabaseReaderArgs.html" title="class in com.redis.riot.db">DatabaseReaderArgs</a></span>&nbsp;<span class="element-name">getDatabaseReaderArgs</span>()</div>
+<section class="detail" id="getSql()">
+<h3>getSql</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">getSql</span>()</div>
 </section>
 </li>
 <li>
-<section class="detail" id="setDatabaseReaderArgs(com.redis.riot.db.DatabaseReaderArgs)">
-<h3>setDatabaseReaderArgs</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setDatabaseReaderArgs</span><wbr><span class="parameters">(<a href="db/DatabaseReaderArgs.html" title="class in com.redis.riot.db">DatabaseReaderArgs</a>&nbsp;databaseReaderArgs)</span></div>
+<section class="detail" id="setSql(java.lang.String)">
+<h3>setSql</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setSql</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;sql)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="getReaderArgs()">
+<h3>getReaderArgs</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="DatabaseReaderArgs.html" title="class in com.redis.riot">DatabaseReaderArgs</a></span>&nbsp;<span class="element-name">getReaderArgs</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="setReaderArgs(com.redis.riot.DatabaseReaderArgs)">
+<h3>setReaderArgs</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setReaderArgs</span><wbr><span class="parameters">(<a href="DatabaseReaderArgs.html" title="class in com.redis.riot">DatabaseReaderArgs</a>&nbsp;args)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="getDataSourceArgs()">
+<h3>getDataSourceArgs</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="DataSourceArgs.html" title="class in com.redis.riot">DataSourceArgs</a></span>&nbsp;<span class="element-name">getDataSourceArgs</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="setDataSourceArgs(com.redis.riot.DataSourceArgs)">
+<h3>setDataSourceArgs</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setDataSourceArgs</span><wbr><span class="parameters">(<a href="DataSourceArgs.html" title="class in com.redis.riot">DataSourceArgs</a>&nbsp;args)</span></div>
 </section>
 </li>
 </ul>

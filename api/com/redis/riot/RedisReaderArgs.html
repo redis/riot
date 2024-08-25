@@ -97,27 +97,24 @@ loadScripts(document, 'script');</script>
 <div class="col-first odd-row-color"><code>static final <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Duration.html" title="class or interface in java.time" class="external-link">Duration</a></code></div>
 <div class="col-second odd-row-color"><code><a href="#DEFAULT_FLUSH_INTERVAL" class="member-name-link">DEFAULT_FLUSH_INTERVAL</a></code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
-<div class="col-first even-row-color"><code>static final org.springframework.util.unit.DataSize</code></div>
-<div class="col-second even-row-color"><code><a href="#DEFAULT_MEMORY_USAGE_LIMIT" class="member-name-link">DEFAULT_MEMORY_USAGE_LIMIT</a></code></div>
+<div class="col-first even-row-color"><code>static final int</code></div>
+<div class="col-second even-row-color"><code><a href="#DEFAULT_MEMORY_USAGE_SAMPLES" class="member-name-link">DEFAULT_MEMORY_USAGE_SAMPLES</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 <div class="col-first odd-row-color"><code>static final int</code></div>
-<div class="col-second odd-row-color"><code><a href="#DEFAULT_MEMORY_USAGE_SAMPLES" class="member-name-link">DEFAULT_MEMORY_USAGE_SAMPLES</a></code></div>
+<div class="col-second odd-row-color"><code><a href="#DEFAULT_NOTIFICATION_QUEUE_CAPACITY" class="member-name-link">DEFAULT_NOTIFICATION_QUEUE_CAPACITY</a></code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
-<div class="col-first even-row-color"><code>static final int</code></div>
-<div class="col-second even-row-color"><code><a href="#DEFAULT_NOTIFICATION_QUEUE_CAPACITY" class="member-name-link">DEFAULT_NOTIFICATION_QUEUE_CAPACITY</a></code></div>
+<div class="col-first even-row-color"><code>static final <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Duration.html" title="class or interface in java.time" class="external-link">Duration</a></code></div>
+<div class="col-second even-row-color"><code><a href="#DEFAULT_POLL_TIMEOUT" class="member-name-link">DEFAULT_POLL_TIMEOUT</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>static final <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Duration.html" title="class or interface in java.time" class="external-link">Duration</a></code></div>
-<div class="col-second odd-row-color"><code><a href="#DEFAULT_POLL_TIMEOUT" class="member-name-link">DEFAULT_POLL_TIMEOUT</a></code></div>
+<div class="col-first odd-row-color"><code>static final int</code></div>
+<div class="col-second odd-row-color"><code><a href="#DEFAULT_QUEUE_CAPACITY" class="member-name-link">DEFAULT_QUEUE_CAPACITY</a></code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
-<div class="col-first even-row-color"><code>static final int</code></div>
-<div class="col-second even-row-color"><code><a href="#DEFAULT_QUEUE_CAPACITY" class="member-name-link">DEFAULT_QUEUE_CAPACITY</a></code></div>
+<div class="col-first even-row-color"><code>static final long</code></div>
+<div class="col-second even-row-color"><code><a href="#DEFAULT_SCAN_COUNT" class="member-name-link">DEFAULT_SCAN_COUNT</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>static final long</code></div>
-<div class="col-second odd-row-color"><code><a href="#DEFAULT_SCAN_COUNT" class="member-name-link">DEFAULT_SCAN_COUNT</a></code></div>
+<div class="col-first odd-row-color"><code>static final int</code></div>
+<div class="col-second odd-row-color"><code><a href="#DEFAULT_THREADS" class="member-name-link">DEFAULT_THREADS</a></code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
-<div class="col-first even-row-color"><code>static final int</code></div>
-<div class="col-second even-row-color"><code><a href="#DEFAULT_THREADS" class="member-name-link">DEFAULT_THREADS</a></code></div>
-<div class="col-last even-row-color">&nbsp;</div>
 </div>
 </section>
 </li>
@@ -145,10 +142,8 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>&lt;K,<wbr>
-V,<wbr>
-T&gt;&nbsp;void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#configure(com.redis.spring.batch.item.redis.RedisItemReader)" class="member-name-link">configure</a><wbr>(com.redis.spring.batch.item.redis.RedisItemReader&lt;K,<wbr>V,<wbr>T&gt;&nbsp;reader)</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>&lt;K&gt;&nbsp;void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#configure(com.redis.spring.batch.item.redis.RedisItemReader)" class="member-name-link">configure</a><wbr>(com.redis.spring.batch.item.redis.RedisItemReader&lt;K,<wbr>?,<wbr>?&gt;&nbsp;reader)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getChunkSize()" class="member-name-link">getChunkSize</a>()</code></div>
@@ -180,47 +175,59 @@ T&gt;&nbsp;void</code></div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getNotificationQueueCapacity()" class="member-name-link">getNotificationQueueCapacity</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getQueueCapacity()" class="member-name-link">getQueueCapacity</a>()</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>long</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getPollTimeout()" class="member-name-link">getPollTimeout</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="RedisReadFrom.html" title="enum class in com.redis.riot">RedisReadFrom</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getReadFrom()" class="member-name-link">getReadFrom</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getQueueCapacity()" class="member-name-link">getQueueCapacity</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="RedisReadFrom.html" title="enum class in com.redis.riot">RedisReadFrom</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getReadFrom()" class="member-name-link">getReadFrom</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getRetryLimit()" class="member-name-link">getRetryLimit</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>long</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getScanCount()" class="member-name-link">getScanCount</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getThreads()" class="member-name-link">getThreads</a>()</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getSkipLimit()" class="member-name-link">getSkipLimit</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setChunkSize(int)" class="member-name-link">setChunkSize</a><wbr>(int&nbsp;chunkSize)</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getThreads()" class="member-name-link">getThreads</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setFlushInterval(long)" class="member-name-link">setFlushInterval</a><wbr>(long&nbsp;intervalMillis)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setChunkSize(int)" class="member-name-link">setChunkSize</a><wbr>(int&nbsp;chunkSize)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setIdleTimeout(long)" class="member-name-link">setIdleTimeout</a><wbr>(long&nbsp;idleTimeout)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setFlushInterval(long)" class="member-name-link">setFlushInterval</a><wbr>(long&nbsp;intervalMillis)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setKeyFilterArgs(com.redis.riot.KeyFilterArgs)" class="member-name-link">setKeyFilterArgs</a><wbr>(<a href="KeyFilterArgs.html" title="class in com.redis.riot">KeyFilterArgs</a>&nbsp;keyFilterArgs)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setIdleTimeout(long)" class="member-name-link">setIdleTimeout</a><wbr>(long&nbsp;idleTimeout)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setKeyPattern(java.lang.String)" class="member-name-link">setKeyPattern</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;scanMatch)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setKeyFilterArgs(com.redis.riot.KeyFilterArgs)" class="member-name-link">setKeyFilterArgs</a><wbr>(<a href="KeyFilterArgs.html" title="class in com.redis.riot">KeyFilterArgs</a>&nbsp;keyFilterArgs)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setKeyType(java.lang.String)" class="member-name-link">setKeyType</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;scanType)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setKeyPattern(java.lang.String)" class="member-name-link">setKeyPattern</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;scanMatch)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setMemUsageLimit(org.springframework.util.unit.DataSize)" class="member-name-link">setMemUsageLimit</a><wbr>(org.springframework.util.unit.DataSize&nbsp;memLimit)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setKeyType(java.lang.String)" class="member-name-link">setKeyType</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;scanType)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setMemUsageSamples(int)" class="member-name-link">setMemUsageSamples</a><wbr>(int&nbsp;memSamples)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setMemUsageLimit(org.springframework.util.unit.DataSize)" class="member-name-link">setMemUsageLimit</a><wbr>(org.springframework.util.unit.DataSize&nbsp;memLimit)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setMode(com.redis.spring.batch.item.redis.RedisItemReader.ReaderMode)" class="member-name-link">setMode</a><wbr>(com.redis.spring.batch.item.redis.RedisItemReader.ReaderMode&nbsp;mode)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setMemUsageSamples(int)" class="member-name-link">setMemUsageSamples</a><wbr>(int&nbsp;memSamples)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setNotificationQueueCapacity(int)" class="member-name-link">setNotificationQueueCapacity</a><wbr>(int&nbsp;capacity)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setMode(com.redis.spring.batch.item.redis.RedisItemReader.ReaderMode)" class="member-name-link">setMode</a><wbr>(com.redis.spring.batch.item.redis.RedisItemReader.ReaderMode&nbsp;mode)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setNotificationQueueCapacity(int)" class="member-name-link">setNotificationQueueCapacity</a><wbr>(int&nbsp;capacity)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setPollTimeout(long)" class="member-name-link">setPollTimeout</a><wbr>(long&nbsp;pollTimeout)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setQueueCapacity(int)" class="member-name-link">setQueueCapacity</a><wbr>(int&nbsp;queueCapacity)</code></div>
@@ -229,7 +236,13 @@ T&gt;&nbsp;void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setReadFrom(com.redis.riot.RedisReadFrom)" class="member-name-link">setReadFrom</a><wbr>(<a href="RedisReadFrom.html" title="enum class in com.redis.riot">RedisReadFrom</a>&nbsp;readFrom)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setScanCount(long)" class="member-name-link">setScanCount</a><wbr>(long&nbsp;scanCount)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setRetryLimit(int)" class="member-name-link">setRetryLimit</a><wbr>(int&nbsp;retryLimit)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setScanCount(long)" class="member-name-link">setScanCount</a><wbr>(long&nbsp;scanCount)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setSkipLimit(int)" class="member-name-link">setSkipLimit</a><wbr>(int&nbsp;skipLimit)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setThreads(int)" class="member-name-link">setThreads</a><wbr>(int&nbsp;threads)</code></div>
@@ -300,12 +313,6 @@ T&gt;&nbsp;void</code></div>
 </ul>
 </dd>
 </dl>
-</section>
-</li>
-<li>
-<section class="detail" id="DEFAULT_MEMORY_USAGE_LIMIT">
-<h3>DEFAULT_MEMORY_USAGE_LIMIT</h3>
-<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">org.springframework.util.unit.DataSize</span>&nbsp;<span class="element-name">DEFAULT_MEMORY_USAGE_LIMIT</span></div>
 </section>
 </li>
 <li>
@@ -381,9 +388,7 @@ T&gt;&nbsp;void</code></div>
 <li>
 <section class="detail" id="configure(com.redis.spring.batch.item.redis.RedisItemReader)">
 <h3>configure</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="type-parameters">&lt;K,<wbr>
-V,<wbr>
-T&gt;</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">configure</span><wbr><span class="parameters">(com.redis.spring.batch.item.redis.RedisItemReader&lt;K,<wbr>V,<wbr>T&gt;&nbsp;reader)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="type-parameters">&lt;K&gt;</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">configure</span><wbr><span class="parameters">(com.redis.spring.batch.item.redis.RedisItemReader&lt;K,<wbr>?,<wbr>?&gt;&nbsp;reader)</span></div>
 </section>
 </li>
 <li>
@@ -552,6 +557,42 @@ T&gt;</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="elemen
 <section class="detail" id="setMode(com.redis.spring.batch.item.redis.RedisItemReader.ReaderMode)">
 <h3>setMode</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setMode</span><wbr><span class="parameters">(com.redis.spring.batch.item.redis.RedisItemReader.ReaderMode&nbsp;mode)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="getPollTimeout()">
+<h3>getPollTimeout</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">long</span>&nbsp;<span class="element-name">getPollTimeout</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="setPollTimeout(long)">
+<h3>setPollTimeout</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setPollTimeout</span><wbr><span class="parameters">(long&nbsp;pollTimeout)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="getRetryLimit()">
+<h3>getRetryLimit</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getRetryLimit</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="setRetryLimit(int)">
+<h3>setRetryLimit</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setRetryLimit</span><wbr><span class="parameters">(int&nbsp;retryLimit)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="getSkipLimit()">
+<h3>getSkipLimit</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getSkipLimit</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="setSkipLimit(int)">
+<h3>setSkipLimit</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setSkipLimit</span><wbr><span class="parameters">(int&nbsp;skipLimit)</span></div>
 </section>
 </li>
 <li>

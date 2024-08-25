@@ -91,6 +91,16 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
+<div class="col-first even-row-color"><code>&lt;T&gt;&nbsp;org.springframework.batch.item.ItemWriter&lt;T&gt;</code></div>
+<div class="col-second even-row-color"><span class="type-name-label">FileExport.</span><code><a href="../../FileExport.html#create(org.springframework.core.io.WritableResource,com.redis.riot.file.FileType,java.util.function.Supplier)" class="member-name-link">create</a><wbr>(org.springframework.core.io.WritableResource&nbsp;resource,
+ <a href="../FileType.html" title="enum class in com.redis.riot.file">FileType</a>&nbsp;fileType,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Supplier.html" title="class or interface in java.util.function" class="external-link">Supplier</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;&gt;&nbsp;headerSupplier)</code></div>
+<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-first odd-row-color"><code>&lt;T&gt;&nbsp;org.springframework.batch.item.ItemReader&lt;T&gt;</code></div>
+<div class="col-second odd-row-color"><span class="type-name-label">FileImport.</span><code><a href="../../FileImport.html#createReader(org.springframework.core.io.Resource,com.redis.riot.file.FileType,java.lang.Class)" class="member-name-link">createReader</a><wbr>(org.springframework.core.io.Resource&nbsp;resource,
+ <a href="../FileType.html" title="enum class in com.redis.riot.file">FileType</a>&nbsp;fileType,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;T&gt;&nbsp;itemType)</code></div>
+<div class="col-last odd-row-color">&nbsp;</div>
 <div class="col-first even-row-color"><code>void</code></div>
 <div class="col-second even-row-color"><span class="type-name-label">FileExport.</span><code><a href="../../FileExport.html#setFileType(com.redis.riot.file.FileType)" class="member-name-link">setFileType</a><wbr>(<a href="../FileType.html" title="enum class in com.redis.riot.file">FileType</a>&nbsp;fileType)</code></div>
 <div class="col-last even-row-color">&nbsp;</div>
@@ -122,22 +132,6 @@ loadScripts(document, 'script');</script>
 <div class="block">Returns an array containing the constants of this enum class, in
 the order they are declared.</div>
 </div>
-</div>
-<div class="caption"><span>Methods in <a href="../package-summary.html">com.redis.riot.file</a> with parameters of type <a href="../FileType.html" title="enum class in com.redis.riot.file">FileType</a></span></div>
-<div class="summary-table three-column-summary">
-<div class="table-header col-first">Modifier and Type</div>
-<div class="table-header col-second">Method</div>
-<div class="table-header col-last">Description</div>
-<div class="col-first even-row-color"><code>&lt;T&gt;&nbsp;org.springframework.batch.item.ItemWriter&lt;T&gt;</code></div>
-<div class="col-second even-row-color"><span class="type-name-label">FileWriterFactory.</span><code><a href="../FileWriterFactory.html#create(org.springframework.core.io.WritableResource,com.redis.riot.file.FileType,java.util.function.Supplier)" class="member-name-link">create</a><wbr>(org.springframework.core.io.WritableResource&nbsp;resource,
- <a href="../FileType.html" title="enum class in com.redis.riot.file">FileType</a>&nbsp;fileType,
- <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Supplier.html" title="class or interface in java.util.function" class="external-link">Supplier</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;&gt;&nbsp;headerSupplier)</code></div>
-<div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>&lt;T&gt;&nbsp;org.springframework.batch.item.ItemReader&lt;T&gt;</code></div>
-<div class="col-second odd-row-color"><span class="type-name-label">FileReaderFactory.</span><code><a href="../FileReaderFactory.html#createReader(org.springframework.core.io.Resource,com.redis.riot.file.FileType,java.lang.Class)" class="member-name-link">createReader</a><wbr>(org.springframework.core.io.Resource&nbsp;resource,
- <a href="../FileType.html" title="enum class in com.redis.riot.file">FileType</a>&nbsp;fileType,
- <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;T&gt;&nbsp;itemType)</code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
 </div>
 </section>
 </li>

@@ -1,7 +1,6 @@
 com.redis.riot
 com.redis.riot.core
 com.redis.riot.core.processor
-com.redis.riot.db
 com.redis.riot.faker
 com.redis.riot.file
 com.redis.riot.file.xml

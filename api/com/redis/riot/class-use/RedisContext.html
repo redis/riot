@@ -63,35 +63,36 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="com.redis.riot">
 <h2>Uses of <a href="../RedisContext.html" title="class in com.redis.riot">RedisContext</a> in <a href="../package-summary.html">com.redis.riot</a></h2>
+<div class="caption"><span>Fields in <a href="../package-summary.html">com.redis.riot</a> declared as <a href="../RedisContext.html" title="class in com.redis.riot">RedisContext</a></span></div>
+<div class="summary-table three-column-summary">
+<div class="table-header col-first">Modifier and Type</div>
+<div class="table-header col-second">Field</div>
+<div class="table-header col-last">Description</div>
+<div class="col-first even-row-color"><code>protected <a href="../RedisContext.html" title="class in com.redis.riot">RedisContext</a></code></div>
+<div class="col-second even-row-color"><span class="type-name-label">AbstractRedisCommand.</span><code><a href="../AbstractRedisCommand.html#redisContext" class="member-name-link">redisContext</a></code></div>
+<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-first odd-row-color"><code>protected <a href="../RedisContext.html" title="class in com.redis.riot">RedisContext</a></code></div>
+<div class="col-second odd-row-color"><span class="type-name-label">AbstractRedisToRedisCommand.</span><code><a href="../AbstractRedisToRedisCommand.html#sourceRedisContext" class="member-name-link">sourceRedisContext</a></code></div>
+<div class="col-last odd-row-color">&nbsp;</div>
+<div class="col-first even-row-color"><code>protected <a href="../RedisContext.html" title="class in com.redis.riot">RedisContext</a></code></div>
+<div class="col-second even-row-color"><span class="type-name-label">AbstractRedisToRedisCommand.</span><code><a href="../AbstractRedisToRedisCommand.html#targetRedisContext" class="member-name-link">targetRedisContext</a></code></div>
+<div class="col-last even-row-color">&nbsp;</div>
+</div>
 <div class="caption"><span>Methods in <a href="../package-summary.html">com.redis.riot</a> that return <a href="../RedisContext.html" title="class in com.redis.riot">RedisContext</a></span></div>
 <div class="summary-table three-column-summary">
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color"><code><a href="../RedisContext.html" title="class in com.redis.riot">RedisContext</a></code></div>
-<div class="col-second even-row-color"><span class="type-name-label">RedisExecutionContext.</span><code><a href="../RedisExecutionContext.html#getRedisContext()" class="member-name-link">getRedisContext</a>()</code></div>
+<div class="col-first even-row-color"><code>static <a href="../RedisContext.html" title="class in com.redis.riot">RedisContext</a></code></div>
+<div class="col-second even-row-color"><span class="type-name-label">RedisContext.</span><code><a href="../RedisContext.html#create(io.lettuce.core.RedisURI,boolean,boolean,io.lettuce.core.protocol.ProtocolVersion,io.lettuce.core.SslOptions)" class="member-name-link">create</a><wbr>(io.lettuce.core.RedisURI&nbsp;uri,
+ boolean&nbsp;cluster,
+ boolean&nbsp;autoReconnect,
+ io.lettuce.core.protocol.ProtocolVersion&nbsp;protocolVersion,
+ io.lettuce.core.SslOptions&nbsp;sslOptions)</code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 <div class="col-first odd-row-color"><code><a href="../RedisContext.html" title="class in com.redis.riot">RedisContext</a></code></div>
-<div class="col-second odd-row-color"><span class="type-name-label">TargetRedisExecutionContext.</span><code><a href="../TargetRedisExecutionContext.html#getSourceRedisContext()" class="member-name-link">getSourceRedisContext</a>()</code></div>
+<div class="col-second odd-row-color"><span class="type-name-label">RedisArgs.</span><code><a href="../RedisArgs.html#redisContext()" class="member-name-link">redisContext</a>()</code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
-<div class="col-first even-row-color"><code><a href="../RedisContext.html" title="class in com.redis.riot">RedisContext</a></code></div>
-<div class="col-second even-row-color"><span class="type-name-label">TargetRedisExecutionContext.</span><code><a href="../TargetRedisExecutionContext.html#getTargetRedisContext()" class="member-name-link">getTargetRedisContext</a>()</code></div>
-<div class="col-last even-row-color">&nbsp;</div>
-</div>
-<div class="caption"><span>Methods in <a href="../package-summary.html">com.redis.riot</a> with parameters of type <a href="../RedisContext.html" title="class in com.redis.riot">RedisContext</a></span></div>
-<div class="summary-table three-column-summary">
-<div class="table-header col-first">Modifier and Type</div>
-<div class="table-header col-second">Method</div>
-<div class="table-header col-last">Description</div>
-<div class="col-first even-row-color"><code>void</code></div>
-<div class="col-second even-row-color"><span class="type-name-label">RedisExecutionContext.</span><code><a href="../RedisExecutionContext.html#setRedisContext(com.redis.riot.RedisContext)" class="member-name-link">setRedisContext</a><wbr>(<a href="../RedisContext.html" title="class in com.redis.riot">RedisContext</a>&nbsp;context)</code></div>
-<div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>void</code></div>
-<div class="col-second odd-row-color"><span class="type-name-label">TargetRedisExecutionContext.</span><code><a href="../TargetRedisExecutionContext.html#setSourceRedisContext(com.redis.riot.RedisContext)" class="member-name-link">setSourceRedisContext</a><wbr>(<a href="../RedisContext.html" title="class in com.redis.riot">RedisContext</a>&nbsp;sourceRedisContext)</code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
-<div class="col-first even-row-color"><code>void</code></div>
-<div class="col-second even-row-color"><span class="type-name-label">TargetRedisExecutionContext.</span><code><a href="../TargetRedisExecutionContext.html#setTargetRedisContext(com.redis.riot.RedisContext)" class="member-name-link">setTargetRedisContext</a><wbr>(<a href="../RedisContext.html" title="class in com.redis.riot">RedisContext</a>&nbsp;targetRedisContext)</code></div>
-<div class="col-last even-row-color">&nbsp;</div>
 </div>
 </section>
 </li>

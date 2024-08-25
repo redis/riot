@@ -70,11 +70,11 @@ loadScripts(document, 'script');</script>
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
 <div class="sub-title"><span class="package-label-in-type">Package</span>&nbsp;<a href="package-summary.html">com.redis.riot.core</a></div>
-<h1 title="Class AbstractCommand" class="title">Class AbstractCommand&lt;C extends <a href="ExecutionContext.html" title="interface in com.redis.riot.core">ExecutionContext</a>&gt;</h1>
+<h1 title="Class AbstractCommand" class="title">Class AbstractCommand</h1>
 </div>
 <div class="inheritance" title="Inheritance Tree"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">java.lang.Object</a>
 <div class="inheritance"><a href="BaseCommand.html" title="class in com.redis.riot.core">com.redis.riot.core.BaseCommand</a>
-<div class="inheritance">com.redis.riot.core.AbstractCommand&lt;C&gt;</div>
+<div class="inheritance">com.redis.riot.core.AbstractCommand</div>
 </div>
 </div>
 <section class="class-description" id="class-description">
@@ -87,7 +87,7 @@ loadScripts(document, 'script');</script>
 <dd><code><a href="AbstractJobCommand.html" title="class in com.redis.riot.core">AbstractJobCommand</a></code></dd>
 </dl>
 <hr>
-<div class="type-signature"><span class="modifiers">public abstract class </span><span class="element-name type-name-label">AbstractCommand&lt;C extends <a href="ExecutionContext.html" title="interface in com.redis.riot.core">ExecutionContext</a>&gt;</span>
+<div class="type-signature"><span class="modifiers">public abstract class </span><span class="element-name type-name-label">AbstractCommand</span>
 <span class="extends-implements">extends <a href="BaseCommand.html" title="class in com.redis.riot.core">BaseCommand</a>
 implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/concurrent/Callable.html" title="class or interface in java.util.concurrent" class="external-link">Callable</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>&gt;</span></div>
 </section>
@@ -139,26 +139,23 @@ implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#call()" class="member-name-link">call</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>protected abstract void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#execute(C)" class="member-name-link">execute</a><wbr>(<a href="AbstractCommand.html" title="type parameter in AbstractCommand">C</a>&nbsp;context)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#execute()" class="member-name-link">execute</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>protected abstract <a href="AbstractCommand.html" title="type parameter in AbstractCommand">C</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#executionContext()" class="member-name-link">executionContext</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>org.slf4j.Logger</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getLog()" class="member-name-link">getLog</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="LoggingArgs.html" title="class in com.redis.riot.core">LoggingArgs</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getLoggingArgs()" class="member-name-link">getLoggingArgs</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>org.slf4j.Logger</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getLog()" class="member-name-link">getLog</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>org.slf4j.event.Level</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#logLevel()" class="member-name-link">logLevel</a>()</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="LoggingArgs.html" title="class in com.redis.riot.core">LoggingArgs</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getLoggingArgs()" class="member-name-link">getLoggingArgs</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setLog(org.slf4j.Logger)" class="member-name-link">setLog</a><wbr>(org.slf4j.Logger&nbsp;log)</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>org.slf4j.event.Level</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#logLevel()" class="member-name-link">logLevel</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setLoggingArgs(com.redis.riot.core.LoggingArgs)" class="member-name-link">setLoggingArgs</a><wbr>(<a href="LoggingArgs.html" title="class in com.redis.riot.core">LoggingArgs</a>&nbsp;args)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setLog(org.slf4j.Logger)" class="member-name-link">setLog</a><wbr>(org.slf4j.Logger&nbsp;log)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setLoggingArgs(com.redis.riot.core.LoggingArgs)" class="member-name-link">setLoggingArgs</a><wbr>(<a href="LoggingArgs.html" title="class in com.redis.riot.core">LoggingArgs</a>&nbsp;args)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
 </div>
@@ -211,28 +208,27 @@ implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base
              throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Exception.html" title="class or interface in java.lang" class="external-link">Exception</a></span></div>
 <dl class="notes">
 <dt>Specified by:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/concurrent/Callable.html#call()" title="class or interface in java.util.concurrent" class="external-link">call</a></code>&nbsp;in interface&nbsp;<code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/concurrent/Callable.html" title="class or interface in java.util.concurrent" class="external-link">Callable</a>&lt;<a href="AbstractCommand.html" title="type parameter in AbstractCommand">C</a> extends <a href="ExecutionContext.html" title="interface in com.redis.riot.core">ExecutionContext</a>&gt;</code></dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/concurrent/Callable.html#call()" title="class or interface in java.util.concurrent" class="external-link">call</a></code>&nbsp;in interface&nbsp;<code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/concurrent/Callable.html" title="class or interface in java.util.concurrent" class="external-link">Callable</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>&gt;</code></dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Exception.html" title="class or interface in java.lang" class="external-link">Exception</a></code></dd>
 </dl>
 </section>
 </li>
 <li>
-<section class="detail" id="executionContext()">
-<h3>executionContext</h3>
-<div class="member-signature"><span class="modifiers">protected abstract</span>&nbsp;<span class="return-type"><a href="AbstractCommand.html" title="type parameter in AbstractCommand">C</a></span>&nbsp;<span class="element-name">executionContext</span>()</div>
+<section class="detail" id="execute()">
+<h3>execute</h3>
+<div class="member-signature"><span class="modifiers">protected abstract</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">execute</span>()
+                         throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Exception.html" title="class or interface in java.lang" class="external-link">Exception</a></span></div>
+<dl class="notes">
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Exception.html" title="class or interface in java.lang" class="external-link">Exception</a></code></dd>
+</dl>
 </section>
 </li>
 <li>
 <section class="detail" id="logLevel()">
 <h3>logLevel</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">org.slf4j.event.Level</span>&nbsp;<span class="element-name">logLevel</span>()</div>
-</section>
-</li>
-<li>
-<section class="detail" id="execute(C)">
-<h3 id="execute(com.redis.riot.core.ExecutionContext)">execute</h3>
-<div class="member-signature"><span class="modifiers">protected abstract</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">execute</span><wbr><span class="parameters">(<a href="AbstractCommand.html" title="type parameter in AbstractCommand">C</a>&nbsp;context)</span></div>
 </section>
 </li>
 <li>
