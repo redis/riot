@@ -49,7 +49,7 @@ public class Ping extends AbstractRedisCommand {
 
 	@Override
 	protected Job job() {
-		PingExecutionItemReader reader = new PingExecutionItemReader(redisContext.getConnection().sync());
+		PingExecutionItemReader reader = new PingExecutionItemReader(commands());
 		reader.setMaxItemCount(count);
 		PingLatencyItemWriter writer = new PingLatencyItemWriter();
 		Step<PingExecution, PingExecution> step = new Step<>(STEP_NAME, reader, writer);

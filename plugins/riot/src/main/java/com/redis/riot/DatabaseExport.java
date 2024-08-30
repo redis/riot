@@ -17,7 +17,7 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 @Command(name = "db-export", description = "Export Redis data to a relational database.")
-public class DatabaseExport extends AbstractExportCommand {
+public class DatabaseExport extends AbstractRedisExportCommand {
 
 	public static final boolean DEFAULT_ASSERT_UPDATES = true;
 

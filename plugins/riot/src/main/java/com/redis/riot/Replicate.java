@@ -42,9 +42,6 @@ public class Replicate extends AbstractCompareCommand {
 	private static final String LIVEONLY_TASK_NAME = "Listening";
 	private static final String LIVE_TASK_NAME = "Scanning/Listening";
 
-	private static final String VAR_SOURCE = "source";
-	private static final String VAR_TARGET = "target";
-
 	@Option(names = "--struct", description = "Enable data structure-specific replication")
 	private boolean struct;
 
@@ -107,24 +104,23 @@ public class Replicate extends AbstractCompareCommand {
 	private StandardEvaluationContext evaluationContext() {
 		log.info("Creating SpEL evaluation context with {}", evaluationContextArgs);
 		StandardEvaluationContext evaluationContext = evaluationContextArgs.evaluationContext();
-		evaluationContext.setVariable(VAR_SOURCE, sourceRedisContext.getConnection().sync());
-		evaluationContext.setVariable(VAR_TARGET, targetRedisContext.getConnection().sync());
+		configure(evaluationContext);
 		return evaluationContext;
 	}
 
-	protected void configureTargetWriter(RedisItemWriter<?, ?, ?> writer) {
-		targetRedisContext.configure(writer);
+	@Override
+	protected void configureTargetRedisWriter(RedisItemWriter<?, ?, ?> writer) {
+		super.configureTargetRedisWriter(writer);
 		log.info("Configuring target Redis writer with {}", targetRedisWriterArgs);
 		targetRedisWriterArgs.configure(writer);
 	}
 
 	private Step<KeyValue<byte[], Object>, KeyValue<byte[], Object>> step() {
 		RedisItemReader<byte[], byte[], Object> reader = reader();
-		configureSourceReader(reader);
+		configureSourceRedisReader(reader);
 		RedisItemWriter<byte[], byte[], KeyValue<byte[], Object>> writer = writer();
-		configureTargetWriter(writer);
-		RedisExportStep<byte[], byte[], Object, KeyValue<byte[], Object>> step = new RedisExportStep<>(STEP_NAME,
-				reader, writer);
+		configureTargetRedisWriter(writer);
+		Step<KeyValue<byte[], Object>, KeyValue<byte[], Object>> step = step(STEP_NAME, reader, writer);
 		step.processor(processor());
 		step.taskName(taskName(reader));
 		if (reader.getMode() != ReaderMode.SCAN) {
@@ -139,7 +135,6 @@ public class Replicate extends AbstractCompareCommand {
 			reader.addItemReadListener(readLogger);
 			reader.addItemWriteListener(readLogger);
 		}
-		step.afterPropertiesSet();
 		return step;
 	}
 

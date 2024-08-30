@@ -6,7 +6,6 @@ import java.util.List;
 import org.springframework.batch.core.Job;
 import org.springframework.util.StringUtils;
 
-import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.lettucemod.search.CreateOptions;
 import com.redis.lettucemod.search.Field;
 import com.redis.riot.core.Step;
@@ -17,6 +16,7 @@ import com.redis.spring.batch.item.redis.gen.GeneratorItemReader;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 @Command(name = "generate", description = "Generate Redis data structures.")
 public class Generate extends AbstractRedisCommand {
@@ -27,17 +27,18 @@ public class Generate extends AbstractRedisCommand {
 	@ArgGroup(exclusive = false)
 	private GenerateArgs generateArgs = new GenerateArgs();
 
+	@Option(names = "--pool", description = "Max number of Redis connections in pool (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
+	private int poolSize = RedisItemWriter.DEFAULT_POOL_SIZE;
+
 	@ArgGroup(exclusive = false, heading = "Redis writer options%n")
 	private RedisWriterArgs redisWriterArgs = new RedisWriterArgs();
 
 	@Override
 	protected Job job() {
 		if (StringUtils.hasLength(generateArgs.getIndex())) {
-			StatefulRedisModulesConnection<String, String> connection = redisContext.getConnection();
-			connection.sync().ftCreate(generateArgs.getIndex(), indexCreateOptions(), indexFields());
+			commands().ftCreate(generateArgs.getIndex(), indexCreateOptions(), indexFields());
 		}
-		RedisItemWriter<String, String, KeyValue<String, Object>> writer = writer();
-		Step<KeyValue<String, Object>, KeyValue<String, Object>> step = new Step<>(STEP_NAME, reader(), writer);
+		Step<KeyValue<String, Object>, KeyValue<String, Object>> step = new Step<>(STEP_NAME, reader(), writer());
 		step.taskName(TASK_NAME);
 		step.maxItemCount(generateArgs.getCount());
 		return job(step);
@@ -48,6 +49,8 @@ public class Generate extends AbstractRedisCommand {
 		configure(writer);
 		log.info("Configuring Redis writer with {}", redisWriterArgs);
 		redisWriterArgs.configure(writer);
+		log.info("Configuring Redis writer with poolSize {}", poolSize);
+		writer.setPoolSize(poolSize);
 		return writer;
 	}
 
@@ -97,7 +100,7 @@ public class Generate extends AbstractRedisCommand {
 	private GeneratorItemReader reader() {
 		GeneratorItemReader reader = new GeneratorItemReader();
 		reader.setMaxItemCount(generateArgs.getCount());
-		reader.setOptions(generateArgs.generatorOptions());
+		generateArgs.configure(reader);
 		return reader;
 	}
 
@@ -115,6 +118,14 @@ public class Generate extends AbstractRedisCommand {
 
 	public void setGenerateArgs(GenerateArgs args) {
 		this.generateArgs = args;
+	}
+
+	public int getPoolSize() {
+		return poolSize;
+	}
+
+	public void setPoolSize(int poolSize) {
+		this.poolSize = poolSize;
 	}
 
 }

@@ -26,7 +26,7 @@ import com.redis.spring.batch.item.redis.gen.GeneratorItemReader;
 import io.lettuce.core.cluster.SlotHash;
 import io.lettuce.core.codec.ByteArrayCodec;
 
-abstract class RiotTests extends AbstractRiotTestBase {
+abstract class RiotTests extends AbstractRiotApplicationTestBase {
 
 	@BeforeAll
 	void setDefaults() {
@@ -65,10 +65,10 @@ abstract class RiotTests extends AbstractRiotTestBase {
 		replication.getJobArgs().getProgressArgs().setStyle(ProgressStyle.NONE);
 		replication.setJobName(name(info));
 		replication.setJobRepository(jobRepository);
-		replication.setSourceRedisURI(redisURI);
-		replication.getSourceRedisClientArgs().setCluster(getRedisServer().isRedisCluster());
-		replication.setTargetRedisURI(targetRedisURI);
-		replication.getTargetRedisClientArgs().setCluster(getTargetRedisServer().isRedisCluster());
+		replication.setSourceRedisUri(redisURI);
+		replication.getSourceRedisArgs().setCluster(getRedisServer().isRedisCluster());
+		replication.setTargetRedisUri(targetRedisURI);
+		replication.getTargetRedisArgs().setCluster(getTargetRedisServer().isRedisCluster());
 		replication.getSourceRedisReaderArgs().setIdleTimeout(DEFAULT_IDLE_TIMEOUT_SECONDS);
 		replication.call();
 	}

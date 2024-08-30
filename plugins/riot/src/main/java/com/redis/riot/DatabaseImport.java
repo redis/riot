@@ -15,7 +15,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
 
 @Command(name = "db-import", description = "Import from a relational database.")
-public class DatabaseImport extends AbstractImportCommand {
+public class DatabaseImport extends AbstractRedisImportCommand {
 
 	@ArgGroup(exclusive = false)
 	private DataSourceArgs dataSourceArgs = new DataSourceArgs();

@@ -1,68 +1,111 @@
 package com.redis.riot;
 
 import java.util.Map;
-import java.util.regex.Pattern;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.function.FunctionItemProcessor;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+import org.springframework.util.Assert;
 
+import com.redis.lettucemod.RedisModulesUtils;
+import com.redis.lettucemod.api.StatefulRedisModulesConnection;
+import com.redis.riot.core.AbstractJobCommand;
 import com.redis.riot.core.Step;
-import com.redis.riot.core.processor.RegexNamedGroupFunction;
-import com.redis.riot.function.KeyValueMap;
 import com.redis.spring.batch.item.redis.RedisItemReader;
+import com.redis.spring.batch.item.redis.RedisItemReader.ReaderMode;
 import com.redis.spring.batch.item.redis.common.KeyValue;
 
+import io.lettuce.core.AbstractRedisClient;
+import io.lettuce.core.RedisException;
 import picocli.CommandLine.ArgGroup;
-import picocli.CommandLine.Option;
 
-public abstract class AbstractExportCommand extends AbstractRedisCommand {
+public abstract class AbstractExportCommand extends AbstractJobCommand {
+
+	public static final String NOTIFY_CONFIG = "notify-keyspace-events";
+	public static final String NOTIFY_CONFIG_VALUE = "KEA";
 
 	private static final String TASK_NAME = "Exporting";
 	private static final String STEP_NAME = "step";
+	private static final String VAR_SOURCE = "source";
 
 	@ArgGroup(exclusive = false)
-	private RedisReaderArgs redisReaderArgs = new RedisReaderArgs();
+	private RedisReaderArgs sourceRedisReaderArgs = new RedisReaderArgs();
 
-	@Option(names = "--key-regex", description = "Regex for key-field extraction, e.g. '\\w+:(?<id>.+)' extracts an id field from the key", paramLabel = "<rex>")
-	private Pattern keyRegex;
+	private RedisContext sourceRedisContext;
 
 	@Override
-	protected void configure(RedisItemReader<?, ?, ?> reader) {
-		super.configure(reader);
-		redisReaderArgs.configure(reader);
-	}
-
-	protected ItemProcessor<KeyValue<String, Object>, Map<String, Object>> mapProcessor() {
-		KeyValueMap mapFunction = new KeyValueMap();
-		if (keyRegex != null) {
-			mapFunction.setKey(new RegexNamedGroupFunction(keyRegex));
+	protected void execute() throws Exception {
+		sourceRedisContext = sourceRedisContext();
+		try {
+			super.execute();
+		} finally {
+			sourceRedisContext.close();
 		}
-		return new FunctionItemProcessor<>(mapFunction);
 	}
 
-	protected <T> Step<KeyValue<String, Object>, T> step(ItemWriter<T> writer) {
+	protected void configure(StandardEvaluationContext context) {
+		context.setVariable(VAR_SOURCE, sourceRedisContext.getConnection().sync());
+	}
+
+	protected void configureSourceRedisReader(RedisItemReader<?, ?, ?> reader) {
+		configureAsyncReader(reader);
+		sourceRedisContext.configure(reader);
+		log.info("Configuring source Redis reader with {}", sourceRedisReaderArgs);
+		sourceRedisReaderArgs.configure(reader);
+	}
+
+	protected abstract RedisContext sourceRedisContext();
+
+	protected <O> Step<KeyValue<String, Object>, O> step(ItemWriter<O> writer) {
 		RedisItemReader<String, String, Object> reader = RedisItemReader.struct();
-		configure(reader);
-		RedisExportStep<String, String, Object, T> step = new RedisExportStep<>(STEP_NAME, reader, writer);
+		configureSourceRedisReader(reader);
+		Step<KeyValue<String, Object>, O> step = step(STEP_NAME, reader, writer);
 		step.taskName(TASK_NAME);
-		step.afterPropertiesSet();
 		return step;
 	}
 
-	public RedisReaderArgs getRedisReaderArgs() {
-		return redisReaderArgs;
+	protected <K, V, T, O> Step<KeyValue<K, T>, O> step(String name, RedisItemReader<K, V, T> reader,
+			ItemWriter<O> writer) {
+		Step<KeyValue<K, T>, O> step = new Step<>(name, reader, writer);
+		if (reader.getMode() != ReaderMode.LIVEONLY) {
+			step.maxItemCountSupplier(reader.scanSizeEstimator());
+		}
+		if (reader.getMode() != ReaderMode.SCAN) {
+			checkNotifyConfig(reader.getClient());
+			step.live(true);
+			step.flushInterval(reader.getFlushInterval());
+			step.idleTimeout(reader.getIdleTimeout());
+		}
+		return step;
 	}
 
-	public void setRedisReaderArgs(RedisReaderArgs args) {
-		this.redisReaderArgs = args;
+	private void checkNotifyConfig(AbstractRedisClient client) {
+		Map<String, String> valueMap;
+		try (StatefulRedisModulesConnection<String, String> conn = RedisModulesUtils.connection(client)) {
+			try {
+				valueMap = conn.sync().configGet(NOTIFY_CONFIG);
+			} catch (RedisException e) {
+				return;
+			}
+		}
+		String actual = valueMap.getOrDefault(NOTIFY_CONFIG, "");
+		Set<Character> expected = characterSet(NOTIFY_CONFIG_VALUE);
+		Assert.isTrue(characterSet(actual).containsAll(expected),
+				String.format("Keyspace notifications not property configured: expected '%s' but was '%s'.",
+						NOTIFY_CONFIG_VALUE, actual));
 	}
 
-	public Pattern getKeyRegex() {
-		return keyRegex;
+	private Set<Character> characterSet(String string) {
+		return string.codePoints().mapToObj(c -> (char) c).collect(Collectors.toSet());
 	}
 
-	public void setKeyRegex(Pattern regex) {
-		this.keyRegex = regex;
+	public RedisReaderArgs getSourceRedisReaderArgs() {
+		return sourceRedisReaderArgs;
 	}
+
+	public void setSourceRedisReaderArgs(RedisReaderArgs args) {
+		this.sourceRedisReaderArgs = args;
+	}
+
 }

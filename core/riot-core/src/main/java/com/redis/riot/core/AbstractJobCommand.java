@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.ItemWriteListener;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
@@ -36,6 +37,7 @@ import org.springframework.retry.policy.NeverRetryPolicy;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
 import com.redis.spring.batch.JobUtils;
 import com.redis.spring.batch.item.AbstractAsyncItemReader;
@@ -47,7 +49,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Command
-public abstract class AbstractJobCommand extends AbstractCommand {
+public abstract class AbstractJobCommand extends AbstractCallableCommand {
 
 	public static final String DEFAULT_JOB_REPOSITORY_NAME = "riot";
 
@@ -96,7 +98,11 @@ public abstract class AbstractJobCommand extends AbstractCommand {
 		JobExecution jobExecution = jobLauncher.run(job(), new JobParameters());
 		if (JobUtils.isFailed(jobExecution.getExitStatus())) {
 			for (StepExecution stepExecution : jobExecution.getStepExecutions()) {
-				if (JobUtils.isFailed(stepExecution.getExitStatus())) {
+				ExitStatus stepExitStatus = stepExecution.getExitStatus();
+				if (JobUtils.isFailed(stepExitStatus)) {
+					if (CollectionUtils.isEmpty(stepExecution.getFailureExceptions())) {
+						throw new JobExecutionException(stepExitStatus.getExitDescription());
+					}
 					throw wrapException(stepExecution.getFailureExceptions());
 				}
 			}

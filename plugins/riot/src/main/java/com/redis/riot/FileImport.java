@@ -58,7 +58,7 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 @Command(name = "file-import", description = "Import data from files.")
-public class FileImport extends AbstractImportCommand {
+public class FileImport extends AbstractRedisImportCommand {
 
 	@Parameters(arity = "1..*", description = "Files or URLs to import. Use '-' to read from stdin.", paramLabel = "FILE")
 	private List<String> files;
@@ -101,14 +101,14 @@ public class FileImport extends AbstractImportCommand {
 		if (hasOperations()) {
 			ItemReader<Map<String, Object>> reader = (ItemReader) createReader(resource, type, Map.class);
 			RedisItemWriter<String, String, Map<String, Object>> writer = operationWriter();
-			configure(writer);
+			configureTargetRedisWriter(writer);
 			return new Step<>(name, reader, writer).processor(processor());
 		}
 		Assert.isTrue(type != FileType.CSV, "CSV file import requires a Redis command");
 		Assert.isTrue(type != FileType.FIXED, "Fixed-length file import requires a Redis command");
 		ItemReader<KeyValue> reader = createReader(resource, type, KeyValue.class);
 		RedisItemWriter<String, String, KeyValue<String, Object>> writer = RedisItemWriter.struct();
-		configure(writer);
+		configureTargetRedisWriter(writer);
 		return new Step<>(name, reader, writer);
 	}
 

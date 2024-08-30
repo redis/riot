@@ -41,7 +41,7 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 @Command(name = "file-export", description = "Export Redis data to files.")
-public class FileExport extends AbstractExportCommand {
+public class FileExport extends AbstractRedisExportCommand {
 
 	public static final FileType DEFAULT_FILE_TYPE = FileType.JSONL;
 
@@ -101,7 +101,7 @@ public class FileExport extends AbstractExportCommand {
 	@SuppressWarnings("unchecked")
 	private Map<String, Object> headerRecord(FileType fileType) {
 		RedisItemReader<String, String, Object> reader = RedisItemReader.struct();
-		configure(reader);
+		configureSourceRedisReader(reader);
 		try {
 			reader.open(new ExecutionContext());
 			try {

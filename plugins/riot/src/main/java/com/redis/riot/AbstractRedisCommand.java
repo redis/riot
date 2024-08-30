@@ -1,7 +1,7 @@
 package com.redis.riot;
 
+import com.redis.lettucemod.api.sync.RedisModulesCommands;
 import com.redis.riot.core.AbstractJobCommand;
-import com.redis.spring.batch.item.redis.RedisItemReader;
 import com.redis.spring.batch.item.redis.RedisItemWriter;
 
 import picocli.CommandLine.ArgGroup;
@@ -9,9 +9,9 @@ import picocli.CommandLine.ArgGroup;
 public abstract class AbstractRedisCommand extends AbstractJobCommand {
 
 	@ArgGroup(exclusive = false)
-	private RedisArgs redisArgs = new RedisArgs();
+	private SimpleRedisArgs redisArgs = new SimpleRedisArgs();
 
-	protected RedisContext redisContext;
+	private RedisContext redisContext;
 
 	@Override
 	protected void execute() throws Exception {
@@ -23,20 +23,19 @@ public abstract class AbstractRedisCommand extends AbstractJobCommand {
 		}
 	}
 
-	protected void configure(RedisItemReader<?, ?, ?> reader) {
-		configureAsyncReader(reader);
-		redisContext.configure(reader);
+	protected RedisModulesCommands<String, String> commands() {
+		return redisContext.getConnection().sync();
 	}
 
 	protected void configure(RedisItemWriter<?, ?, ?> writer) {
 		redisContext.configure(writer);
 	}
 
-	public RedisArgs getRedisArgs() {
+	public SimpleRedisArgs getRedisArgs() {
 		return redisArgs;
 	}
 
-	public void setRedisArgs(RedisArgs clientArgs) {
+	public void setRedisArgs(SimpleRedisArgs clientArgs) {
 		this.redisArgs = clientArgs;
 	}
 

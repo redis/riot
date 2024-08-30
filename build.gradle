@@ -110,7 +110,6 @@ subprojects { subproj ->
             testImplementation 'org.junit.jupiter:junit-jupiter-engine'
             testImplementation 'org.junit.platform:junit-platform-launcher'
             testImplementation 'org.testcontainers:junit-jupiter'
-            testImplementation 'org.slf4j:slf4j-simple'
 	        testImplementation group: 'com.redis', name: 'testcontainers-redis', version: testcontainersRedisVersion
 	    }
 

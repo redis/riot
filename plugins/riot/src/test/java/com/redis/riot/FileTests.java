@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 
+import com.redis.riot.core.AbstractJobCommand;
 import com.redis.riot.core.ProgressStyle;
 import com.redis.riot.operation.HsetCommand;
 import com.redis.spring.batch.test.AbstractTargetTestBase;
@@ -76,11 +77,24 @@ abstract class FileTests extends AbstractTargetTestBase {
 		}
 	}
 
-	private void configure(TestInfo info, AbstractRedisCommand callable) {
-		callable.getRedisArgs().setUri(RedisURI.create(getRedisServer().getRedisURI()));
-		callable.getRedisArgs().setCluster(getRedisServer().isRedisCluster());
+	private void configure(TestInfo info, AbstractRedisImportCommand callable) {
+		configure(callable.getRedisArgs());
+		configureJobCommand(info, callable);
+	}
+
+	private void configure(TestInfo info, AbstractRedisExportCommand callable) {
+		configure(callable.getRedisArgs());
+		configureJobCommand(info, callable);
+	}
+
+	private void configureJobCommand(TestInfo info, AbstractJobCommand callable) {
 		callable.setJobName(name(info));
 		callable.getJobArgs().getProgressArgs().setStyle(ProgressStyle.NONE);
+	}
+
+	private void configure(SimpleRedisArgs redisArgs) {
+		redisArgs.setUri(RedisURI.create(getRedisServer().getRedisURI()));
+		redisArgs.setCluster(getRedisServer().isRedisCluster());
 	}
 
 	@Test

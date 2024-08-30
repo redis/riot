@@ -14,6 +14,7 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
+import com.redis.riot.core.AbstractJobCommand;
 import com.redis.riot.core.Expression;
 import com.redis.riot.core.QuietMapAccessor;
 import com.redis.riot.core.RiotUtils;
@@ -44,20 +45,22 @@ import picocli.CommandLine.Command;
 		LpushCommand.class, RpushCommand.class, SaddCommand.class, SetCommand.class, XaddCommand.class,
 		ZaddCommand.class, SugaddCommand.class, JsonSetCommand.class,
 		TsAddCommand.class }, subcommandsRepeatable = true, synopsisSubcommandLabel = "[REDIS COMMAND...]", commandListHeading = "Redis commands:%n")
-public abstract class AbstractImportCommand extends AbstractRedisCommand {
+public abstract class AbstractImportCommand extends AbstractJobCommand {
 
 	private static final String TASK_NAME = "Importing";
 	private static final String STEP_NAME = "step";
 	public static final String VAR_REDIS = "redis";
 
 	@ArgGroup(exclusive = false)
-	private RedisWriterArgs redisWriterArgs = new RedisWriterArgs();
+	private RedisWriterArgs targetRedisWriterArgs = new RedisWriterArgs();
 
 	@ArgGroup(exclusive = false)
 	private EvaluationContextArgs evaluationContextArgs = new EvaluationContextArgs();
 
 	@ArgGroup(exclusive = false)
 	private ImportProcessorArgs processorArgs = new ImportProcessorArgs();
+
+	private RedisContext targetRedisContext;
 
 	/**
 	 * Initialized manually during command parsing
@@ -75,20 +78,32 @@ public abstract class AbstractImportCommand extends AbstractRedisCommand {
 	protected Step<Map<String, Object>, Map<String, Object>> step(ItemReader<Map<String, Object>> reader) {
 		Assert.isTrue(hasOperations(), "No Redis command specified");
 		RedisItemWriter<String, String, Map<String, Object>> writer = operationWriter();
-		configure(writer);
+		configureTargetRedisWriter(writer);
 		Step<Map<String, Object>, Map<String, Object>> step = new Step<>(STEP_NAME, reader, writer);
 		step.processor(processor());
 		step.taskName(TASK_NAME);
 		return step;
 	}
 
+	@Override
+	protected void execute() throws Exception {
+		targetRedisContext = targetRedisContext();
+		try {
+			super.execute();
+		} finally {
+			targetRedisContext.close();
+		}
+	}
+
 	protected ItemProcessor<Map<String, Object>, Map<String, Object>> processor() {
 		log.info("Creating SpEL evaluation context with {}", evaluationContextArgs);
 		StandardEvaluationContext evaluationContext = evaluationContextArgs.evaluationContext();
-		evaluationContext.setVariable(VAR_REDIS, redisContext.getConnection().sync());
+		evaluationContext.setVariable(VAR_REDIS, targetRedisContext.getConnection().sync());
 		evaluationContext.addPropertyAccessor(new QuietMapAccessor());
 		return processor(evaluationContext, processorArgs);
 	}
+
+	protected abstract RedisContext targetRedisContext();
 
 	public static ItemProcessor<Map<String, Object>, Map<String, Object>> processor(EvaluationContext evaluationContext,
 			ImportProcessorArgs args) {
@@ -107,10 +122,10 @@ public abstract class AbstractImportCommand extends AbstractRedisCommand {
 		return RedisItemWriter.operation(new MultiOperation<>(operations()));
 	}
 
-	protected void configure(RedisItemWriter<?, ?, ?> writer) {
-		super.configure(writer);
-		log.info("Configuring Redis writer with {}", redisWriterArgs);
-		redisWriterArgs.configure(writer);
+	protected void configureTargetRedisWriter(RedisItemWriter<?, ?, ?> writer) {
+		targetRedisContext.configure(writer);
+		log.info("Configuring target Redis writer with {}", targetRedisWriterArgs);
+		targetRedisWriterArgs.configure(writer);
 	}
 
 	static class ExpressionProcessor implements ItemProcessor<Map<String, Object>, Map<String, Object>> {
@@ -131,12 +146,12 @@ public abstract class AbstractImportCommand extends AbstractRedisCommand {
 
 	}
 
-	public RedisWriterArgs getRedisWriterArgs() {
-		return redisWriterArgs;
+	public RedisWriterArgs getTargetRedisWriterArgs() {
+		return targetRedisWriterArgs;
 	}
 
-	public void setRedisWriterArgs(RedisWriterArgs redisWriterArgs) {
-		this.redisWriterArgs = redisWriterArgs;
+	public void setTargetRedisWriterArgs(RedisWriterArgs args) {
+		this.targetRedisWriterArgs = args;
 	}
 
 	public List<OperationCommand> getImportOperationCommands() {

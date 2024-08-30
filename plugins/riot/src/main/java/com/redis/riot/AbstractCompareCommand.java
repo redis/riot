@@ -15,7 +15,7 @@ import com.redis.spring.batch.item.redis.reader.RedisScanSizeEstimator;
 import io.lettuce.core.codec.ByteArrayCodec;
 import picocli.CommandLine.Option;
 
-public abstract class AbstractCompareCommand extends AbstractRedisToRedisCommand {
+public abstract class AbstractCompareCommand extends AbstractReplicateCommand {
 
 	public static final Duration DEFAULT_TTL_TOLERANCE = DefaultKeyComparator.DEFAULT_TTL_TOLERANCE;
 	public static final String COMPARE_STEP_NAME = "compare";
@@ -23,6 +23,9 @@ public abstract class AbstractCompareCommand extends AbstractRedisToRedisCommand
 
 	private static final String COMPARE_TASK_NAME = "Comparing";
 	private static final String STATUS_DELIMITER = " | ";
+
+	@Option(names = "--target-read-from", description = "Which target Redis cluster nodes to read from: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<n>")
+	private ReadFrom targetReadFrom = ReadFrom.UPSTREAM;
 
 	@Option(names = "--show-diffs", description = "Print details of key mismatches during dataset verification. Disables progress reporting.")
 	private boolean showDiffs;
@@ -84,14 +87,29 @@ public abstract class AbstractCompareCommand extends AbstractRedisToRedisCommand
 
 	private RedisItemReader<byte[], byte[], Object> compareSourceReader() {
 		RedisItemReader<byte[], byte[], Object> reader = compareRedisReader();
-		configureSourceReader(reader);
+		configureSourceRedisReader(reader);
 		return reader;
 	}
 
 	private RedisItemReader<byte[], byte[], Object> compareTargetReader() {
 		RedisItemReader<byte[], byte[], Object> reader = compareRedisReader();
-		configureTargetReader(reader);
+		configureTargetRedisReader(reader);
 		return reader;
+	}
+
+	@Override
+	protected void configureTargetRedisReader(RedisItemReader<?, ?, ?> reader) {
+		super.configureTargetRedisReader(reader);
+		log.info("Configuring target Redis reader with read-from {}", targetReadFrom);
+		reader.setReadFrom(targetReadFrom.getReadFrom());
+	}
+
+	public ReadFrom getTargetReadFrom() {
+		return targetReadFrom;
+	}
+
+	public void setTargetReadFrom(ReadFrom readFrom) {
+		this.targetReadFrom = readFrom;
 	}
 
 	public boolean isShowDiffs() {

@@ -11,7 +11,7 @@ import com.redis.riot.CompareStatusItemWriter.StatusCount;
 
 public class CompareStepListener implements StepExecutionListener {
 
-	private static final String STATUS_FORMAT = "%s: %,d";
+	private static final String STATUS_FORMAT = "%s %d";
 
 	private final CompareStatusItemWriter<byte[]> writer;
 
@@ -31,7 +31,7 @@ public class CompareStepListener implements StepExecutionListener {
 	}
 
 	private String exitDescription() {
-		return String.format("Verification failed (%s)", toString(writer.getMismatches()));
+		return String.format("Verification failed: %s", toString(writer.getMismatches()));
 	}
 
 	private String toString(Collection<StatusCount> counts) {

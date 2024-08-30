@@ -21,7 +21,7 @@ import com.redis.testcontainers.RedisStackContainer;
 import picocli.CommandLine.ExitCode;
 import picocli.CommandLine.ParseResult;
 
-abstract class DbTests extends AbstractRiotTestBase {
+abstract class DbTests extends AbstractRiotApplicationTestBase {
 
 	private static final RedisStackContainer redis = new RedisStackContainer(
 			RedisStackContainer.DEFAULT_IMAGE_NAME.withTag(RedisStackContainer.DEFAULT_TAG));

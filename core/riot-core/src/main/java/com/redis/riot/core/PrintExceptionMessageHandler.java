@@ -8,8 +8,8 @@ public class PrintExceptionMessageHandler implements IExecutionExceptionHandler 
 
 	public int handleExecutionException(Exception ex, CommandLine cmd, ParseResult parseResult) {
 
-		if (cmd.getCommand() instanceof AbstractCommand) {
-			if (((AbstractCommand) cmd.getCommand()).getLoggingArgs().isStacktrace()) {
+		if (cmd.getCommand() instanceof BaseCommand) {
+			if (((BaseCommand) cmd.getCommand()).loggingMixin.isStacktrace()) {
 				ex.printStackTrace(cmd.getErr());
 			}
 		}

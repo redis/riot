@@ -6,7 +6,7 @@ import java.util.List;
 import com.redis.spring.batch.Range;
 import com.redis.spring.batch.item.redis.common.DataType;
 import com.redis.spring.batch.item.redis.gen.CollectionOptions;
-import com.redis.spring.batch.item.redis.gen.GeneratorOptions;
+import com.redis.spring.batch.item.redis.gen.GeneratorItemReader;
 import com.redis.spring.batch.item.redis.gen.MapOptions;
 import com.redis.spring.batch.item.redis.gen.StreamOptions;
 import com.redis.spring.batch.item.redis.gen.StringOptions;
@@ -23,16 +23,16 @@ public class GenerateArgs {
 	private int count = DEFAULT_COUNT;
 
 	@Option(names = "--key-separator", description = "Key separator (default: ${DEFAULT-VALUE}).", paramLabel = "<str>", hidden = true)
-	private String keySepataror = GeneratorOptions.DEFAULT_KEY_SEPARATOR;
+	private String keySepataror = GeneratorItemReader.DEFAULT_KEY_SEPARATOR;
 
 	@Option(names = "--keyspace", description = "Keyspace prefix for generated data structures (default: ${DEFAULT-VALUE}).", paramLabel = "<str>")
-	private String keyspace = GeneratorOptions.DEFAULT_KEYSPACE;
+	private String keyspace = GeneratorItemReader.DEFAULT_KEYSPACE;
 
 	@Option(names = "--keys", description = "Range of keys to generate in the form '<start>:<end>' (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
-	private Range keyRange = GeneratorOptions.DEFAULT_KEY_RANGE;
+	private Range keyRange = GeneratorItemReader.DEFAULT_KEY_RANGE;
 
 	@Option(arity = "1..*", names = "--types", description = "Types of data structures to generate: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<type>")
-	private List<DataType> types = GeneratorOptions.defaultTypes();
+	private List<DataType> types = GeneratorItemReader.defaultTypes();
 
 	@Option(names = "--index", description = "Name of index to create that matches JSON or hash type.", paramLabel = "<name>")
 	private String index;
@@ -90,24 +90,6 @@ public class GenerateArgs {
 
 	@Option(names = "--zset-score", description = "Score of sorted sets (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	private Range zsetScore = ZsetOptions.DEFAULT_SCORE;
-
-	public GeneratorOptions generatorOptions() {
-		GeneratorOptions options = new GeneratorOptions();
-		options.setKeySeparator(keySepataror);
-		options.setExpiration(expiration);
-		options.setHashOptions(hashOptions());
-		options.setJsonOptions(jsonOptions());
-		options.setKeyRange(keyRange);
-		options.setKeyspace(keyspace);
-		options.setListOptions(listOptions());
-		options.setSetOptions(setOptions());
-		options.setStreamOptions(streamOptions());
-		options.setStringOptions(stringOptions());
-		options.setTimeSeriesOptions(timeseriesOptions());
-		options.setTypes(types);
-		options.setZsetOptions(zsetOptions());
-		return options;
-	}
 
 	private ZsetOptions zsetOptions() {
 		ZsetOptions options = new ZsetOptions();
@@ -167,6 +149,22 @@ public class GenerateArgs {
 		options.setFieldCount(fieldCount);
 		options.setFieldLength(fieldLength);
 		return options;
+	}
+
+	public void configure(GeneratorItemReader reader) {
+		reader.setKeySeparator(keySepataror);
+		reader.setExpiration(expiration);
+		reader.setHashOptions(hashOptions());
+		reader.setJsonOptions(jsonOptions());
+		reader.setKeyRange(keyRange);
+		reader.setKeyspace(keyspace);
+		reader.setListOptions(listOptions());
+		reader.setSetOptions(setOptions());
+		reader.setStreamOptions(streamOptions());
+		reader.setStringOptions(stringOptions());
+		reader.setTimeSeriesOptions(timeseriesOptions());
+		reader.setTypes(types);
+		reader.setZsetOptions(zsetOptions());
 	}
 
 	public int getCount() {

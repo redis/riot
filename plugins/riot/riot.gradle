@@ -22,13 +22,13 @@ plugins {
 
 application {
     applicationName = 'riot'
-    mainClass       = 'com.redis.riot.Main'
+    mainClass       = 'com.redis.riot.Riot'
 }
 
 jar {
     manifest {
         attributes([
-            'Main-Class': 'com.redis.riot.Main',
+            'Main-Class': 'com.redis.riot.Riot',
             'Automatic-Module-Name': project.findProperty('automatic.module.name')
         ])
     }
@@ -56,6 +56,7 @@ dependencies {
     implementation 'com.mysql:mysql-connector-j'
     implementation 'com.oracle.database.jdbc:ojdbc11'
     implementation 'org.postgresql:postgresql'
+    testImplementation(project(':riot-test'))
     testImplementation group: 'com.redis', name: 'spring-batch-redis-test', version: springBatchRedisVersion
     testImplementation 'org.springframework.boot:spring-boot-starter-jdbc'
     testImplementation 'org.awaitility:awaitility'
@@ -129,7 +130,7 @@ afterEvaluate {
     }
 }
 
-mainClassName = "com.redis.riot.Main"
+mainClassName = "com.redis.riot.Riot"
 
 task copyRuntimeDependencies(type: Copy) {
     into "$buildDir/dependencies/flat"

@@ -52,7 +52,6 @@ import com.redis.riot.file.xml.XmlObjectReader;
 import com.redis.spring.batch.item.redis.common.DataType;
 import com.redis.spring.batch.item.redis.common.KeyValue;
 import com.redis.spring.batch.item.redis.gen.GeneratorItemReader;
-import com.redis.spring.batch.item.redis.gen.GeneratorOptions;
 import com.redis.spring.batch.item.redis.gen.MapOptions;
 import com.redis.spring.batch.item.redis.reader.DefaultKeyComparator;
 import com.redis.spring.batch.item.redis.reader.KeyComparison;
@@ -530,14 +529,14 @@ class StackRiotTests extends RiotTests {
 	@Test
 	void generateTypes(TestInfo info) throws Exception {
 		execute(info, "generate");
-		Assertions.assertEquals(Math.min(GenerateArgs.DEFAULT_COUNT, GeneratorOptions.DEFAULT_KEY_RANGE.getMax()),
+		Assertions.assertEquals(Math.min(GenerateArgs.DEFAULT_COUNT, GeneratorItemReader.DEFAULT_KEY_RANGE.getMax()),
 				redisCommands.dbsize());
 	}
 
 	@Test
 	void generateJsonIndex(TestInfo info) throws Exception {
 		execute(info, "generate-json-index");
-		int keyCount = Math.min(GenerateArgs.DEFAULT_COUNT, GeneratorOptions.DEFAULT_KEY_RANGE.getMax());
+		int keyCount = Math.min(GenerateArgs.DEFAULT_COUNT, GeneratorItemReader.DEFAULT_KEY_RANGE.getMax());
 		Assertions.assertEquals(keyCount, redisCommands.dbsize());
 		IndexInfo indexInfo = RedisModulesUtils.indexInfo(redisCommands.ftInfo("jsonIdx"));
 		List<Field<String>> expectedFields = new ArrayList<>();
@@ -551,7 +550,7 @@ class StackRiotTests extends RiotTests {
 	@Test
 	void generateHashIndex(TestInfo info) throws Exception {
 		execute(info, "generate-hash-index");
-		int keyCount = Math.min(GenerateArgs.DEFAULT_COUNT, GeneratorOptions.DEFAULT_KEY_RANGE.getMax());
+		int keyCount = Math.min(GenerateArgs.DEFAULT_COUNT, GeneratorItemReader.DEFAULT_KEY_RANGE.getMax());
 		Assertions.assertEquals(keyCount, redisCommands.dbsize());
 		IndexInfo indexInfo = RedisModulesUtils.indexInfo(redisCommands.ftInfo("hashIdx"));
 		List<Field<String>> expectedFields = new ArrayList<>();
@@ -570,7 +569,7 @@ class StackRiotTests extends RiotTests {
 		generate(info, gen);
 		int badCount = 100;
 		GeneratorItemReader generator2 = generator(badCount, DataType.HASH);
-		generator2.getOptions().setKeyspace("bad");
+		generator2.setKeyspace("bad");
 		generate(testInfo(info, "2"), generator2);
 		Assertions.assertEquals(badCount, keyCount("bad:*"));
 		execute(info, filename);
@@ -585,7 +584,7 @@ class StackRiotTests extends RiotTests {
 		enableKeyspaceNotifications();
 		generateAsync(testInfo(info, "gen-1"), generator(goodCount, DataType.HASH));
 		GeneratorItemReader generator2 = generator(badCount, DataType.HASH);
-		generator2.getOptions().setKeyspace("bad");
+		generator2.setKeyspace("bad");
 		generateAsync(testInfo(info, "gen-2"), generator2);
 		execute(info, filename);
 		awaitUntil(() -> redisCommands.pubsubNumpat() == 0);
