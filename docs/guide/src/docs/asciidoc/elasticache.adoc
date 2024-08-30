@@ -1,7 +1,9 @@
-[[_elasticache]]
-= Elasticache Migration
+:ec: ElastiCache
 
-This recipe contains step-by-step instructions to migrate an Elasticache (EC) database to {link_redis_enterprise} (RE).
+[[_elasticache]]
+= {ec} Migration
+
+This recipe contains step-by-step instructions to migrate an {ec} (EC) database to {link_redis_cloud} or {link_redis_software}.
 
 The following scenarios are covered:
 
@@ -16,15 +18,15 @@ IMPORTANT: It is recommended to read the <<_replication,Replication>> section to
 
 For this recipe you will require the following resources:
  
-* AWS ElastiCache: _Primary Endpoint_ in case of Single Master and _Configuration Endpoint_ in case of Clustered EC.
+* AWS {ec}: _Primary Endpoint_ in case of Single Master and _Configuration Endpoint_ in case of Clustered EC.
 Refer to https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/Endpoints.html[this link] to learn more
-* Redis Enterprise: hosted on Cloud or On-Prem
-* An Amazon EC2 instance
+* {link_redis_cloud} or {link_redis_software}
+* An Amazon EC2 instance to run {project-title}
 
 [IMPORTANT]
 .Keyspace Notifications
 ====
-For a live migration you need to enable keyspace notifications on your Elasticache instance (see {link_ec_notifications}).
+For a live migration you need to enable keyspace notifications on your {ec} instance (see {link_ec_notifications}).
 ====
 
 === Migration Host
@@ -33,7 +35,7 @@ To run the migration tool we will need an EC2 instance.
 
 You can either create a new EC2 instance or leverage an existing one if available.
 In the example below we first create an instance on AWS Cloud Platform.
-The most common scenario is to access an ElastiCache cluster from an Amazon EC2 instance in the same Amazon Virtual Private Cloud (Amazon VPC).
+The most common scenario is to access an {ec} cluster from an Amazon EC2 instance in the same Amazon Virtual Private Cloud (Amazon VPC).
 We have used Ubuntu 16.04 LTS for this setup but you can choose any Ubuntu or Debian distribution of your choice.
  
 SSH to this EC2 instance from your laptop:
@@ -51,14 +53,14 @@ sudo apt update
 sudo apt install -y redis-tools
 ----
 
-Use `redis-cli` to check connectivity with the Elasticache database:
+Use `redis-cli` to check connectivity with the {ec} database:
 
 [source,console]
 ----
 redis-cli -h <ec primary endpoint> -p 6379
 ----
 
-Ensure that the above command allows you to connect to the remote Elasticache database successfully.
+Ensure that the above command allows you to connect to the remote {ec} database successfully.
 
 
 === Installing {project-title}
@@ -71,63 +73,62 @@ For this we'll follow the steps in <<_install_manual,Manual Installation>>.
 We are now all set to begin the migration process.
 The options you will use depend on your source and target databases, as well as the replication mode (snapshot or live).
 
-=== EC Single Master -> RE
+=== {ec} Single Master -> Redis
 [source,console]
 ----
-riot replicate -h <source EC host> -p <source EC port> --target-host <target RE host> --target-port <target RE port> --target-pass <RE password>
+riot replicate source:port target:port
 ----
 
-=== Live EC Single Master -> RE
+=== Live {ec} Single Master -> Redis
 [source,console]
 ----
-riot replicate -h <source EC host> -p <source EC port> --target-host <target RE host> --target-port <target RE port> --target-pass <RE password> --mode live
+riot replicate source:port target:port --mode live
 ----
 
 [IMPORTANT]
 ====
-In case ElastiCache is configured with https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/auth.html[AUTH TOKEN enabled], you need to pass `--tls` as well as `--pass` option:
+In case {ec} is configured with https://docs.aws.amazon.com/Amazon{ec}/latest/red-ug/auth.html[AUTH TOKEN enabled], you need to pass `--source-tls` as well as `--source-pass` option:
 
 [source,console,subs="+quotes"]
 ----
-riot replicate -h <source EC host> -p <source EC port> --tls --pass <token> --target-host <target RE host> --target-port <target RE port> --target-pass <RE password>
+riot replicate source:port target:port --source-tls --source-pass <password>
 ----
 ====
 
-=== EC Cluster -> RE
+=== {ec} Cluster -> Redis
 
 [source,console]
 ----
-riot replicate -h <source EC host> -p <source EC port> --cluster --target-host <target RE host> --target-port <target RE port> --target-pass <RE password>
+riot replicate source:port target:port --source-cluster
 ----
 
-NOTE: `--cluster` is an important parameter used ONLY for ElastiCache whenever cluster-mode is enabled.
+NOTE: `--cluster` is an important parameter used ONLY for {ec} whenever cluster-mode is enabled.
 Do note that the source database is specified first and the target database is specified after the replicate command and it is applicable for all the scenarios.
 
-=== EC Single Master -> RE (with specific db index)
+=== {ec} Single Master -> Redis (with specific database index)
 
 [source,console]
 ----
-riot replicate -h <source EC host> -p <source EC port> --db <index> --target-host <target RE host> --target-port <target RE port> --target-pass <RE password>
+riot replicate redis://source:port/db target:port
 ----
 
-=== EC Single Master -> RE with OSS Cluster
+=== {ec} Single Master -> Redis with OSS Cluster
 [source,console]
 ----
-riot replicate -h <source EC host> -p <source EC port> --target-host <target RE host> --target-port <target RE port> --target-pass <RE password> --cluster
+riot replicate source:port target:port --target-cluster
 ----
 
-=== Live EC Cluster -> RE with OSS Cluster
+=== Live {ec} Cluster -> Redis with OSS Cluster
 
 [source,console]
 ----
-riot replicate -h <source EC host> -p <source EC port> --cluster --target-host <target RE host> --target-port <target RE port> --target-pass <RE password> --cluster --mode live
+riot replicate source:port target:port --source-cluster --target-cluster --mode live
 ----
 
 == Important Considerations
 
-* As stated earlier, this tool is not officially supported by Redis Inc.
 * It is recommended to test migration in UAT before production use.
-* Once migration is completed, ensure that application traffic gets redirected to Redis Enterprise Endpoint successfully.
-* It is recommended to perform the migration process during low traffic so as to avoid chances of data loss.
+* Once migration is completed, ensure that application traffic gets redirected to Redis endpoint successfully.
+* It is recommended to perform the migration process during low traffic hours so as to avoid chances of data loss.
 
 
