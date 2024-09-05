@@ -6,13 +6,13 @@
 * <<_file_import,`file-import`>>: Import data from files
 * <<_file_export,`file-export`>>: Export Redis data structures to files
 
-
 [[_file_import]]
 == File Import
 
-The `import` command reads data from files and writes it to Redis.
+The `file-import` command reads data from files and writes it to Redis.
 
 The basic usage for file imports is:
+
 [source,console]
 ----
 riot file-import [OPTIONS] FILE... [REDIS COMMAND...]
@@ -108,11 +108,11 @@ riot file-import my.json hset --keyspace blah --key id expire --keyspace blah --
 .Import into hashes in keyspace `blah:<id>` *and* set TTL *and* add each `id` to a set named `myset`
 [source,console]
 ----
-riot file-import my.json hset --keyspace blah --key id expire --keyspace blah --key id sadd --keyspace myset --members id
+riot file-import my.json hset --keyspace blah --key id expire --keyspace blah --key id sadd --keyspace myset --member id
 ----
 
 [[_file_import_delimited]]
-== Delimited (CSV)
+=== Delimited (CSV)
 
 The default delimiter character is comma (`,`).
 It can be changed with the `--delimiter` option.
@@ -252,6 +252,9 @@ To show the full usage, run:
 riot file-export --help
 ----
 
+[[_file_export_json]]
+=== JSON
+
 .Export to JSON
 [source,console]
 ----
@@ -270,9 +273,12 @@ include::{includedir}/../resources/redis-dump.json[]
 include::{testdir}/file-export-json-gz[]
 ----
 
+[[_file_export_xml]]
+=== XML
 .Export to XML
 [source,console]
 ----
 include::{testdir}/file-export-xml[]
 ----
+
 

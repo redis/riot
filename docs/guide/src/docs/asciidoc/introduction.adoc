@@ -5,10 +5,15 @@
 
 {project-title} includes the following features:
 
-* File import/export (CSV, JSON, XML)
-* Relational database import/export
-* Data generation using Faker or random data structures
-* Data migration from a Redis database to another
-* Live replication between two Redis databases
+* Files (CSV, JSON, XML)
+** <<_file_import,Import>>: File -> Redis
+** <<_file_export,Export>>: Redis -> File
+* Databases
+** <<_db_import,Import>>: Database -> Redis
+** <<_db_export,Export>>: Redis -> Database
+* Data Generators
+** <<_datagen_struct,Redis Data Generator>>: Data Structures -> Redis
+** <<_datagen_faker,Faker Data Generator>>: Faker -> Redis
+* <<_replication,Replication>>: Redis -> Redis
 
 {project-title} is supported by Redis, Inc. on a good faith effort basis. To report bugs, request features, or receive assistance, please https://github.com/redis/riot/issues[file an issue] or contact your Redis account team.

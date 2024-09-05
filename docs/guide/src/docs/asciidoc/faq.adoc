@@ -29,7 +29,7 @@ This issue occurs when you fail to supply the `--pass <password>` parameter.
 [[_faq_stream_id]]
 ERR The ID argument cannot be a complete ID because xadd-id-uniqueness-mode is strict::
 This usually happens in Active/Active (CRDB) setups where stream message IDs cannot be copied over to the target database.
-Use the `--no-stream-ids` option to disable ID propagation.
+Use the `--no-stream-id` option to disable ID propagation.
 
 [[_faq_script]]
 ERR Error running script... This Redis command is not allowed from scripts::
