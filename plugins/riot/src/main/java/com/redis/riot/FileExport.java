@@ -1,8 +1,10 @@
 package com.redis.riot;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -196,9 +198,11 @@ public class FileExport extends AbstractRedisExportCommand {
 			if (CollectionUtils.isEmpty(headerRecord)) {
 				log.warn("Could not determine header");
 			} else {
-				Map<String, Object> headerFieldMap = new HashMap<>();
-				headerRecord.forEach((k, v) -> headerFieldMap.put(k, k));
-				String headerLine = lineAggregator.aggregate(headerFieldMap);
+				List<String> fields = new ArrayList<>(headerRecord.keySet());
+				Collections.sort(fields);
+				Map<String, Object> fieldMap = new LinkedHashMap<>();
+				fields.forEach(f -> fieldMap.put(f, f));
+				String headerLine = lineAggregator.aggregate(fieldMap);
 				log.info("Found header: {}", headerLine);
 				writer.headerCallback(w -> w.write(headerLine));
 			}
