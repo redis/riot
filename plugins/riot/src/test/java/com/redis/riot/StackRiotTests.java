@@ -627,8 +627,8 @@ class StackRiotTests extends RiotTests {
 	}
 
 	@Test
-	void replicateNoStreamIds(TestInfo info) throws Throwable {
-		String filename = "replicate-no-stream-ids";
+	void replicateNoStreamId(TestInfo info) throws Throwable {
+		String filename = "replicate-no-stream-id";
 		generate(info, generator(73));
 		Assertions.assertTrue(redisCommands.dbsize() > 0);
 		execute(info, filename);
@@ -644,8 +644,8 @@ class StackRiotTests extends RiotTests {
 	}
 
 	@Test
-	void replicateNoStreamIdsPrune(TestInfo info) throws Throwable {
-		String filename = "replicate-no-stream-ids-prune";
+	void replicateNoStreamIdPrune(TestInfo info) throws Throwable {
+		String filename = "replicate-no-stream-id-prune";
 		generate(info, generator(73));
 		String emptyStream = "stream:empty";
 		redisCommands.xadd(emptyStream, Map.of("field", "value"));
@@ -708,6 +708,11 @@ class StackRiotTests extends RiotTests {
 	@Test
 	void replicateLive(TestInfo info) throws Exception {
 		runLiveReplication(info, "replicate-live");
+	}
+	
+	@Test
+	void replicateLiveReadThreads(TestInfo info) throws Exception {
+		runLiveReplication(info, "replicate-live-read-threads");
 	}
 
 	@Test

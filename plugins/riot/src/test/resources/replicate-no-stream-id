@@ -1,0 +1,1 @@
+riot replicate --struct --batch 10 redis://source redis://target --no-stream-id

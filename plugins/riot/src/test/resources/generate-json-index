@@ -1,1 +1,1 @@
-riot generate --types json --index jsonIdx
+riot generate --type json --index jsonIdx

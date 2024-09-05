@@ -1,1 +1,1 @@
-riot replicate --mode liveonly --key-slots 0:8000 redis://source redis://target
+riot replicate --mode liveonly --key-slot 0:8000 redis://source redis://target

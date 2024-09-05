@@ -1,1 +1,1 @@
-riot faker name="GameOfThrones.character" --count 1000 sadd --keyspace got:characters --members name
+riot faker name="GameOfThrones.character" --count 1000 sadd --keyspace got:characters --member name

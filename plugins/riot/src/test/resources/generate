@@ -1,1 +1,1 @@
-riot generate --types string hash json timeseries
+riot generate --type string hash json timeseries

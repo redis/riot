@@ -1,1 +1,1 @@
-riot generate --types hash --index hashIdx
+riot generate --type hash --index hashIdx

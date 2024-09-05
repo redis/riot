@@ -18,9 +18,9 @@ import com.redis.lettucemod.RedisModulesUtils;
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.riot.Replicate.CompareMode;
 import com.redis.riot.core.ProgressStyle;
-import com.redis.spring.batch.Range;
 import com.redis.spring.batch.item.redis.RedisItemReader.ReaderMode;
 import com.redis.spring.batch.item.redis.common.DataType;
+import com.redis.spring.batch.item.redis.common.Range;
 import com.redis.spring.batch.item.redis.gen.GeneratorItemReader;
 
 import io.lettuce.core.cluster.SlotHash;
@@ -116,7 +116,7 @@ abstract class RiotTests extends AbstractRiotApplicationTestBase {
 				.connection(targetRedisClient, ByteArrayCodec.INSTANCE);
 		enableKeyspaceNotifications();
 		Executors.newSingleThreadExecutor().execute(() -> {
-			awaitUntilSubscribers();
+			awaitSubscribers();
 			connection.sync().set(key, value);
 		});
 		Replicate replication = new Replicate();
@@ -132,10 +132,10 @@ abstract class RiotTests extends AbstractRiotApplicationTestBase {
 		Replicate replication = new Replicate();
 		replication.getSourceRedisReaderArgs().setMode(ReaderMode.LIVE);
 		replication.setCompareMode(CompareMode.NONE);
-		replication.getSourceRedisReaderArgs().getKeyFilterArgs().setSlots(Arrays.asList(Range.of(0, 8000)));
+		replication.getSourceRedisReaderArgs().getKeyFilterArgs().setSlots(Arrays.asList(new Range(0, 8000)));
 		generateAsync(info, generator(100));
 		execute(replication, info);
-		awaitUntilNoSubscribers();
+		awaitNoSubscribers();
 		Assertions.assertTrue(targetRedisCommands.keys("*").stream().map(SlotHash::getSlot).allMatch(between(0, 8000)));
 	}
 

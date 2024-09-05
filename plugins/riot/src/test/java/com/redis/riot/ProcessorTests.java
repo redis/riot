@@ -14,9 +14,9 @@ import org.junit.jupiter.api.Test;
 
 import com.redis.riot.core.processor.StringToMapFunction;
 import com.redis.riot.function.KeyValueMap;
-import com.redis.spring.batch.Range;
 import com.redis.spring.batch.item.redis.common.DataType;
 import com.redis.spring.batch.item.redis.common.KeyValue;
+import com.redis.spring.batch.item.redis.common.Range;
 
 import io.lettuce.core.cluster.SlotHash;
 import io.lettuce.core.codec.StringCodec;
@@ -40,7 +40,7 @@ class ProcessorTests {
 	@Test
 	void slotExact() {
 		KeyFilterArgs options = new KeyFilterArgs();
-		options.setSlots(Arrays.asList(Range.of(7638)));
+		options.setSlots(Arrays.asList(new Range(7638, 7638)));
 		Predicate<String> predicate = keyFilter(options);
 		assertTrue(predicate.test("abc"));
 		assertFalse(predicate.test("abcd"));
@@ -53,13 +53,13 @@ class ProcessorTests {
 		Predicate<String> unbounded = keyFilter(options);
 		assertTrue(unbounded.test("foo"));
 		assertTrue(unbounded.test("foo1"));
-		options.setSlots(slotRangeList(999999, 99999));
+		options.setSlots(slotRangeList(999999, 999999));
 		Predicate<String> is999999 = keyFilter(options);
 		assertFalse(is999999.test("foo"));
 	}
 
 	private List<Range> slotRangeList(int start, int end) {
-		return Arrays.asList(Range.of(start, end));
+		return Arrays.asList(new Range(start, end));
 	}
 
 	@Test
@@ -67,7 +67,7 @@ class ProcessorTests {
 		KeyFilterArgs options = new KeyFilterArgs();
 		options.setExcludes(Arrays.asList("foo"));
 		options.setIncludes(Arrays.asList("foo1"));
-		options.setSlots(Arrays.asList(Range.of(0, SlotHash.SLOT_COUNT)));
+		options.setSlots(Arrays.asList(new Range(0, SlotHash.SLOT_COUNT)));
 		Predicate<String> predicate = keyFilter(options);
 		assertFalse(predicate.test("foo"));
 		assertFalse(predicate.test("bar"));
