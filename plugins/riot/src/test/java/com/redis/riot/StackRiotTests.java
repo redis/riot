@@ -709,7 +709,7 @@ class StackRiotTests extends RiotTests {
 	void replicateLive(TestInfo info) throws Exception {
 		runLiveReplication(info, "replicate-live");
 	}
-	
+
 	@Test
 	void replicateLiveReadThreads(TestInfo info) throws Exception {
 		runLiveReplication(info, "replicate-live-read-threads");
@@ -719,10 +719,13 @@ class StackRiotTests extends RiotTests {
 	void replicateLiveKeySlot(TestInfo info) throws Exception {
 		String filename = "replicate-live-keyslot";
 		enableKeyspaceNotifications();
-		GeneratorItemReader generator = generator(300);
+		int count = 300;
+		GeneratorItemReader generator = generator(count);
 		generateAsync(info, generator);
 		execute(info, filename);
+		awaitNoSubscribers();
 		List<String> keys = targetRedisCommands.keys("*");
+		Assertions.assertEquals(148, keys.size());
 		for (String key : keys) {
 			int slot = SlotHash.getSlot(key);
 			Assertions.assertTrue(slot >= 0 && slot <= 8000);

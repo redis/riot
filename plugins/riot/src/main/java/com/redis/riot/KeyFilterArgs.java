@@ -24,7 +24,7 @@ public class KeyFilterArgs {
 	@Option(names = "--key-exclude", arity = "1..*", description = "Glob pattern to match keys for exclusion. E.g. 'mykey:*' will exclude keys starting with 'mykey:'.", paramLabel = "<exp>")
 	private List<String> excludes;
 
-	@Option(names = "--key-slot", arity = "1..*", description = "Ranges of key slots to consider for processing. For example '0:8000' will only consider keys that fall within the range 0 to 8000.", paramLabel = "<range>")
+	@Option(names = "--key-slot", arity = "1..*", description = "Ranges of key slots to consider for processing. For example '0-8000' will only consider keys that fall within the range 0 to 8000.", paramLabel = "<range>")
 	private List<Range> slots;
 
 	public <K> Optional<Predicate<K>> predicate(RedisCodec<K, ?> codec) {
