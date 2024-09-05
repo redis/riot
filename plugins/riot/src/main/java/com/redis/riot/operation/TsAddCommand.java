@@ -38,7 +38,7 @@ public class TsAddCommand extends AbstractOperationCommand {
 	@Option(names = "--on-duplicate", description = "Duplicate policy: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<name>")
 	private DuplicatePolicy duplicatePolicy = DEFAULT_DUPLICATE_POLICY;
 
-	@Option(arity = "1..*", names = "--labels", description = "Labels in the form label1=field1 label2=field2...", paramLabel = "SPEL")
+	@Option(arity = "1..*", names = "--label", description = "Labels in the form label1=field1 label2=field2...", paramLabel = "SPEL")
 	private Map<String, String> labels = new LinkedHashMap<>();
 
 	@Override

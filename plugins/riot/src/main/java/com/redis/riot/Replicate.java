@@ -87,7 +87,7 @@ public class Replicate extends AbstractCompareCommand {
 
 	private ItemProcessor<KeyValue<byte[], Object>, KeyValue<byte[], Object>> keyValueProcessor() {
 		if (isIgnoreStreamMessageId()) {
-			Assert.isTrue(isStruct(), "--no-stream-ids can only be used with --struct");
+			Assert.isTrue(isStruct(), "--no-stream-id can only be used with --struct");
 		}
 		StandardEvaluationContext evaluationContext = evaluationContext();
 		log.info("Creating processor with {}", processorArgs);

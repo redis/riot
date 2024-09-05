@@ -195,4 +195,16 @@ public class Step<I, O> {
 	public Collection<Class<? extends Throwable>> getSkip() {
 		return skip;
 	}
+
+	@Override
+	public String toString() {
+		return "Step [name=" + name + ", reader=" + reader + ", writer=" + writer + ", taskName=" + taskName
+				+ ", statusMessageSupplier=" + statusMessageSupplier + ", maxItemCountSupplier=" + maxItemCountSupplier
+				+ ", processor=" + processor + ", executionListeners=" + executionListeners + ", readListeners="
+				+ readListeners + ", writeListeners=" + writeListeners + ", live=" + live + ", flushInterval="
+				+ flushInterval + ", idleTimeout=" + idleTimeout + ", skip=" + skip + ", noSkip=" + noSkip + ", retry="
+				+ retry + ", noRetry=" + noRetry + "]";
+	}
+	
+	
 }

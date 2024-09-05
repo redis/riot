@@ -28,10 +28,10 @@ public class KeyValueProcessorArgs {
 	@Option(names = "--ttl-proc", description = "SpEL expression to transform key expiration times.", paramLabel = "<exp>")
 	private Expression ttlExpression;
 
-	@Option(names = "--ttls", description = "Propagate key expiration times. True by default.", negatable = true, defaultValue = "true", fallbackValue = "true")
+	@Option(names = "--ttl", description = "Propagate key expiration times. True by default.", negatable = true, defaultValue = "true", fallbackValue = "true")
 	private boolean propagateTtl = true;
 
-	@Option(names = "--stream-ids", description = "Propagate stream message IDs. True by default.", negatable = true, defaultValue = "true", fallbackValue = "true")
+	@Option(names = "--stream-id", description = "Propagate stream message IDs. True by default.", negatable = true, defaultValue = "true", fallbackValue = "true")
 	private boolean propagateIds = true;
 
 	@Option(names = "--stream-prune", description = "Drop empty streams.")

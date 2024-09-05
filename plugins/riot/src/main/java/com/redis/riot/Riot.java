@@ -2,6 +2,7 @@ package com.redis.riot;
 
 import com.redis.riot.core.MainCommand;
 import com.redis.riot.operation.OperationCommand;
+import com.redis.spring.batch.item.redis.common.Range;
 
 import io.lettuce.core.RedisURI;
 import picocli.AutoComplete.GenerateCompletion;
@@ -25,22 +26,15 @@ public class Riot extends MainCommand {
 	@Override
 	protected CommandLine commandLine() {
 		CommandLine commandLine = super.commandLine();
-		commandLine.registerConverter(RedisURI.class, Riot::parseRedisURI);
+		commandLine.registerConverter(RedisURI.class, new RedisURIConverter());
 		commandLine.registerConverter(Region.class, Region::of);
+		commandLine.registerConverter(Range.class, new RangeConverter());
 		return commandLine;
 	}
 
 	@Override
 	protected IExecutionStrategy executionStrategy() {
 		return Riot::executionStrategy;
-	}
-
-	public static RedisURI parseRedisURI(String string) {
-		try {
-			return RedisURI.create(string);
-		} catch (IllegalArgumentException e) {
-			return RedisURI.create(RedisURI.URI_SCHEME_REDIS + "://" + string);
-		}
 	}
 
 	public static int executionStrategy(ParseResult parseResult) {

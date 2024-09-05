@@ -5,8 +5,6 @@ import java.util.concurrent.Callable;
 
 import org.springframework.util.unit.DataSize;
 
-import com.redis.spring.batch.Range;
-
 import picocli.CommandLine;
 import picocli.CommandLine.IExecutionStrategy;
 import picocli.CommandLine.RunLast;
@@ -50,7 +48,6 @@ public class MainCommand extends BaseCommand implements Callable<Integer>, IO {
 		commandLine.setUnmatchedOptionsAllowedAsOptionParameters(false);
 		commandLine.setExecutionExceptionHandler(new PrintExceptionMessageHandler());
 		commandLine.registerConverter(DataSize.class, DataSize::parse);
-		commandLine.registerConverter(Range.class, Range::parse);
 		commandLine.registerConverter(Expression.class, Expression::parse);
 		commandLine.registerConverter(TemplateExpression.class, Expression::parseTemplate);
 		commandLine.setExecutionStrategy(LoggingMixin.executionStrategy(executionStrategy()));

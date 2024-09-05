@@ -138,8 +138,10 @@ public abstract class AbstractJobCommand extends AbstractCallableCommand {
 	protected abstract Job job() throws Exception;
 
 	private <I, O> TaskletStep step(Step<I, O> step) {
+		log.info("Creating {}", step);
 		SimpleStepBuilder<I, O> builder = simpleStep(step);
 		if (stepArgs.getRetryPolicy() == RetryPolicy.NEVER && stepArgs.getSkipPolicy() == SkipPolicy.NEVER) {
+			log.info("");
 			return builder.build();
 		}
 		FaultTolerantStepBuilder<I, O> ftStep = JobUtils.faultTolerant(builder);

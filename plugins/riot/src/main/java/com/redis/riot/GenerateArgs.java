@@ -3,8 +3,8 @@ package com.redis.riot;
 import java.time.Instant;
 import java.util.List;
 
-import com.redis.spring.batch.Range;
 import com.redis.spring.batch.item.redis.common.DataType;
+import com.redis.spring.batch.item.redis.common.Range;
 import com.redis.spring.batch.item.redis.gen.CollectionOptions;
 import com.redis.spring.batch.item.redis.gen.GeneratorItemReader;
 import com.redis.spring.batch.item.redis.gen.MapOptions;
@@ -28,10 +28,10 @@ public class GenerateArgs {
 	@Option(names = "--keyspace", description = "Keyspace prefix for generated data structures (default: ${DEFAULT-VALUE}).", paramLabel = "<str>")
 	private String keyspace = GeneratorItemReader.DEFAULT_KEYSPACE;
 
-	@Option(names = "--keys", description = "Range of keys to generate in the form '<start>:<end>' (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
+	@Option(names = "--key-range", description = "Range of keys to generate in the form '<start>-<end>' (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	private Range keyRange = GeneratorItemReader.DEFAULT_KEY_RANGE;
 
-	@Option(arity = "1..*", names = "--types", description = "Types of data structures to generate: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<type>")
+	@Option(arity = "1..*", names = "--type", description = "Types of data structures to generate: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<type>")
 	private List<DataType> types = GeneratorItemReader.defaultTypes();
 
 	@Option(names = "--index", description = "Name of index to create that matches JSON or hash type.", paramLabel = "<name>")

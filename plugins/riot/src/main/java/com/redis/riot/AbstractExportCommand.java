@@ -69,10 +69,13 @@ public abstract class AbstractExportCommand extends AbstractJobCommand {
 			ItemWriter<O> writer) {
 		Step<KeyValue<K, T>, O> step = new Step<>(name, reader, writer);
 		if (reader.getMode() != ReaderMode.LIVEONLY) {
+			log.info("Configuring step with scan size estimator");
 			step.maxItemCountSupplier(reader.scanSizeEstimator());
 		}
 		if (reader.getMode() != ReaderMode.SCAN) {
 			checkNotifyConfig(reader.getClient());
+			log.info("Configuring step {} with live true, flushInterval {}, idleTimeout {}", name,
+					reader.getFlushInterval(), reader.getIdleTimeout());
 			step.live(true);
 			step.flushInterval(reader.getFlushInterval());
 			step.idleTimeout(reader.getIdleTimeout());
@@ -86,10 +89,12 @@ public abstract class AbstractExportCommand extends AbstractJobCommand {
 			try {
 				valueMap = conn.sync().configGet(NOTIFY_CONFIG);
 			} catch (RedisException e) {
+				log.info("Could not check keyspace notification config", e);
 				return;
 			}
 		}
 		String actual = valueMap.getOrDefault(NOTIFY_CONFIG, "");
+		log.info("Retrieved config {}: {}", NOTIFY_CONFIG, actual);
 		Set<Character> expected = characterSet(NOTIFY_CONFIG_VALUE);
 		Assert.isTrue(characterSet(actual).containsAll(expected),
 				String.format("Keyspace notifications not property configured: expected '%s' but was '%s'.",

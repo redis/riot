@@ -9,7 +9,7 @@ public class MemberOperationArgs {
 	@Option(names = "--member-space", description = "Keyspace prefix for member IDs.", paramLabel = "<str>")
 	private String memberSpace;
 
-	@Option(arity = "1..*", names = "--members", description = "Member field names for collections.", paramLabel = "<fields>")
+	@Option(arity = "1..*", names = "--member", description = "Member field names for collections.", paramLabel = "<fields>")
 	private List<String> memberFields;
 
 	public String getMemberSpace() {
