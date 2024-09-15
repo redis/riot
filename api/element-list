@@ -6,3 +6,4 @@ com.redis.riot.file
 com.redis.riot.file.xml
 com.redis.riot.function
 com.redis.riot.operation
+com.redis.riot.test

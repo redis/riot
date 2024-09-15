@@ -74,7 +74,7 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="inheritance" title="Inheritance Tree"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">java.lang.Object</a>
 <div class="inheritance"><a href="core/BaseCommand.html" title="class in com.redis.riot.core">com.redis.riot.core.BaseCommand</a>
-<div class="inheritance"><a href="core/AbstractCommand.html" title="class in com.redis.riot.core">com.redis.riot.core.AbstractCommand</a>
+<div class="inheritance"><a href="core/AbstractCallableCommand.html" title="class in com.redis.riot.core">com.redis.riot.core.AbstractCallableCommand</a>
 <div class="inheritance"><a href="core/AbstractJobCommand.html" title="class in com.redis.riot.core">com.redis.riot.core.AbstractJobCommand</a>
 <div class="inheritance"><a href="AbstractRedisCommand.html" title="class in com.redis.riot">com.redis.riot.AbstractRedisCommand</a>
 <div class="inheritance">com.redis.riot.Generate</div>
@@ -99,14 +99,11 @@ loadScripts(document, 'script');</script>
 <section class="field-summary" id="field-summary">
 <h2>Field Summary</h2>
 <div class="inherited-list">
-<h3 id="fields-inherited-from-class-com.redis.riot.AbstractRedisCommand">Fields inherited from class&nbsp;com.redis.riot.<a href="AbstractRedisCommand.html" title="class in com.redis.riot">AbstractRedisCommand</a></h3>
-<code><a href="AbstractRedisCommand.html#redisContext">redisContext</a></code></div>
-<div class="inherited-list">
 <h3 id="fields-inherited-from-class-com.redis.riot.core.AbstractJobCommand">Fields inherited from class&nbsp;com.redis.riot.core.<a href="core/AbstractJobCommand.html" title="class in com.redis.riot.core">AbstractJobCommand</a></h3>
 <code><a href="core/AbstractJobCommand.html#DEFAULT_JOB_REPOSITORY_NAME">DEFAULT_JOB_REPOSITORY_NAME</a></code></div>
 <div class="inherited-list">
-<h3 id="fields-inherited-from-class-com.redis.riot.core.AbstractCommand">Fields inherited from class&nbsp;com.redis.riot.core.<a href="core/AbstractCommand.html" title="class in com.redis.riot.core">AbstractCommand</a></h3>
-<code><a href="core/AbstractCommand.html#log">log</a></code></div>
+<h3 id="fields-inherited-from-class-com.redis.riot.core.AbstractCallableCommand">Fields inherited from class&nbsp;com.redis.riot.core.<a href="core/AbstractCallableCommand.html" title="class in com.redis.riot.core">AbstractCallableCommand</a></h3>
+<code><a href="core/AbstractCallableCommand.html#log">log</a></code></div>
 <div class="inherited-list">
 <h3 id="fields-inherited-from-class-com.redis.riot.core.BaseCommand">Fields inherited from class&nbsp;com.redis.riot.core.<a href="core/BaseCommand.html" title="class in com.redis.riot.core">BaseCommand</a></h3>
 <code><a href="core/BaseCommand.html#commandSpec">commandSpec</a></code></div>
@@ -139,14 +136,20 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="GenerateArgs.html" title="class in com.redis.riot">GenerateArgs</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getGenerateArgs()" class="member-name-link">getGenerateArgs</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="RedisWriterArgs.html" title="class in com.redis.riot">RedisWriterArgs</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getRedisWriterArgs()" class="member-name-link">getRedisWriterArgs</a>()</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getPoolSize()" class="member-name-link">getPoolSize</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected org.springframework.batch.core.Job</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#job()" class="member-name-link">job</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="RedisWriterArgs.html" title="class in com.redis.riot">RedisWriterArgs</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getRedisWriterArgs()" class="member-name-link">getRedisWriterArgs</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected org.springframework.batch.core.Job</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#job()" class="member-name-link">job</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setGenerateArgs(com.redis.riot.GenerateArgs)" class="member-name-link">setGenerateArgs</a><wbr>(<a href="GenerateArgs.html" title="class in com.redis.riot">GenerateArgs</a>&nbsp;args)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setGenerateArgs(com.redis.riot.GenerateArgs)" class="member-name-link">setGenerateArgs</a><wbr>(<a href="GenerateArgs.html" title="class in com.redis.riot">GenerateArgs</a>&nbsp;args)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setPoolSize(int)" class="member-name-link">setPoolSize</a><wbr>(int&nbsp;poolSize)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setRedisWriterArgs(com.redis.riot.RedisWriterArgs)" class="member-name-link">setRedisWriterArgs</a><wbr>(<a href="RedisWriterArgs.html" title="class in com.redis.riot">RedisWriterArgs</a>&nbsp;args)</code></div>
@@ -156,13 +159,13 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-com.redis.riot.AbstractRedisCommand">Methods inherited from class&nbsp;com.redis.riot.<a href="AbstractRedisCommand.html" title="class in com.redis.riot">AbstractRedisCommand</a></h3>
-<code><a href="AbstractRedisCommand.html#configure(com.redis.spring.batch.item.redis.RedisItemReader)">configure</a>, <a href="AbstractRedisCommand.html#configure(com.redis.spring.batch.item.redis.RedisItemWriter)">configure</a>, <a href="AbstractRedisCommand.html#execute()">execute</a>, <a href="AbstractRedisCommand.html#getRedisArgs()">getRedisArgs</a>, <a href="AbstractRedisCommand.html#setRedisArgs(com.redis.riot.RedisArgs)">setRedisArgs</a></code></div>
+<code><a href="AbstractRedisCommand.html#commands()">commands</a>, <a href="AbstractRedisCommand.html#configure(com.redis.spring.batch.item.redis.RedisItemWriter)">configure</a>, <a href="AbstractRedisCommand.html#execute()">execute</a>, <a href="AbstractRedisCommand.html#getRedisArgs()">getRedisArgs</a>, <a href="AbstractRedisCommand.html#setRedisArgs(com.redis.riot.SimpleRedisArgs)">setRedisArgs</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-com.redis.riot.core.AbstractJobCommand">Methods inherited from class&nbsp;com.redis.riot.core.<a href="core/AbstractJobCommand.html" title="class in com.redis.riot.core">AbstractJobCommand</a></h3>
 <code><a href="core/AbstractJobCommand.html#configureAsyncReader(com.redis.spring.batch.item.AbstractAsyncItemReader)">configureAsyncReader</a>, <a href="core/AbstractJobCommand.html#getJobArgs()">getJobArgs</a>, <a href="core/AbstractJobCommand.html#getJobLauncher()">getJobLauncher</a>, <a href="core/AbstractJobCommand.html#getJobName()">getJobName</a>, <a href="core/AbstractJobCommand.html#getJobRepository()">getJobRepository</a>, <a href="core/AbstractJobCommand.html#getJobRepositoryName()">getJobRepositoryName</a>, <a href="core/AbstractJobCommand.html#getTransactionManager()">getTransactionManager</a>, <a href="core/AbstractJobCommand.html#job(com.redis.riot.core.Step...)">job</a>, <a href="core/AbstractJobCommand.html#job(java.util.Collection)">job</a>, <a href="core/AbstractJobCommand.html#setJobArgs(com.redis.riot.core.StepArgs)">setJobArgs</a>, <a href="core/AbstractJobCommand.html#setJobLauncher(org.springframework.batch.core.launch.JobLauncher)">setJobLauncher</a>, <a href="core/AbstractJobCommand.html#setJobName(java.lang.String)">setJobName</a>, <a href="core/AbstractJobCommand.html#setJobRepository(org.springframework.batch.core.repository.JobRepository)">setJobRepository</a>, <a href="core/AbstractJobCommand.html#setJobRepositoryName(java.lang.String)">setJobRepositoryName</a>, <a href="core/AbstractJobCommand.html#setTransactionManager(org.springframework.transaction.PlatformTransactionManager)">setTransactionManager</a>, <a href="core/AbstractJobCommand.html#shouldShowProgress()">shouldShowProgress</a></code></div>
 <div class="inherited-list">
-<h3 id="methods-inherited-from-class-com.redis.riot.core.AbstractCommand">Methods inherited from class&nbsp;com.redis.riot.core.<a href="core/AbstractCommand.html" title="class in com.redis.riot.core">AbstractCommand</a></h3>
-<code><a href="core/AbstractCommand.html#call()">call</a>, <a href="core/AbstractCommand.html#getLog()">getLog</a>, <a href="core/AbstractCommand.html#getLoggingArgs()">getLoggingArgs</a>, <a href="core/AbstractCommand.html#logLevel()">logLevel</a>, <a href="core/AbstractCommand.html#setLog(org.slf4j.Logger)">setLog</a>, <a href="core/AbstractCommand.html#setLoggingArgs(com.redis.riot.core.LoggingArgs)">setLoggingArgs</a></code></div>
+<h3 id="methods-inherited-from-class-com.redis.riot.core.AbstractCallableCommand">Methods inherited from class&nbsp;com.redis.riot.core.<a href="core/AbstractCallableCommand.html" title="class in com.redis.riot.core">AbstractCallableCommand</a></h3>
+<code><a href="core/AbstractCallableCommand.html#call()">call</a>, <a href="core/AbstractCallableCommand.html#getLog()">getLog</a>, <a href="core/AbstractCallableCommand.html#setLog(org.slf4j.Logger)">setLog</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-java.lang.Object">Methods inherited from class&nbsp;java.lang.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></h3>
 <code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#clone()" title="class or interface in java.lang" class="external-link">clone</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="external-link">equals</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#finalize()" title="class or interface in java.lang" class="external-link">finalize</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#getClass()" title="class or interface in java.lang" class="external-link">getClass</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="external-link">hashCode</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#notify()" title="class or interface in java.lang" class="external-link">notify</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#notifyAll()" title="class or interface in java.lang" class="external-link">notifyAll</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#toString()" title="class or interface in java.lang" class="external-link">toString</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait()" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait(long)" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait(long,int)" title="class or interface in java.lang" class="external-link">wait</a></code></div>
@@ -223,6 +226,18 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="setGenerateArgs(com.redis.riot.GenerateArgs)">
 <h3>setGenerateArgs</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setGenerateArgs</span><wbr><span class="parameters">(<a href="GenerateArgs.html" title="class in com.redis.riot">GenerateArgs</a>&nbsp;args)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="getPoolSize()">
+<h3>getPoolSize</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getPoolSize</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="setPoolSize(int)">
+<h3>setPoolSize</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setPoolSize</span><wbr><span class="parameters">(int&nbsp;poolSize)</span></div>
 </section>
 </li>
 </ul>

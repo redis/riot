@@ -92,7 +92,7 @@ $(addBlockSwitches);
 <h1>Redis Input/Output Tools (RIOT)</h1>
 <div class="details">
 <span id="author" class="author">Julien Ruaux</span><br>
-<span id="revnumber">version 4.1.2</span>
+<span id="revnumber">version 4.1.3</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -119,7 +119,7 @@ $(addBlockSwitches);
 <li><a href="#_cookbook">Cookbook</a>
 <ul class="sectlevel2">
 <li><a href="#_changelog">Changelog</a></li>
-<li><a href="#_elasticache">Elasticache Migration</a></li>
+<li><a href="#_elasticache">ElastiCache Migration</a></li>
 <li><a href="#_ping">Connectivity Test</a></li>
 </ul>
 </li>
@@ -140,19 +140,46 @@ $(addBlockSwitches);
 <div class="ulist">
 <ul>
 <li>
-<p>File import/export (CSV, JSON, XML)</p>
+<p>Files (CSV, JSON, XML)</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#_file_import">Import</a>: File &#8594; Redis</p>
 </li>
 <li>
-<p>Relational database import/export</p>
+<p><a href="#_file_export">Export</a>: Redis &#8594; File</p>
+</li>
+</ul>
+</div>
 </li>
 <li>
-<p>Data generation using Faker or random data structures</p>
+<p>Databases</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#_db_import">Import</a>: Database &#8594; Redis</p>
 </li>
 <li>
-<p>Data migration from a Redis database to another</p>
+<p><a href="#_db_export">Export</a>: Redis &#8594; Database</p>
+</li>
+</ul>
+</div>
 </li>
 <li>
-<p>Live replication between two Redis databases</p>
+<p>Data Generators</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="#_datagen_struct">Redis Data Generator</a>: Data Structures &#8594; Redis</p>
+</li>
+<li>
+<p><a href="#_datagen_faker">Faker Data Generator</a>: Faker &#8594; Redis</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><a href="#_replication">Replication</a>: Redis &#8594; Redis</p>
 </li>
 </ul>
 </div>
@@ -193,10 +220,10 @@ scoop install riot</code></pre>
 </td>
 <td class="content">
 <div class="paragraph">
-<p><code>riot-4.1.2.zip</code> requires Java 11 or greater to be installed.</p>
+<p><code>riot-4.1.3.zip</code> requires Java 11 or greater to be installed.</p>
 </div>
 <div class="paragraph">
-<p><code>riot-standalone-4.1.2-*.zip</code> includes its own Java runtime and does not require a Java installation.</p>
+<p><code>riot-standalone-4.1.3-*.zip</code> includes its own Java runtime and does not require a Java installation.</p>
 </div>
 </td>
 </tr>
@@ -456,7 +483,7 @@ Both snapshot and live replication modes are supported.</p>
 <div class="listingblock">
 <div class="title">Example</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="console">riot generate --types string hash json timeseries</code></pre>
+<pre class="CodeRay highlight"><code data-lang="console">riot generate --type string hash json timeseries</code></pre>
 </div>
 </div>
 </div>
@@ -525,7 +552,7 @@ Both snapshot and live replication modes are supported.</p>
 <div class="listingblock">
 <div class="title">Import into sets</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="console">riot faker name=&quot;GameOfThrones.character&quot; --count 1000 sadd --keyspace got:characters --members name</code></pre>
+<pre class="CodeRay highlight"><code data-lang="console">riot faker name=&quot;GameOfThrones.character&quot; --count 1000 sadd --keyspace got:characters --member name</code></pre>
 </div>
 </div>
 </div>
@@ -814,7 +841,7 @@ See the <a href="#_db_drivers">Drivers</a> section for more details.
 <div class="sect3">
 <h4 id="_file_import"><a class="anchor" href="#_file_import"></a>File Import</h4>
 <div class="paragraph">
-<p>The <code>import</code> command reads data from files and writes it to Redis.</p>
+<p>The <code>file-import</code> command reads data from files and writes it to Redis.</p>
 </div>
 <div class="paragraph">
 <p>The basic usage for file imports is:</p>
@@ -956,13 +983,12 @@ Use <code>-</code> to read from standard input.
 <div class="listingblock">
 <div class="title">Import into hashes in keyspace <code>blah:&lt;id&gt;</code> <strong>and</strong> set TTL <strong>and</strong> add each <code>id</code> to a set named <code>myset</code></div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="console">riot file-import my.json hset --keyspace blah --key id expire --keyspace blah --key id sadd --keyspace myset --members id</code></pre>
+<pre class="CodeRay highlight"><code data-lang="console">riot file-import my.json hset --keyspace blah --key id expire --keyspace blah --key id sadd --keyspace myset --member id</code></pre>
 </div>
 </div>
 </div>
-</div>
-<div class="sect3">
-<h4 id="_file_import_delimited"><a class="anchor" href="#_file_import_delimited"></a>Delimited (CSV)</h4>
+<div class="sect4">
+<h5 id="_file_import_delimited"><a class="anchor" href="#_file_import_delimited"></a>Delimited (CSV)</h5>
 <div class="paragraph">
 <p>The default delimiter character is comma (<code>,</code>).
 It can be changed with the <code>--delimiter</code> option.</p>
@@ -1047,7 +1073,8 @@ Otherwise specify the field names using the <code>--fields</code> option.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="console">riot file-import http://storage.googleapis.com/jrx/airports.csv --header --skip-limit 3 geoadd --keyspace airportgeo --members AirportID --lon Longitude --lat Latitude</code></pre>
+<pre class="CodeRay highlight"><code data-lang="console">riot file-import http://storage.googleapis.com/jrx/airports.csv --header --skip-limit 3 geoadd --keyspace airportgeo --member AirportID --lon Longitude --lat Latitude</code></pre>
+</div>
 </div>
 </div>
 <div class="sect4">
@@ -1180,6 +1207,8 @@ Otherwise specify the field names using the <code>--fields</code> option.</p>
 <pre class="CodeRay highlight"><code data-lang="console">riot file-export --help</code></pre>
 </div>
 </div>
+<div class="sect4">
+<h5 id="_file_export_json"><a class="anchor" href="#_file_export_json"></a>JSON</h5>
 <div class="listingblock">
 <div class="title">Export to JSON</div>
 <div class="content">
@@ -1258,10 +1287,14 @@ Otherwise specify the field names using the <code>--fields</code> option.</p>
 <pre class="CodeRay highlight"><code data-lang="console">riot file-export /tmp/beers.json.gz --key-pattern beer:*</code></pre>
 </div>
 </div>
+</div>
+<div class="sect4">
+<h5 id="_file_export_xml"><a class="anchor" href="#_file_export_xml"></a>XML</h5>
 <div class="listingblock">
 <div class="title">Export to XML</div>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="console">riot file-export /tmp/redis.xml</code></pre>
+</div>
 </div>
 </div>
 </div>
@@ -1590,9 +1623,9 @@ Add that option to your existing <code>replicate</code> command-line to compare 
 </div>
 </div>
 <div class="sect2">
-<h3 id="_elasticache"><a class="anchor" href="#_elasticache"></a>Elasticache Migration</h3>
+<h3 id="_elasticache"><a class="anchor" href="#_elasticache"></a>ElastiCache Migration</h3>
 <div class="paragraph">
-<p>This recipe contains step-by-step instructions to migrate an Elasticache (EC) database to {link_redis_enterprise} (RE).</p>
+<p>This recipe contains step-by-step instructions to migrate an ElastiCache (EC) database to <a href="https://redis.io/docs/latest/operate/rc/">Redis Cloud</a> or <a href="https://redis.io/docs/latest/operate/rs/">Redis Software</a>.</p>
 </div>
 <div class="paragraph">
 <p>The following scenarios are covered:</p>
@@ -1633,10 +1666,10 @@ It is recommended to read the <a href="#_replication">Replication</a> section to
 Refer to <a href="https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/Endpoints.html">this link</a> to learn more</p>
 </li>
 <li>
-<p>Redis Enterprise: hosted on Cloud or On-Prem</p>
+<p><a href="https://redis.io/docs/latest/operate/rc/">Redis Cloud</a> or <a href="https://redis.io/docs/latest/operate/rs/">Redis Software</a></p>
 </li>
 <li>
-<p>An Amazon EC2 instance</p>
+<p>An Amazon EC2 instance to run RIOT</p>
 </li>
 </ul>
 </div>
@@ -1649,7 +1682,7 @@ Refer to <a href="https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/En
 <td class="content">
 <div class="title">Keyspace Notifications</div>
 <div class="paragraph">
-<p>For a live migration you need to enable keyspace notifications on your Elasticache instance (see <a href="https://aws.amazon.com/premiumsupport/knowledge-center/elasticache-redis-keyspace-notifications">AWS Knowledge Center</a>).</p>
+<p>For a live migration you need to enable keyspace notifications on your ElastiCache instance (see <a href="https://aws.amazon.com/premiumsupport/knowledge-center/elasticache-redis-keyspace-notifications">AWS Knowledge Center</a>).</p>
 </div>
 </td>
 </tr>
@@ -1685,7 +1718,7 @@ sudo apt install -y redis-tools</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Use <code>redis-cli</code> to check connectivity with the Elasticache database:</p>
+<p>Use <code>redis-cli</code> to check connectivity with the ElastiCache database:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -1693,7 +1726,7 @@ sudo apt install -y redis-tools</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Ensure that the above command allows you to connect to the remote Elasticache database successfully.</p>
+<p>Ensure that the above command allows you to connect to the remote ElastiCache database successfully.</p>
 </div>
 </div>
 <div class="sect4">
@@ -1711,18 +1744,18 @@ For this we&#8217;ll follow the steps in <a href="#_install_manual">Manual Insta
 The options you will use depend on your source and target databases, as well as the replication mode (snapshot or live).</p>
 </div>
 <div class="sect4">
-<h5 id="_ec_single_master_re"><a class="anchor" href="#_ec_single_master_re"></a>EC Single Master &#8594; RE</h5>
+<h5 id="_elasticache_single_master_redis"><a class="anchor" href="#_elasticache_single_master_redis"></a>ElastiCache Single Master &#8594; Redis</h5>
 <div class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="console">riot replicate -h &lt;source EC host&gt; -p &lt;source EC port&gt; --target-host &lt;target RE host&gt; --target-port &lt;target RE port&gt; --target-pass &lt;RE password&gt;</code></pre>
+<pre class="CodeRay highlight"><code data-lang="console">riot replicate source:port target:port</code></pre>
 </div>
 </div>
 </div>
 <div class="sect4">
-<h5 id="_live_ec_single_master_re"><a class="anchor" href="#_live_ec_single_master_re"></a>Live EC Single Master &#8594; RE</h5>
+<h5 id="_live_elasticache_single_master_redis"><a class="anchor" href="#_live_elasticache_single_master_redis"></a>Live ElastiCache Single Master &#8594; Redis</h5>
 <div class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="console">riot replicate -h &lt;source EC host&gt; -p &lt;source EC port&gt; --target-host &lt;target RE host&gt; --target-port &lt;target RE port&gt; --target-pass &lt;RE password&gt; --mode live</code></pre>
+<pre class="CodeRay highlight"><code data-lang="console">riot replicate source:port target:port --mode live</code></pre>
 </div>
 </div>
 <div class="admonitionblock important">
@@ -1733,11 +1766,11 @@ The options you will use depend on your source and target databases, as well as 
 </td>
 <td class="content">
 <div class="paragraph">
-<p>In case ElastiCache is configured with <a href="https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/auth.html">AUTH TOKEN enabled</a>, you need to pass <code>--tls</code> as well as <code>--pass</code> option:</p>
+<p>In case ElastiCache is configured with <a href="https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/auth.html">AUTH TOKEN enabled</a>, you need to pass <code>--source-tls</code> as well as <code>--source-pass</code> option:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="console">riot replicate -h &lt;source EC host&gt; -p &lt;source EC port&gt; --tls --pass &lt;token&gt; --target-host &lt;target RE host&gt; --target-port &lt;target RE port&gt; --target-pass &lt;RE password&gt;</code></pre>
+<pre class="CodeRay highlight"><code data-lang="console">riot replicate source:port target:port --source-tls --source-pass &lt;password&gt;</code></pre>
 </div>
 </div>
 </td>
@@ -1746,10 +1779,10 @@ The options you will use depend on your source and target databases, as well as 
 </div>
 </div>
 <div class="sect4">
-<h5 id="_ec_cluster_re"><a class="anchor" href="#_ec_cluster_re"></a>EC Cluster &#8594; RE</h5>
+<h5 id="_elasticache_cluster_redis"><a class="anchor" href="#_elasticache_cluster_redis"></a>ElastiCache Cluster &#8594; Redis</h5>
 <div class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="console">riot replicate -h &lt;source EC host&gt; -p &lt;source EC port&gt; --cluster --target-host &lt;target RE host&gt; --target-port &lt;target RE port&gt; --target-pass &lt;RE password&gt;</code></pre>
+<pre class="CodeRay highlight"><code data-lang="console">riot replicate source:port target:port --source-cluster</code></pre>
 </div>
 </div>
 <div class="admonitionblock note">
@@ -1767,26 +1800,26 @@ Do note that the source database is specified first and the target database is s
 </div>
 </div>
 <div class="sect4">
-<h5 id="_ec_single_master_re_with_specific_db_index"><a class="anchor" href="#_ec_single_master_re_with_specific_db_index"></a>EC Single Master &#8594; RE (with specific db index)</h5>
+<h5 id="_elasticache_single_master_redis_with_specific_database_index"><a class="anchor" href="#_elasticache_single_master_redis_with_specific_database_index"></a>ElastiCache Single Master &#8594; Redis (with specific database index)</h5>
 <div class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="console">riot replicate -h &lt;source EC host&gt; -p &lt;source EC port&gt; --db &lt;index&gt; --target-host &lt;target RE host&gt; --target-port &lt;target RE port&gt; --target-pass &lt;RE password&gt;</code></pre>
+<pre class="CodeRay highlight"><code data-lang="console">riot replicate redis://source:port/db target:port</code></pre>
 </div>
 </div>
 </div>
 <div class="sect4">
-<h5 id="_ec_single_master_re_with_oss_cluster"><a class="anchor" href="#_ec_single_master_re_with_oss_cluster"></a>EC Single Master &#8594; RE with OSS Cluster</h5>
+<h5 id="_elasticache_single_master_redis_with_oss_cluster"><a class="anchor" href="#_elasticache_single_master_redis_with_oss_cluster"></a>ElastiCache Single Master &#8594; Redis with OSS Cluster</h5>
 <div class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="console">riot replicate -h &lt;source EC host&gt; -p &lt;source EC port&gt; --target-host &lt;target RE host&gt; --target-port &lt;target RE port&gt; --target-pass &lt;RE password&gt; --cluster</code></pre>
+<pre class="CodeRay highlight"><code data-lang="console">riot replicate source:port target:port --target-cluster</code></pre>
 </div>
 </div>
 </div>
 <div class="sect4">
-<h5 id="_live_ec_cluster_re_with_oss_cluster"><a class="anchor" href="#_live_ec_cluster_re_with_oss_cluster"></a>Live EC Cluster &#8594; RE with OSS Cluster</h5>
+<h5 id="_live_elasticache_cluster_redis_with_oss_cluster"><a class="anchor" href="#_live_elasticache_cluster_redis_with_oss_cluster"></a>Live ElastiCache Cluster &#8594; Redis with OSS Cluster</h5>
 <div class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="console">riot replicate -h &lt;source EC host&gt; -p &lt;source EC port&gt; --cluster --target-host &lt;target RE host&gt; --target-port &lt;target RE port&gt; --target-pass &lt;RE password&gt; --cluster --mode live</code></pre>
+<pre class="CodeRay highlight"><code data-lang="console">riot replicate source:port target:port --source-cluster --target-cluster --mode live</code></pre>
 </div>
 </div>
 </div>
@@ -1796,16 +1829,13 @@ Do note that the source database is specified first and the target database is s
 <div class="ulist">
 <ul>
 <li>
-<p>As stated earlier, this tool is not officially supported by Redis Inc.</p>
-</li>
-<li>
 <p>It is recommended to test migration in UAT before production use.</p>
 </li>
 <li>
-<p>Once migration is completed, ensure that application traffic gets redirected to Redis Enterprise Endpoint successfully.</p>
+<p>Once migration is completed, ensure that application traffic gets redirected to Redis endpoint successfully.</p>
 </li>
 <li>
-<p>It is recommended to perform the migration process during low traffic so as to avoid chances of data loss.</p>
+<p>It is recommended to perform the migration process during low traffic hours so as to avoid chances of data loss.</p>
 </li>
 </ul>
 </div>
@@ -1847,22 +1877,34 @@ Do note that the source database is specified first and the target database is s
 <div class="sect1">
 <h2 id="_faq"><a class="anchor" href="#_faq"></a>FAQ</h2>
 <div class="sectionbody">
-<div class="dlist">
+<div id="_faq_logs_cutoff" class="dlist">
 <dl>
 <dt class="hdlist1">Logs are cut off or missing</dt>
 <dd>
 <p>This could be due to concurrency issues in the terminal when refreshing the progress bar and displaying logs.
 Try running with job option <code>--progress log</code>.</p>
 </dd>
+</dl>
+</div>
+<div id="_faq_unknown_options" class="dlist">
+<dl>
 <dt class="hdlist1">Unknown options: '--keyspace', '--key'</dt>
 <dd>
 <p>You must specify one or more Redis commands with import commands (<a href="#_file_import"><code>file-import</code></a>, <a href="#_datagen_faker"><code>faker</code></a>, <a href="#_db_import"><code>db-import</code></a>).</p>
 </dd>
+</dl>
+</div>
+<div id="_faq_dump_version" class="dlist">
+<dl>
 <dt class="hdlist1">ERR DUMP payload version or checksum are wrong</dt>
 <dd>
 <p>Redis 7 DUMP format is not backwards compatible with previous versions.
 To replicate between different Redis versions, use <a href="#_replication_type_struct">Type-Based Replication</a>.</p>
 </dd>
+</dl>
+</div>
+<div id="_faq_replication_timeout" class="dlist">
+<dl>
 <dt class="hdlist1">Process gets stuck during replication and eventually times out</dt>
 <dd>
 <p>This could be due to big keys clogging the replication pipes.
@@ -1870,15 +1912,27 @@ In these cases it might be hard to catch the offending key(s).
 Try running the same command with <code>--info</code> and <code>--progress log</code> so that all errors are reported.
 Check the database with <code>redis-cli</code> <a href="https://developer.redis.com/operate/redis-at-scale/observability/identifying-issues/#scanning-keys">Big keys</a> and/or use reader options to filter these keys out.</p>
 </dd>
+</dl>
+</div>
+<div id="_faq_noauth" class="dlist">
+<dl>
 <dt class="hdlist1">NOAUTH Authentication required</dt>
 <dd>
 <p>This issue occurs when you fail to supply the <code>--pass &lt;password&gt;</code> parameter.</p>
 </dd>
+</dl>
+</div>
+<div id="_faq_stream_id" class="dlist">
+<dl>
 <dt class="hdlist1">ERR The ID argument cannot be a complete ID because xadd-id-uniqueness-mode is strict</dt>
 <dd>
 <p>This usually happens in Active/Active (CRDB) setups where stream message IDs cannot be copied over to the target database.
-Use the <code>--no-stream-ids</code> option to disable ID propagation.</p>
+Use the <code>--no-stream-id</code> option to disable ID propagation.</p>
 </dd>
+</dl>
+</div>
+<div id="_faq_script" class="dlist">
+<dl>
 <dt class="hdlist1">ERR Error running script&#8230;&#8203; This Redis command is not allowed from scripts</dt>
 <dd>
 <p>This can happen with Active/Active (CRDB) databases because the <code>MEMORY USAGE</code> command is not allowed to be run from a LUA script.
@@ -1891,8 +1945,8 @@ Use the <code>--mem-limit -1</code> option to disable memory usage.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 4.1.2<br>
-Last updated 2024-08-25 23:44:10 UTC
+Version 4.1.3<br>
+Last updated 2024-09-15 20:02:42 UTC
 </div>
 </div>
 <link rel="stylesheet" href="./coderay-asciidoctor.css">

@@ -59,7 +59,8 @@ loadScripts(document, 'script');</script>
 <li><a href="com/redis/riot/file/package-tree.html">com.redis.riot.file</a>, </li>
 <li><a href="com/redis/riot/file/xml/package-tree.html">com.redis.riot.file.xml</a>, </li>
 <li><a href="com/redis/riot/function/package-tree.html">com.redis.riot.function</a>, </li>
-<li><a href="com/redis/riot/operation/package-tree.html">com.redis.riot.operation</a></li>
+<li><a href="com/redis/riot/operation/package-tree.html">com.redis.riot.operation</a>, </li>
+<li><a href="com/redis/riot/test/package-tree.html">com.redis.riot.test</a></li>
 </ul>
 </div>
 <section class="hierarchy">
@@ -90,34 +91,32 @@ loadScripts(document, 'script');</script>
 </li>
 </ul>
 </li>
+<li class="circle">com.redis.spring.batch.test.AbstractTestBase
+<ul>
+<li class="circle">com.redis.spring.batch.test.AbstractTargetTestBase
+<ul>
+<li class="circle">com.redis.riot.test.<a href="com/redis/riot/test/AbstractRiotTestBase.html" class="type-name-link" title="class in com.redis.riot.test">AbstractRiotTestBase</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="circle">com.redis.riot.<a href="com/redis/riot/AwsArgs.html" class="type-name-link" title="class in com.redis.riot">AwsArgs</a></li>
 <li class="circle">com.redis.riot.<a href="com/redis/riot/AwsCredentialsArgs.html" class="type-name-link" title="class in com.redis.riot">AwsCredentialsArgs</a></li>
 <li class="circle">com.redis.riot.core.<a href="com/redis/riot/core/BaseCommand.html" class="type-name-link" title="class in com.redis.riot.core">BaseCommand</a>
 <ul>
-<li class="circle">com.redis.riot.core.<a href="com/redis/riot/core/AbstractCommand.html" class="type-name-link" title="class in com.redis.riot.core">AbstractCommand</a> (implements java.util.concurrent.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/concurrent/Callable.html" title="class or interface in java.util.concurrent" class="external-link">Callable</a>&lt;V&gt;)
+<li class="circle">com.redis.riot.core.<a href="com/redis/riot/core/AbstractCallableCommand.html" class="type-name-link" title="class in com.redis.riot.core">AbstractCallableCommand</a> (implements java.util.concurrent.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/concurrent/Callable.html" title="class or interface in java.util.concurrent" class="external-link">Callable</a>&lt;V&gt;)
 <ul>
 <li class="circle">com.redis.riot.core.<a href="com/redis/riot/core/AbstractJobCommand.html" class="type-name-link" title="class in com.redis.riot.core">AbstractJobCommand</a>
 <ul>
-<li class="circle">com.redis.riot.<a href="com/redis/riot/AbstractRedisCommand.html" class="type-name-link" title="class in com.redis.riot">AbstractRedisCommand</a>
-<ul>
 <li class="circle">com.redis.riot.<a href="com/redis/riot/AbstractExportCommand.html" class="type-name-link" title="class in com.redis.riot">AbstractExportCommand</a>
+<ul>
+<li class="circle">com.redis.riot.<a href="com/redis/riot/AbstractRedisExportCommand.html" class="type-name-link" title="class in com.redis.riot">AbstractRedisExportCommand</a>
 <ul>
 <li class="circle">com.redis.riot.<a href="com/redis/riot/DatabaseExport.html" class="type-name-link" title="class in com.redis.riot">DatabaseExport</a></li>
 <li class="circle">com.redis.riot.<a href="com/redis/riot/FileExport.html" class="type-name-link" title="class in com.redis.riot">FileExport</a></li>
 </ul>
 </li>
-<li class="circle">com.redis.riot.<a href="com/redis/riot/AbstractImportCommand.html" class="type-name-link" title="class in com.redis.riot">AbstractImportCommand</a>
-<ul>
-<li class="circle">com.redis.riot.<a href="com/redis/riot/DatabaseImport.html" class="type-name-link" title="class in com.redis.riot">DatabaseImport</a></li>
-<li class="circle">com.redis.riot.<a href="com/redis/riot/FakerImport.html" class="type-name-link" title="class in com.redis.riot">FakerImport</a></li>
-<li class="circle">com.redis.riot.<a href="com/redis/riot/FileImport.html" class="type-name-link" title="class in com.redis.riot">FileImport</a></li>
-</ul>
-</li>
-<li class="circle">com.redis.riot.<a href="com/redis/riot/Generate.html" class="type-name-link" title="class in com.redis.riot">Generate</a></li>
-<li class="circle">com.redis.riot.<a href="com/redis/riot/Ping.html" class="type-name-link" title="class in com.redis.riot">Ping</a></li>
-</ul>
-</li>
-<li class="circle">com.redis.riot.<a href="com/redis/riot/AbstractRedisToRedisCommand.html" class="type-name-link" title="class in com.redis.riot">AbstractRedisToRedisCommand</a>
+<li class="circle">com.redis.riot.<a href="com/redis/riot/AbstractReplicateCommand.html" class="type-name-link" title="class in com.redis.riot">AbstractReplicateCommand</a>
 <ul>
 <li class="circle">com.redis.riot.<a href="com/redis/riot/AbstractCompareCommand.html" class="type-name-link" title="class in com.redis.riot">AbstractCompareCommand</a>
 <ul>
@@ -125,6 +124,25 @@ loadScripts(document, 'script');</script>
 <li class="circle">com.redis.riot.<a href="com/redis/riot/Replicate.html" class="type-name-link" title="class in com.redis.riot">Replicate</a></li>
 </ul>
 </li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="circle">com.redis.riot.<a href="com/redis/riot/AbstractImportCommand.html" class="type-name-link" title="class in com.redis.riot">AbstractImportCommand</a>
+<ul>
+<li class="circle">com.redis.riot.<a href="com/redis/riot/AbstractRedisImportCommand.html" class="type-name-link" title="class in com.redis.riot">AbstractRedisImportCommand</a>
+<ul>
+<li class="circle">com.redis.riot.<a href="com/redis/riot/DatabaseImport.html" class="type-name-link" title="class in com.redis.riot">DatabaseImport</a></li>
+<li class="circle">com.redis.riot.<a href="com/redis/riot/FakerImport.html" class="type-name-link" title="class in com.redis.riot">FakerImport</a></li>
+<li class="circle">com.redis.riot.<a href="com/redis/riot/FileImport.html" class="type-name-link" title="class in com.redis.riot">FileImport</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="circle">com.redis.riot.<a href="com/redis/riot/AbstractRedisCommand.html" class="type-name-link" title="class in com.redis.riot">AbstractRedisCommand</a>
+<ul>
+<li class="circle">com.redis.riot.<a href="com/redis/riot/Generate.html" class="type-name-link" title="class in com.redis.riot">Generate</a></li>
+<li class="circle">com.redis.riot.<a href="com/redis/riot/Ping.html" class="type-name-link" title="class in com.redis.riot">Ping</a></li>
 </ul>
 </li>
 </ul>
@@ -148,7 +166,11 @@ loadScripts(document, 'script');</script>
 <li class="circle">com.redis.riot.operation.<a href="com/redis/riot/operation/ZaddCommand.html" class="type-name-link" title="class in com.redis.riot.operation">ZaddCommand</a></li>
 </ul>
 </li>
-<li class="circle">com.redis.riot.<a href="com/redis/riot/Main.html" class="type-name-link" title="class in com.redis.riot">Main</a> (implements com.redis.riot.core.<a href="com/redis/riot/core/IO.html" title="interface in com.redis.riot.core">IO</a>, java.lang.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Runnable.html" title="class or interface in java.lang" class="external-link">Runnable</a>)</li>
+<li class="circle">com.redis.riot.core.<a href="com/redis/riot/core/MainCommand.html" class="type-name-link" title="class in com.redis.riot.core">MainCommand</a> (implements java.util.concurrent.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/concurrent/Callable.html" title="class or interface in java.util.concurrent" class="external-link">Callable</a>&lt;V&gt;, com.redis.riot.core.<a href="com/redis/riot/core/IO.html" title="interface in com.redis.riot.core">IO</a>)
+<ul>
+<li class="circle">com.redis.riot.<a href="com/redis/riot/Riot.html" class="type-name-link" title="class in com.redis.riot">Riot</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="circle">com.redis.riot.core.processor.<a href="com/redis/riot/core/processor/CollectionToMapFunction.html" class="type-name-link" title="class in com.redis.riot.core.processor">CollectionToMapFunction</a> (implements java.util.function.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;T,<wbr>R&gt;)</li>
@@ -218,7 +240,7 @@ loadScripts(document, 'script');</script>
 <li class="circle">com.redis.riot.<a href="com/redis/riot/KeyValueFilter.html" class="type-name-link" title="class in com.redis.riot">KeyValueFilter</a>&lt;K,<wbr>T&gt; (implements org.springframework.batch.item.ItemProcessor&lt;I,<wbr>O&gt;)</li>
 <li class="circle">com.redis.riot.function.<a href="com/redis/riot/function/KeyValueMap.html" class="type-name-link" title="class in com.redis.riot.function">KeyValueMap</a> (implements java.util.function.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;T,<wbr>R&gt;)</li>
 <li class="circle">com.redis.riot.<a href="com/redis/riot/KeyValueProcessorArgs.html" class="type-name-link" title="class in com.redis.riot">KeyValueProcessorArgs</a></li>
-<li class="circle">com.redis.riot.core.<a href="com/redis/riot/core/LoggingArgs.html" class="type-name-link" title="class in com.redis.riot.core">LoggingArgs</a></li>
+<li class="circle">com.redis.riot.core.<a href="com/redis/riot/core/LoggingMixin.html" class="type-name-link" title="class in com.redis.riot.core">LoggingMixin</a></li>
 <li class="circle">org.springframework.context.expression.MapAccessor (implements org.springframework.expression.spel.CompilablePropertyAccessor)
 <ul>
 <li class="circle">com.redis.riot.core.<a href="com/redis/riot/core/QuietMapAccessor.html" class="type-name-link" title="class in com.redis.riot.core">QuietMapAccessor</a></li>
@@ -240,9 +262,10 @@ loadScripts(document, 'script');</script>
 <li class="circle">com.redis.riot.core.<a href="com/redis/riot/core/PrintExceptionMessageHandler.html" class="type-name-link" title="class in com.redis.riot.core">PrintExceptionMessageHandler</a> (implements picocli.CommandLine.IExecutionExceptionHandler)</li>
 <li class="circle">com.redis.riot.core.<a href="com/redis/riot/core/ProgressArgs.html" class="type-name-link" title="class in com.redis.riot.core">ProgressArgs</a></li>
 <li class="circle">com.redis.riot.core.<a href="com/redis/riot/core/ProgressStepExecutionListener.html" class="type-name-link" title="class in com.redis.riot.core">ProgressStepExecutionListener</a>&lt;I,<wbr>O&gt; (implements org.springframework.batch.core.ItemWriteListener&lt;S&gt;, org.springframework.batch.core.StepExecutionListener)</li>
-<li class="circle">com.redis.riot.<a href="com/redis/riot/RedisArgs.html" class="type-name-link" title="class in com.redis.riot">RedisArgs</a></li>
+<li class="circle">com.redis.riot.<a href="com/redis/riot/RangeConverter.html" class="type-name-link" title="class in com.redis.riot">RangeConverter</a> (implements picocli.CommandLine.ITypeConverter&lt;K&gt;)</li>
 <li class="circle">com.redis.riot.<a href="com/redis/riot/RedisContext.html" class="type-name-link" title="class in com.redis.riot">RedisContext</a> (implements java.lang.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/AutoCloseable.html" title="class or interface in java.lang" class="external-link">AutoCloseable</a>)</li>
 <li class="circle">com.redis.riot.<a href="com/redis/riot/RedisReaderArgs.html" class="type-name-link" title="class in com.redis.riot">RedisReaderArgs</a></li>
+<li class="circle">com.redis.riot.<a href="com/redis/riot/RedisURIConverter.html" class="type-name-link" title="class in com.redis.riot">RedisURIConverter</a> (implements picocli.CommandLine.ITypeConverter&lt;K&gt;)</li>
 <li class="circle">com.redis.riot.<a href="com/redis/riot/RedisWriterArgs.html" class="type-name-link" title="class in com.redis.riot">RedisWriterArgs</a></li>
 <li class="circle">com.redis.riot.core.processor.<a href="com/redis/riot/core/processor/RegexNamedGroupFunction.html" class="type-name-link" title="class in com.redis.riot.core.processor">RegexNamedGroupFunction</a> (implements java.util.function.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;T,<wbr>R&gt;)</li>
 <li class="circle">com.redis.riot.<a href="com/redis/riot/ReplicateReadLogger.html" class="type-name-link" title="class in com.redis.riot">ReplicateReadLogger</a>&lt;K&gt; (implements org.springframework.batch.core.ItemReadListener&lt;T&gt;, org.springframework.batch.core.ItemWriteListener&lt;S&gt;)</li>
@@ -250,21 +273,16 @@ loadScripts(document, 'script');</script>
 <li class="circle">com.redis.riot.core.<a href="com/redis/riot/core/RiotUtils.html" class="type-name-link" title="class in com.redis.riot.core">RiotUtils</a></li>
 <li class="circle">com.redis.riot.core.<a href="com/redis/riot/core/RiotVersion.html" class="type-name-link" title="class in com.redis.riot.core">RiotVersion</a></li>
 <li class="circle">com.redis.riot.operation.<a href="com/redis/riot/operation/ScoreArgs.html" class="type-name-link" title="class in com.redis.riot.operation">ScoreArgs</a></li>
-<li class="circle">com.redis.riot.<a href="com/redis/riot/SourceRedisClientArgs.html" class="type-name-link" title="class in com.redis.riot">SourceRedisClientArgs</a></li>
-<li class="circle">com.redis.riot.<a href="com/redis/riot/SourceRedisURIArgs.html" class="type-name-link" title="class in com.redis.riot">SourceRedisURIArgs</a></li>
+<li class="circle">com.redis.riot.<a href="com/redis/riot/SimpleRedisArgs.html" class="type-name-link" title="class in com.redis.riot">SimpleRedisArgs</a> (implements com.redis.riot.<a href="com/redis/riot/RedisArgs.html" title="interface in com.redis.riot">RedisArgs</a>)</li>
+<li class="circle">com.redis.riot.<a href="com/redis/riot/SourceRedisArgs.html" class="type-name-link" title="class in com.redis.riot">SourceRedisArgs</a> (implements com.redis.riot.<a href="com/redis/riot/RedisArgs.html" title="interface in com.redis.riot">RedisArgs</a>)</li>
 <li class="circle">com.redis.riot.<a href="com/redis/riot/SslArgs.html" class="type-name-link" title="class in com.redis.riot">SslArgs</a></li>
-<li class="circle">com.redis.riot.core.<a href="com/redis/riot/core/Step.html" class="type-name-link" title="class in com.redis.riot.core">Step</a>&lt;I,<wbr>O&gt;
-<ul>
-<li class="circle">com.redis.riot.<a href="com/redis/riot/RedisExportStep.html" class="type-name-link" title="class in com.redis.riot">RedisExportStep</a>&lt;K,<wbr>V,<wbr>T,<wbr>O&gt; (implements org.springframework.beans.factory.InitializingBean)</li>
-</ul>
-</li>
+<li class="circle">com.redis.riot.core.<a href="com/redis/riot/core/Step.html" class="type-name-link" title="class in com.redis.riot.core">Step</a>&lt;I,<wbr>O&gt;</li>
 <li class="circle">com.redis.riot.core.<a href="com/redis/riot/core/StepArgs.html" class="type-name-link" title="class in com.redis.riot.core">StepArgs</a></li>
 <li class="circle">com.redis.riot.function.<a href="com/redis/riot/function/StreamItemProcessor.html" class="type-name-link" title="class in com.redis.riot.function">StreamItemProcessor</a> (implements org.springframework.batch.item.ItemProcessor&lt;I,<wbr>O&gt;)</li>
 <li class="circle">com.redis.riot.function.<a href="com/redis/riot/function/StreamMap.html" class="type-name-link" title="class in com.redis.riot.function">StreamMap</a> (implements java.util.function.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;T,<wbr>R&gt;)</li>
 <li class="circle">com.redis.riot.function.<a href="com/redis/riot/function/StringKeyValue.html" class="type-name-link" title="class in com.redis.riot.function">StringKeyValue</a>&lt;K&gt; (implements java.util.function.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;T,<wbr>R&gt;)</li>
 <li class="circle">com.redis.riot.core.processor.<a href="com/redis/riot/core/processor/StringToMapFunction.html" class="type-name-link" title="class in com.redis.riot.core.processor">StringToMapFunction</a> (implements java.util.function.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;T,<wbr>R&gt;)</li>
-<li class="circle">com.redis.riot.<a href="com/redis/riot/TargetRedisClientArgs.html" class="type-name-link" title="class in com.redis.riot">TargetRedisClientArgs</a></li>
-<li class="circle">com.redis.riot.<a href="com/redis/riot/TargetRedisURIArgs.html" class="type-name-link" title="class in com.redis.riot">TargetRedisURIArgs</a></li>
+<li class="circle">com.redis.riot.<a href="com/redis/riot/TargetRedisArgs.html" class="type-name-link" title="class in com.redis.riot">TargetRedisArgs</a> (implements com.redis.riot.<a href="com/redis/riot/RedisArgs.html" title="interface in com.redis.riot">RedisArgs</a>)</li>
 <li class="circle">com.redis.riot.core.<a href="com/redis/riot/core/ThrottledItemWriter.html" class="type-name-link" title="class in com.redis.riot.core">ThrottledItemWriter</a>&lt;T&gt; (implements org.springframework.batch.item.ItemStreamWriter&lt;T&gt;)</li>
 <li class="circle">java.lang.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Throwable.html" class="type-name-link external-link" title="class or interface in java.lang">Throwable</a> (implements java.io.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a>)
 <ul>
@@ -299,6 +317,7 @@ loadScripts(document, 'script');</script>
 <ul>
 <li class="circle">com.redis.riot.core.<a href="com/redis/riot/core/IO.html" class="type-name-link" title="interface in com.redis.riot.core">IO</a></li>
 <li class="circle">com.redis.riot.operation.<a href="com/redis/riot/operation/OperationCommand.html" class="type-name-link" title="interface in com.redis.riot.operation">OperationCommand</a></li>
+<li class="circle">com.redis.riot.<a href="com/redis/riot/RedisArgs.html" class="type-name-link" title="interface in com.redis.riot">RedisArgs</a></li>
 <li class="circle">com.redis.riot.core.<a href="com/redis/riot/core/StepConfiguration.html" class="type-name-link" title="interface in com.redis.riot.core">StepConfiguration</a></li>
 </ul>
 </section>
@@ -312,7 +331,7 @@ loadScripts(document, 'script');</script>
 <li class="circle">com.redis.riot.<a href="com/redis/riot/ContentType.html" class="type-name-link" title="enum class in com.redis.riot">ContentType</a></li>
 <li class="circle">com.redis.riot.file.<a href="com/redis/riot/file/FileType.html" class="type-name-link" title="enum class in com.redis.riot.file">FileType</a></li>
 <li class="circle">com.redis.riot.core.<a href="com/redis/riot/core/ProgressStyle.html" class="type-name-link" title="enum class in com.redis.riot.core">ProgressStyle</a></li>
-<li class="circle">com.redis.riot.<a href="com/redis/riot/RedisReadFrom.html" class="type-name-link" title="enum class in com.redis.riot">RedisReadFrom</a></li>
+<li class="circle">com.redis.riot.<a href="com/redis/riot/ReadFrom.html" class="type-name-link" title="enum class in com.redis.riot">ReadFrom</a></li>
 <li class="circle">com.redis.riot.<a href="com/redis/riot/Replicate.CompareMode.html" class="type-name-link" title="enum class in com.redis.riot">Replicate.CompareMode</a></li>
 <li class="circle">com.redis.riot.core.<a href="com/redis/riot/core/RetryPolicy.html" class="type-name-link" title="enum class in com.redis.riot.core">RetryPolicy</a></li>
 <li class="circle">com.redis.riot.operation.<a href="com/redis/riot/operation/SetCommand.StringFormat.html" class="type-name-link" title="enum class in com.redis.riot.operation">SetCommand.StringFormat</a></li>
