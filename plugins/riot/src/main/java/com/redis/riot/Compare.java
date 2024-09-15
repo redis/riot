@@ -15,6 +15,11 @@ public class Compare extends AbstractCompareCommand {
 	private boolean quick;
 
 	@Override
+	protected boolean isStruct() {
+		return true;
+	}
+
+	@Override
 	protected boolean isQuickCompare() {
 		return quick;
 	}

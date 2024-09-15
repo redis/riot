@@ -44,7 +44,9 @@ import com.redis.lettucemod.search.SuggetOptions;
 import com.redis.lettucemod.timeseries.MRangeOptions;
 import com.redis.lettucemod.timeseries.RangeResult;
 import com.redis.lettucemod.timeseries.TimeRange;
+import com.redis.riot.Replicate.CompareMode;
 import com.redis.riot.core.Expression;
+import com.redis.riot.core.ProgressStyle;
 import com.redis.riot.core.QuietMapAccessor;
 import com.redis.riot.file.xml.XmlItemReader;
 import com.redis.riot.file.xml.XmlItemReaderBuilder;
@@ -739,6 +741,18 @@ class StackRiotTests extends RiotTests {
 		generate(info, generator);
 		Assertions.assertTrue(redisCommands.dbsize() > 0);
 		execute(info, filename);
+	}
+
+	@Test
+	void compareKeyProcessor(TestInfo info) throws Throwable {
+		GeneratorItemReader gen = generator(1, DataType.HASH);
+		generate(info, gen);
+		Long sourceSize = redisCommands.dbsize();
+		Assertions.assertTrue(sourceSize > 0);
+		execute(testInfo(info, "replicate"), "replicate-key-processor-compare-none");
+		Assertions.assertEquals(sourceSize, targetRedisCommands.dbsize());
+		Assertions.assertEquals(redisCommands.hgetall("gen:1"), targetRedisCommands.hgetall("prefix:gen:1"));
+		execute(info, "compare-key-processor");
 	}
 
 	@Test

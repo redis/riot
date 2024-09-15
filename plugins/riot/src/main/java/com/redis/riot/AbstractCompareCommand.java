@@ -3,9 +3,18 @@ package com.redis.riot;
 import java.time.Duration;
 import java.util.Collection;
 
+import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.item.function.FunctionItemProcessor;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+import org.springframework.util.Assert;
+
 import com.redis.riot.CompareStatusItemWriter.StatusCount;
+import com.redis.riot.core.RiotUtils;
 import com.redis.riot.core.Step;
+import com.redis.riot.function.StringKeyValue;
+import com.redis.riot.function.ToStringKeyValue;
 import com.redis.spring.batch.item.redis.RedisItemReader;
+import com.redis.spring.batch.item.redis.common.KeyValue;
 import com.redis.spring.batch.item.redis.reader.DefaultKeyComparator;
 import com.redis.spring.batch.item.redis.reader.KeyComparator;
 import com.redis.spring.batch.item.redis.reader.KeyComparison;
@@ -13,6 +22,7 @@ import com.redis.spring.batch.item.redis.reader.KeyComparisonItemReader;
 import com.redis.spring.batch.item.redis.reader.RedisScanSizeEstimator;
 
 import io.lettuce.core.codec.ByteArrayCodec;
+import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
 
 public abstract class AbstractCompareCommand extends AbstractReplicateCommand {
@@ -32,6 +42,41 @@ public abstract class AbstractCompareCommand extends AbstractReplicateCommand {
 
 	@Option(names = "--ttl-tolerance", description = "Max TTL offset in millis to consider keys equal (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>")
 	private long ttlToleranceMillis = DEFAULT_TTL_TOLERANCE.toMillis();
+
+	@ArgGroup(exclusive = false)
+	private EvaluationContextArgs evaluationContextArgs = new EvaluationContextArgs();
+
+	@ArgGroup(exclusive = false, heading = "Processor options%n")
+	private KeyValueProcessorArgs processorArgs = new KeyValueProcessorArgs();
+
+	protected ItemProcessor<KeyValue<byte[], Object>, KeyValue<byte[], Object>> processor() {
+		return RiotUtils.processor(new KeyValueFilter<>(ByteArrayCodec.INSTANCE, log), keyValueProcessor());
+	}
+
+	protected abstract boolean isStruct();
+
+	private ItemProcessor<KeyValue<byte[], Object>, KeyValue<byte[], Object>> keyValueProcessor() {
+		if (isIgnoreStreamMessageId()) {
+			Assert.isTrue(isStruct(), "--no-stream-id can only be used with --struct");
+		}
+		StandardEvaluationContext evaluationContext = evaluationContext();
+		log.info("Creating processor with {}", processorArgs);
+		ItemProcessor<KeyValue<String, Object>, KeyValue<String, Object>> processor = processorArgs
+				.processor(evaluationContext);
+		if (processor == null) {
+			return null;
+		}
+		ToStringKeyValue<byte[]> code = new ToStringKeyValue<>(ByteArrayCodec.INSTANCE);
+		StringKeyValue<byte[]> decode = new StringKeyValue<>(ByteArrayCodec.INSTANCE);
+		return RiotUtils.processor(new FunctionItemProcessor<>(code), processor, new FunctionItemProcessor<>(decode));
+	}
+
+	private StandardEvaluationContext evaluationContext() {
+		log.info("Creating SpEL evaluation context with {}", evaluationContextArgs);
+		StandardEvaluationContext evaluationContext = evaluationContextArgs.evaluationContext();
+		configure(evaluationContext);
+		return evaluationContext;
+	}
 
 	private String compareMessage(Collection<StatusCount> counts) {
 		StringBuilder builder = new StringBuilder();
@@ -70,6 +115,7 @@ public abstract class AbstractCompareCommand extends AbstractReplicateCommand {
 		RedisItemReader<byte[], byte[], Object> target = compareTargetReader();
 		KeyComparisonItemReader<byte[], byte[]> reader = new KeyComparisonItemReader<>(source, target);
 		reader.setComparator(keyComparator());
+		reader.setProcessor(processor());
 		return reader;
 	}
 
@@ -83,7 +129,9 @@ public abstract class AbstractCompareCommand extends AbstractReplicateCommand {
 		return comparator;
 	}
 
-	protected abstract boolean isIgnoreStreamMessageId();
+	protected boolean isIgnoreStreamMessageId() {
+		return !processorArgs.isPropagateIds();
+	}
 
 	private RedisItemReader<byte[], byte[], Object> compareSourceReader() {
 		RedisItemReader<byte[], byte[], Object> reader = compareRedisReader();
@@ -126,6 +174,14 @@ public abstract class AbstractCompareCommand extends AbstractReplicateCommand {
 
 	public void setTtlToleranceMillis(long tolerance) {
 		this.ttlToleranceMillis = tolerance;
+	}
+
+	public KeyValueProcessorArgs getProcessorArgs() {
+		return processorArgs;
+	}
+
+	public void setProcessorArgs(KeyValueProcessorArgs args) {
+		this.processorArgs = args;
 	}
 
 }

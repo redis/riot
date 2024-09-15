@@ -4,15 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.batch.core.Job;
-import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.function.FunctionItemProcessor;
-import org.springframework.expression.spel.support.StandardEvaluationContext;
-import org.springframework.util.Assert;
 
-import com.redis.riot.core.RiotUtils;
 import com.redis.riot.core.Step;
-import com.redis.riot.function.StringKeyValue;
-import com.redis.riot.function.ToStringKeyValue;
 import com.redis.spring.batch.item.redis.RedisItemReader;
 import com.redis.spring.batch.item.redis.RedisItemReader.ReaderMode;
 import com.redis.spring.batch.item.redis.RedisItemWriter;
@@ -46,12 +39,6 @@ public class Replicate extends AbstractCompareCommand {
 	private boolean struct;
 
 	@ArgGroup(exclusive = false)
-	private EvaluationContextArgs evaluationContextArgs = new EvaluationContextArgs();
-
-	@ArgGroup(exclusive = false, heading = "Processor options%n")
-	private KeyValueProcessorArgs processorArgs = new KeyValueProcessorArgs();
-
-	@ArgGroup(exclusive = false)
 	private RedisWriterArgs targetRedisWriterArgs = new RedisWriterArgs();
 
 	@Option(names = "--log-keys", description = "Log keys being read and written.")
@@ -74,38 +61,6 @@ public class Replicate extends AbstractCompareCommand {
 			steps.add(compareStep());
 		}
 		return job(steps);
-	}
-
-	@Override
-	protected boolean isIgnoreStreamMessageId() {
-		return !processorArgs.isPropagateIds();
-	}
-
-	private ItemProcessor<KeyValue<byte[], Object>, KeyValue<byte[], Object>> processor() {
-		return RiotUtils.processor(new KeyValueFilter<>(ByteArrayCodec.INSTANCE, log), keyValueProcessor());
-	}
-
-	private ItemProcessor<KeyValue<byte[], Object>, KeyValue<byte[], Object>> keyValueProcessor() {
-		if (isIgnoreStreamMessageId()) {
-			Assert.isTrue(isStruct(), "--no-stream-id can only be used with --struct");
-		}
-		StandardEvaluationContext evaluationContext = evaluationContext();
-		log.info("Creating processor with {}", processorArgs);
-		ItemProcessor<KeyValue<String, Object>, KeyValue<String, Object>> processor = processorArgs
-				.processor(evaluationContext);
-		if (processor == null) {
-			return null;
-		}
-		ToStringKeyValue<byte[]> code = new ToStringKeyValue<>(ByteArrayCodec.INSTANCE);
-		StringKeyValue<byte[]> decode = new StringKeyValue<>(ByteArrayCodec.INSTANCE);
-		return RiotUtils.processor(new FunctionItemProcessor<>(code), processor, new FunctionItemProcessor<>(decode));
-	}
-
-	private StandardEvaluationContext evaluationContext() {
-		log.info("Creating SpEL evaluation context with {}", evaluationContextArgs);
-		StandardEvaluationContext evaluationContext = evaluationContextArgs.evaluationContext();
-		configure(evaluationContext);
-		return evaluationContext;
 	}
 
 	@Override
@@ -198,20 +153,13 @@ public class Replicate extends AbstractCompareCommand {
 		this.targetRedisWriterArgs = redisWriterArgs;
 	}
 
+	@Override
 	public boolean isStruct() {
 		return struct;
 	}
 
 	public void setStruct(boolean type) {
 		this.struct = type;
-	}
-
-	public KeyValueProcessorArgs getProcessorArgs() {
-		return processorArgs;
-	}
-
-	public void setProcessorArgs(KeyValueProcessorArgs args) {
-		this.processorArgs = args;
 	}
 
 	public boolean isLogKeys() {

@@ -60,17 +60,17 @@ abstract class RiotTests extends AbstractRiotApplicationTestBase {
 		return Double.parseDouble(beer.get("abv"));
 	}
 
-	protected void execute(Replicate replication, TestInfo info) throws Exception {
+	protected void execute(Replicate replicate, TestInfo info) throws Exception {
 		System.setProperty(SimpleLogger.LOG_KEY_PREFIX + ReplicateWriteLogger.class.getName(), "error");
-		replication.getJobArgs().getProgressArgs().setStyle(ProgressStyle.NONE);
-		replication.setJobName(name(info));
-		replication.setJobRepository(jobRepository);
-		replication.setSourceRedisUri(redisURI);
-		replication.getSourceRedisArgs().setCluster(getRedisServer().isRedisCluster());
-		replication.setTargetRedisUri(targetRedisURI);
-		replication.getTargetRedisArgs().setCluster(getTargetRedisServer().isRedisCluster());
-		replication.getSourceRedisReaderArgs().setIdleTimeout(DEFAULT_IDLE_TIMEOUT_SECONDS);
-		replication.call();
+		replicate.getJobArgs().getProgressArgs().setStyle(ProgressStyle.NONE);
+		replicate.setJobName(name(info));
+		replicate.setJobRepository(jobRepository);
+		replicate.setSourceRedisUri(redisURI);
+		replicate.getSourceRedisArgs().setCluster(getRedisServer().isRedisCluster());
+		replicate.setTargetRedisUri(targetRedisURI);
+		replicate.getTargetRedisArgs().setCluster(getTargetRedisServer().isRedisCluster());
+		replicate.getSourceRedisReaderArgs().setIdleTimeout(DEFAULT_IDLE_TIMEOUT_SECONDS);
+		replicate.call();
 	}
 
 	@Test

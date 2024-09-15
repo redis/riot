@@ -1,0 +1,1 @@
+riot compare --batch 1 --key-proc="prefix:#{key}" redis://source redis://target

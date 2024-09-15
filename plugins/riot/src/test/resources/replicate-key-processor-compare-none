@@ -1,0 +1,1 @@
+riot replicate --batch 1 --key-proc="prefix:#{key}" --compare none redis://source redis://target
