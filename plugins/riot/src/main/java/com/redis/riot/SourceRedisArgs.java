@@ -1,12 +1,18 @@
 package com.redis.riot;
 
+import java.time.Duration;
+
+import com.redis.lettucemod.RedisURIBuilder;
 import com.redis.riot.core.RiotUtils;
+import com.redis.riot.core.RiotVersion;
 import com.redis.spring.batch.item.redis.RedisItemReader;
 
+import io.lettuce.core.RedisURI;
+import io.lettuce.core.SslVerifyMode;
 import io.lettuce.core.protocol.ProtocolVersion;
 import picocli.CommandLine.Option;
 
-public class SourceRedisArgs implements RedisArgs {
+public class SourceRedisArgs {
 
 	@Option(names = "--source-user", description = "Source ACL style 'AUTH username pass'. Needs password.", paramLabel = "<name>")
 	private String username;
@@ -15,7 +21,7 @@ public class SourceRedisArgs implements RedisArgs {
 	private char[] password;
 
 	@Option(names = "--source-timeout", description = "Source Redis command timeout in seconds (default: ${DEFAULT-VALUE}).", paramLabel = "<sec>")
-	private long timeout = DEFAULT_TIMEOUT;
+	private long timeout = RedisURIBuilder.DEFAULT_TIMEOUT;
 
 	@Option(names = "--source-tls", description = "Establish a secure TLS connection to source.")
 	private boolean tls;
@@ -23,16 +29,32 @@ public class SourceRedisArgs implements RedisArgs {
 	@Option(names = "--source-insecure", description = "Allow insecure TLS connection to source by skipping cert validation.")
 	private boolean insecure;
 
+	@Option(names = "--source-client", description = "Client name used to connect to source Redis (default: ${DEFAULT-VALUE}).", paramLabel = "<name>")
+	private String clientName = RiotVersion.riotVersion();
+
 	@Option(names = "--source-cluster", description = "Enable source cluster mode.")
 	private boolean cluster;
 
 	@Option(names = "--source-resp", description = "Redis protocol version used to connect to source: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<ver>")
-	private ProtocolVersion protocolVersion = DEFAULT_PROTOCOL_VERSION;
+	private ProtocolVersion protocolVersion = ProtocolVersion.RESP2;
 
 	@Option(names = "--source-pool", description = "Max pool connections used for source Redis (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	private int poolSize = RedisItemReader.DEFAULT_POOL_SIZE;
 
-	@Override
+	public RedisURI redisURI(RedisURI uri) {
+		RedisURIBuilder builder = new RedisURIBuilder();
+		builder.uri(uri);
+		builder.clientName(clientName);
+		builder.password(password);
+		builder.timeout(Duration.ofSeconds(timeout));
+		builder.tls(tls);
+		builder.username(username);
+		if (insecure) {
+			builder.verifyMode(SslVerifyMode.NONE);
+		}
+		return builder.build();
+	}
+
 	public String getUsername() {
 		return username;
 	}
@@ -41,7 +63,6 @@ public class SourceRedisArgs implements RedisArgs {
 		this.username = username;
 	}
 
-	@Override
 	public char[] getPassword() {
 		return password;
 	}
@@ -50,7 +71,6 @@ public class SourceRedisArgs implements RedisArgs {
 		this.password = password;
 	}
 
-	@Override
 	public boolean isInsecure() {
 		return insecure;
 	}
@@ -59,7 +79,6 @@ public class SourceRedisArgs implements RedisArgs {
 		this.insecure = insecure;
 	}
 
-	@Override
 	public boolean isCluster() {
 		return cluster;
 	}
@@ -68,7 +87,6 @@ public class SourceRedisArgs implements RedisArgs {
 		this.cluster = cluster;
 	}
 
-	@Override
 	public ProtocolVersion getProtocolVersion() {
 		return protocolVersion;
 	}
@@ -85,7 +103,6 @@ public class SourceRedisArgs implements RedisArgs {
 		this.poolSize = poolSize;
 	}
 
-	@Override
 	public long getTimeout() {
 		return timeout;
 	}
@@ -94,7 +111,6 @@ public class SourceRedisArgs implements RedisArgs {
 		this.timeout = timeout;
 	}
 
-	@Override
 	public boolean isTls() {
 		return tls;
 	}
@@ -103,11 +119,19 @@ public class SourceRedisArgs implements RedisArgs {
 		this.tls = tls;
 	}
 
+	public String getClientName() {
+		return clientName;
+	}
+
+	public void setClientName(String clientName) {
+		this.clientName = clientName;
+	}
+
 	@Override
 	public String toString() {
 		return "SourceRedisArgs [username=" + username + ", password=" + RiotUtils.mask(password) + ", timeout="
-				+ timeout + ", tls=" + tls + ", insecure=" + insecure + ", cluster=" + cluster + ", protocolVersion="
-				+ protocolVersion + ", poolSize=" + poolSize + "]";
+				+ timeout + ", tls=" + tls + ", insecure=" + insecure + ", clientName=" + clientName + ", cluster="
+				+ cluster + ", protocolVersion=" + protocolVersion + ", poolSize=" + poolSize + "]";
 	}
 
 }

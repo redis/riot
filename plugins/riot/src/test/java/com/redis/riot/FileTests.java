@@ -92,7 +92,7 @@ abstract class FileTests extends AbstractTargetTestBase {
 		callable.getJobArgs().getProgressArgs().setStyle(ProgressStyle.NONE);
 	}
 
-	private void configure(SimpleRedisArgs redisArgs) {
+	private void configure(RedisArgs redisArgs) {
 		redisArgs.setUri(RedisURI.create(getRedisServer().getRedisURI()));
 		redisArgs.setCluster(getRedisServer().isRedisCluster());
 	}

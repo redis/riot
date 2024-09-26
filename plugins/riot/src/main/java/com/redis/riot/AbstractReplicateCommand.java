@@ -44,12 +44,14 @@ public abstract class AbstractReplicateCommand extends AbstractExportCommand {
 	@Override
 	protected RedisContext sourceRedisContext() {
 		log.info("Creating source Redis context with {} {} {}", sourceRedisUri, sourceRedisArgs, sslArgs);
-		return sourceRedisArgs.redisContext(sourceRedisUri, sslArgs);
+		return RedisContext.create(sourceRedisArgs.redisURI(sourceRedisUri), sourceRedisArgs.isCluster(),
+				sourceRedisArgs.getProtocolVersion(), sslArgs);
 	}
 
 	private RedisContext targetRedisContext() {
 		log.info("Creating target Redis context with {} {} {}", targetRedisUri, targetRedisArgs, sslArgs);
-		return targetRedisArgs.redisContext(targetRedisUri, sslArgs);
+		return RedisContext.create(targetRedisArgs.redisURI(targetRedisUri), targetRedisArgs.isCluster(),
+				targetRedisArgs.getProtocolVersion(), sslArgs);
 	}
 
 	@Override

@@ -11,7 +11,7 @@ class RedisArgsTests {
 
 	@Test
 	void simpleRedisArgsURI() {
-		SimpleRedisArgs args = new SimpleRedisArgs();
+		RedisArgs args = new RedisArgs();
 		RedisURI baseUri = RedisURI.create("redis://localhost");
 		args.setUri(baseUri);
 		args.setClientName("ansdf");

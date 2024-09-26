@@ -1,12 +1,16 @@
 package com.redis.riot;
 
+import com.redis.lettucemod.RedisModulesClientBuilder;
 import com.redis.lettucemod.RedisModulesUtils;
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.spring.batch.item.redis.RedisItemReader;
 import com.redis.spring.batch.item.redis.RedisItemWriter;
 
 import io.lettuce.core.AbstractRedisClient;
+import io.lettuce.core.ClientOptions;
 import io.lettuce.core.RedisURI;
+import io.lettuce.core.cluster.ClusterClientOptions;
+import io.lettuce.core.protocol.ProtocolVersion;
 
 public class RedisContext implements AutoCloseable {
 
@@ -50,6 +54,19 @@ public class RedisContext implements AutoCloseable {
 			client.shutdown();
 			client.getResources().shutdown();
 		}
+	}
+
+	public static RedisContext create(RedisURI uri, boolean cluster, ProtocolVersion protocolVersion, SslArgs sslArgs) {
+		RedisModulesClientBuilder clientBuilder = new RedisModulesClientBuilder();
+		clientBuilder.cluster(cluster);
+		ClientOptions.Builder options = cluster ? ClusterClientOptions.builder() : ClientOptions.builder();
+		options.protocolVersion(protocolVersion);
+		if (sslArgs != null) {
+			options.sslOptions(sslArgs.sslOptions());
+		}
+		clientBuilder.clientOptions(options.build());
+		clientBuilder.uri(uri);
+		return new RedisContext(uri, clientBuilder.build());
 	}
 
 }

@@ -2,131 +2,199 @@ package com.redis.riot;
 
 import java.time.Duration;
 
-import com.redis.lettucemod.RedisModulesClientBuilder;
 import com.redis.lettucemod.RedisURIBuilder;
+import com.redis.riot.core.RiotUtils;
 import com.redis.riot.core.RiotVersion;
 
-import io.lettuce.core.ClientOptions;
-import io.lettuce.core.ClientOptions.Builder;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.SslVerifyMode;
-import io.lettuce.core.cluster.ClusterClientOptions;
 import io.lettuce.core.protocol.ProtocolVersion;
+import picocli.CommandLine.ArgGroup;
+import picocli.CommandLine.Option;
 
-public interface RedisArgs {
+public class RedisArgs {
 
-	boolean DEFAULT_CLUSTER = false;
-	String DEFAULT_HOST = RedisURIBuilder.DEFAULT_HOST;
-	int DEFAULT_PORT = RedisURIBuilder.DEFAULT_PORT;
-	long DEFAULT_TIMEOUT = RedisURIBuilder.DEFAULT_TIMEOUT;
-	String DEFAULT_CLIENT_NAME = RiotVersion.riotVersion();
-	ProtocolVersion DEFAULT_PROTOCOL_VERSION = ProtocolVersion.RESP2;
-	int DEFAULT_DATABASE = 0;
-	boolean DEFAULT_INSECURE = false;
-	boolean DEFAULT_TLS = false;
+	@Option(names = { "-u", "--uri" }, description = "Server URI.", paramLabel = "<uri>")
+	private RedisURI uri;
 
-	default RedisURI getUri() {
-		return null;
-	}
+	@Option(names = { "-h",
+			"--host" }, description = "Server hostname (default: ${DEFAULT-VALUE}).", paramLabel = "<host>")
+	private String host = RedisURIBuilder.DEFAULT_HOST;
 
-	default boolean isCluster() {
-		return DEFAULT_CLUSTER;
-	}
+	@Option(names = { "-p", "--port" }, description = "Server port (default: ${DEFAULT-VALUE}).", paramLabel = "<port>")
+	private int port = RedisURIBuilder.DEFAULT_PORT;
 
-	default ProtocolVersion getProtocolVersion() {
-		return DEFAULT_PROTOCOL_VERSION;
-	}
+	@Option(names = { "-s",
+			"--socket" }, description = "Server socket (overrides hostname and port).", paramLabel = "<socket>")
+	private String socket;
 
-	default SslArgs getSslArgs() {
-		return null;
-	}
+	@Option(names = "--user", description = "ACL style 'AUTH username pass'. Needs password.", paramLabel = "<name>")
+	private String username;
 
-	default String getHost() {
-		return DEFAULT_HOST;
-	}
+	@Option(names = { "-a",
+			"--pass" }, arity = "0..1", interactive = true, description = "Password to use when connecting to the server.", paramLabel = "<password>")
+	private char[] password;
 
-	default int getPort() {
-		return DEFAULT_PORT;
-	}
+	@Option(names = "--timeout", description = "Redis command timeout in seconds (default: ${DEFAULT-VALUE}).", paramLabel = "<sec>")
+	private long timeout = RedisURIBuilder.DEFAULT_TIMEOUT;
 
-	default String getSocket() {
-		return null;
-	}
+	@Option(names = { "-n", "--db" }, description = "Database number.", paramLabel = "<db>")
+	private int database;
 
-	default String getUsername() {
-		return null;
-	}
+	@Option(names = "--tls", description = "Establish a secure TLS connection.")
+	private boolean tls;
 
-	default char[] getPassword() {
-		return null;
-	}
+	@Option(names = "--insecure", description = "Allow insecure TLS connection by skipping cert validation.")
+	private boolean insecure;
 
-	/**
-	 * 
-	 * @return timeout duration in seconds
-	 */
-	default long getTimeout() {
-		return DEFAULT_TIMEOUT;
-	}
+	@Option(names = "--client", description = "Client name used to connect to Redis (default: ${DEFAULT-VALUE}).", paramLabel = "<name>")
+	private String clientName = RiotVersion.riotVersion();
 
-	default int getDatabase() {
-		return DEFAULT_DATABASE;
-	}
+	@Option(names = { "-c", "--cluster" }, description = "Enable cluster mode.")
+	private boolean cluster;
 
-	default boolean isTls() {
-		return DEFAULT_TLS;
-	}
+	@Option(names = "--resp", description = "Redis protocol version used to connect to Redis: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<ver>")
+	private ProtocolVersion protocolVersion = ProtocolVersion.RESP2;
 
-	default boolean isInsecure() {
-		return DEFAULT_INSECURE;
-	}
+	@ArgGroup(exclusive = false, heading = "TLS options%n")
+	private SslArgs sslArgs = new SslArgs();
 
-	default String getClientName() {
-		return DEFAULT_CLIENT_NAME;
-	}
-
-	default RedisURI redisURI() {
-		return redisURI(getUri());
-	}
-
-	default RedisURI redisURI(RedisURI uri) {
+	public RedisURI redisURI() {
 		RedisURIBuilder builder = new RedisURIBuilder();
-		builder.clientName(getClientName());
-		builder.database(getDatabase());
-		builder.host(getHost());
-		builder.password(getPassword());
-		builder.port(getPort());
-		builder.socket(getSocket());
-		builder.timeout(Duration.ofSeconds(getTimeout()));
-		builder.tls(isTls());
+		builder.clientName(clientName);
+		builder.database(database);
+		builder.host(host);
+		builder.password(password);
+		builder.port(port);
+		builder.socket(socket);
+		builder.timeout(Duration.ofSeconds(timeout));
+		builder.tls(tls);
 		builder.uri(uri);
-		builder.username(getUsername());
-		if (isInsecure()) {
+		builder.username(username);
+		if (insecure) {
 			builder.verifyMode(SslVerifyMode.NONE);
 		}
 		return builder.build();
 	}
 
-	default RedisContext redisContext() {
-		return redisContext(getUri());
+	public boolean isCluster() {
+		return cluster;
 	}
 
-	default RedisContext redisContext(RedisURI uri) {
-		return redisContext(uri, getSslArgs());
+	public void setCluster(boolean cluster) {
+		this.cluster = cluster;
 	}
 
-	default RedisContext redisContext(RedisURI uri, SslArgs sslArgs) {
-		RedisURI finalUri = redisURI(uri);
-		RedisModulesClientBuilder clientBuilder = new RedisModulesClientBuilder();
-		clientBuilder.cluster(isCluster());
-		Builder options = isCluster() ? ClusterClientOptions.builder() : ClientOptions.builder();
-		options.protocolVersion(getProtocolVersion());
-		if (sslArgs != null) {
-			options.sslOptions(sslArgs.sslOptions());
-		}
-		clientBuilder.clientOptions(options.build());
-		clientBuilder.uri(finalUri);
-		return new RedisContext(finalUri, clientBuilder.build());
+	public ProtocolVersion getProtocolVersion() {
+		return protocolVersion;
+	}
+
+	public void setProtocolVersion(ProtocolVersion version) {
+		this.protocolVersion = version;
+	}
+
+	public SslArgs getSslArgs() {
+		return sslArgs;
+	}
+
+	public void setSslArgs(SslArgs sslArgs) {
+		this.sslArgs = sslArgs;
+	}
+
+	public RedisURI getUri() {
+		return uri;
+	}
+
+	public void setUri(RedisURI uri) {
+		this.uri = uri;
+	}
+
+	public String getHost() {
+		return host;
+	}
+
+	public void setHost(String host) {
+		this.host = host;
+	}
+
+	public int getPort() {
+		return port;
+	}
+
+	public void setPort(int port) {
+		this.port = port;
+	}
+
+	public String getSocket() {
+		return socket;
+	}
+
+	public void setSocket(String socket) {
+		this.socket = socket;
+	}
+
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
+	public char[] getPassword() {
+		return password;
+	}
+
+	public void setPassword(char[] password) {
+		this.password = password;
+	}
+
+	public long getTimeout() {
+		return timeout;
+	}
+
+	public void setTimeout(long timeout) {
+		this.timeout = timeout;
+	}
+
+	public int getDatabase() {
+		return database;
+	}
+
+	public void setDatabase(int database) {
+		this.database = database;
+	}
+
+	public boolean isTls() {
+		return tls;
+	}
+
+	public void setTls(boolean tls) {
+		this.tls = tls;
+	}
+
+	public boolean isInsecure() {
+		return insecure;
+	}
+
+	public void setInsecure(boolean insecure) {
+		this.insecure = insecure;
+	}
+
+	public String getClientName() {
+		return clientName;
+	}
+
+	public void setClientName(String clientName) {
+		this.clientName = clientName;
+	}
+
+	@Override
+	public String toString() {
+		return "SimpleRedisArgs [uri=" + uri + ", host=" + host + ", port=" + port + ", socket=" + socket
+				+ ", username=" + username + ", password=" + RiotUtils.mask(password) + ", timeout=" + timeout
+				+ ", database=" + database + ", tls=" + tls + ", insecure=" + insecure + ", clientName=" + clientName
+				+ ", cluster=" + cluster + ", protocolVersion=" + protocolVersion + ", sslArgs=" + sslArgs + "]";
 	}
 
 }

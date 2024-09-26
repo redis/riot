@@ -9,13 +9,14 @@ import picocli.CommandLine.ArgGroup;
 public abstract class AbstractRedisCommand extends AbstractJobCommand {
 
 	@ArgGroup(exclusive = false)
-	private SimpleRedisArgs redisArgs = new SimpleRedisArgs();
+	private RedisArgs redisArgs = new RedisArgs();
 
 	private RedisContext redisContext;
 
 	@Override
 	protected void execute() throws Exception {
-		redisContext = redisArgs.redisContext();
+		redisContext = RedisContext.create(redisArgs.redisURI(), redisArgs.isCluster(), redisArgs.getProtocolVersion(),
+				redisArgs.getSslArgs());
 		try {
 			super.execute();
 		} finally {
@@ -31,11 +32,11 @@ public abstract class AbstractRedisCommand extends AbstractJobCommand {
 		redisContext.configure(writer);
 	}
 
-	public SimpleRedisArgs getRedisArgs() {
+	public RedisArgs getRedisArgs() {
 		return redisArgs;
 	}
 
-	public void setRedisArgs(SimpleRedisArgs clientArgs) {
+	public void setRedisArgs(RedisArgs clientArgs) {
 		this.redisArgs = clientArgs;
 	}
 

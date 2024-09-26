@@ -41,7 +41,7 @@ abstract class AbstractRiotApplicationTestBase extends AbstractRiotTestBase {
 			this.configs = configs;
 		}
 
-		private void configure(SimpleRedisArgs redisArgs) {
+		private void configure(RedisArgs redisArgs) {
 			redisArgs.setUri(redisURI);
 			redisArgs.setCluster(getRedisServer().isRedisCluster());
 		}

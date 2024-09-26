@@ -18,7 +18,7 @@ import picocli.CommandLine.Option;
 public abstract class AbstractRedisExportCommand extends AbstractExportCommand {
 
 	@ArgGroup(exclusive = false)
-	private SimpleRedisArgs redisArgs = new SimpleRedisArgs();
+	private RedisArgs redisArgs = new RedisArgs();
 
 	@Option(names = "--pool", description = "Max number of Redis connections in pool (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	private int poolSize = RedisItemWriter.DEFAULT_POOL_SIZE;
@@ -28,7 +28,8 @@ public abstract class AbstractRedisExportCommand extends AbstractExportCommand {
 
 	@Override
 	protected RedisContext sourceRedisContext() {
-		return redisArgs.redisContext();
+		return RedisContext.create(redisArgs.redisURI(), redisArgs.isCluster(), redisArgs.getProtocolVersion(),
+				redisArgs.getSslArgs());
 	}
 
 	@Override
@@ -46,11 +47,11 @@ public abstract class AbstractRedisExportCommand extends AbstractExportCommand {
 		return new FunctionItemProcessor<>(mapFunction);
 	}
 
-	public SimpleRedisArgs getRedisArgs() {
+	public RedisArgs getRedisArgs() {
 		return redisArgs;
 	}
 
-	public void setRedisArgs(SimpleRedisArgs clientArgs) {
+	public void setRedisArgs(RedisArgs clientArgs) {
 		this.redisArgs = clientArgs;
 	}
 
