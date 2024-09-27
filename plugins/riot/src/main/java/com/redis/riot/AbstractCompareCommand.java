@@ -50,7 +50,11 @@ public abstract class AbstractCompareCommand extends AbstractReplicateCommand {
 	private KeyValueProcessorArgs processorArgs = new KeyValueProcessorArgs();
 
 	protected ItemProcessor<KeyValue<byte[], Object>, KeyValue<byte[], Object>> processor() {
-		return RiotUtils.processor(new KeyValueFilter<>(ByteArrayCodec.INSTANCE, log), keyValueProcessor());
+		return RiotUtils.processor(keyValueFilter(), keyValueProcessor());
+	}
+
+	private KeyValueFilter<byte[], KeyValue<byte[], Object>> keyValueFilter() {
+		return new KeyValueFilter<>(ByteArrayCodec.INSTANCE, log);
 	}
 
 	protected abstract boolean isStruct();
