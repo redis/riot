@@ -13,7 +13,6 @@ import com.redis.spring.batch.item.redis.common.KeyValue;
 import com.redis.spring.batch.item.redis.reader.KeyComparisonItemReader;
 import com.redis.spring.batch.item.redis.reader.KeyEventStatus;
 import com.redis.spring.batch.item.redis.reader.KeyNotificationItemReader;
-import com.redis.spring.batch.item.redis.reader.RedisScanSizeEstimator;
 
 import io.lettuce.core.codec.ByteArrayCodec;
 import picocli.CommandLine.ArgGroup;
@@ -81,7 +80,6 @@ public class Replicate extends AbstractCompareCommand {
 		if (reader.getMode() != ReaderMode.SCAN) {
 			step.statusMessageSupplier(() -> liveExtraMessage(reader));
 		}
-		step.maxItemCountSupplier(RedisScanSizeEstimator.from(reader));
 		if (logKeys) {
 			log.info("Adding key logger");
 			ReplicateWriteLogger<byte[], Object> writeLogger = new ReplicateWriteLogger<>(log, reader.getCodec());
