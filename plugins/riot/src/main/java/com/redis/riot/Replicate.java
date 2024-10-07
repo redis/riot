@@ -11,7 +11,6 @@ import com.redis.spring.batch.item.redis.RedisItemReader.ReaderMode;
 import com.redis.spring.batch.item.redis.RedisItemWriter;
 import com.redis.spring.batch.item.redis.common.KeyValue;
 import com.redis.spring.batch.item.redis.reader.KeyComparisonItemReader;
-import com.redis.spring.batch.item.redis.reader.KeyEventStatus;
 import com.redis.spring.batch.item.redis.reader.KeyNotificationItemReader;
 
 import io.lettuce.core.codec.ByteArrayCodec;
@@ -29,7 +28,7 @@ public class Replicate extends AbstractCompareCommand {
 	public static final String STEP_NAME = "replicate";
 	public static final CompareMode DEFAULT_COMPARE_MODE = CompareMode.QUICK;
 
-	private static final String QUEUE_MESSAGE = " | capacity: %,d | dropped: %,d";
+	private static final String QUEUE_MESSAGE = " | capacity: %,d";
 	private static final String SCAN_TASK_NAME = "Scanning";
 	private static final String LIVEONLY_TASK_NAME = "Listening";
 	private static final String LIVE_TASK_NAME = "Scanning/Listening";
@@ -132,8 +131,7 @@ public class Replicate extends AbstractCompareCommand {
 		if (keyReader == null || keyReader.getQueue() == null) {
 			return "";
 		}
-		return String.format(QUEUE_MESSAGE, keyReader.getQueue().remainingCapacity(),
-				keyReader.count(KeyEventStatus.DROPPED));
+		return String.format(QUEUE_MESSAGE, keyReader.getQueue().remainingCapacity());
 	}
 
 	@Override
