@@ -1,7 +1,7 @@
 [[_introduction]]
 = Introduction
 
-{project-title} is a command-line utility to get data in and out of Redis. It supports any Redis-compatible database like {link_redis_cloud}, {link_redis_ce}, {link_redis_software}, or <<_elasticache, ElastiCache>>.
+{project-title} is a command-line utility to get data in and out of Redis. It supports any Redis-compatible database like {link_redis_cloud}, {link_redis_ce}, {link_redis_software}.
 
 {project-title} includes the following features:
 
