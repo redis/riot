@@ -102,7 +102,7 @@ deploy:
   maven:
     nexus2:
       maven-central:
-        active: RELEASE
+        active: ALWAYS
         url: https://s01.oss.sonatype.org/service/local
         snapshotUrl: https://s01.oss.sonatype.org/content/repositories/snapshots
         closeRepository: true
