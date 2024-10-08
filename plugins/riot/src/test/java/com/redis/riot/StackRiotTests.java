@@ -44,9 +44,7 @@ import com.redis.lettucemod.search.SuggetOptions;
 import com.redis.lettucemod.timeseries.MRangeOptions;
 import com.redis.lettucemod.timeseries.RangeResult;
 import com.redis.lettucemod.timeseries.TimeRange;
-import com.redis.riot.Replicate.CompareMode;
 import com.redis.riot.core.Expression;
-import com.redis.riot.core.ProgressStyle;
 import com.redis.riot.core.QuietMapAccessor;
 import com.redis.riot.file.xml.XmlItemReader;
 import com.redis.riot.file.xml.XmlItemReaderBuilder;
@@ -71,21 +69,11 @@ import picocli.CommandLine.ParseResult;
 
 class StackRiotTests extends RiotTests {
 
-	private static final RedisStackContainer source = RedisContainerFactory.stack();
-	private static final RedisStackContainer target = RedisContainerFactory.stack();
-
-	@Override
-	protected RedisStackContainer getRedisServer() {
-		return source;
-	}
-
-	@Override
-	protected RedisStackContainer getTargetRedisServer() {
-		return target;
-	}
-
 	public static final int BEER_CSV_COUNT = 2410;
 	public static final int BEER_JSON_COUNT = 216;
+
+	private static final RedisStackContainer source = RedisContainerFactory.stack();
+	private static final RedisStackContainer target = RedisContainerFactory.stack();
 
 	private static Path tempDir;
 
@@ -100,6 +88,16 @@ class StackRiotTests extends RiotTests {
 			Files.delete(path);
 		}
 		return path;
+	}
+
+	@Override
+	protected RedisStackContainer getRedisServer() {
+		return source;
+	}
+
+	@Override
+	protected RedisStackContainer getTargetRedisServer() {
+		return target;
 	}
 
 	protected static String name(Map<String, String> beer) {
