@@ -181,6 +181,9 @@ public abstract class AbstractJobCommand extends AbstractCallableCommand {
 	@SuppressWarnings("removal")
 	private <I, O> SimpleStepBuilder<I, O> simpleStep(Step<I, O> step) {
 		String name = jobName + "-" + step.getName();
+		if (name.length() >= 100) {
+			name = name.substring(0, 80) + "…" + name.substring(name.length() - 10);
+		}
 		if (step.getReader() instanceof ItemStreamSupport) {
 			ItemStreamSupport support = (ItemStreamSupport) step.getReader();
 			Assert.notNull(support.getName(), "No name specified for reader in step " + name);

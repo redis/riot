@@ -6,8 +6,6 @@ import java.util.concurrent.Callable;
 import org.springframework.util.unit.DataSize;
 
 import picocli.CommandLine;
-import picocli.CommandLine.IExecutionStrategy;
-import picocli.CommandLine.RunLast;
 
 public class MainCommand extends BaseCommand implements Callable<Integer>, IO {
 
@@ -41,7 +39,11 @@ public class MainCommand extends BaseCommand implements Callable<Integer>, IO {
 	}
 
 	protected CommandLine commandLine() {
-		CommandLine commandLine = new CommandLine(this);
+		return new CommandLine(this);
+	}
+
+	public int run(String... args) {
+		CommandLine commandLine = commandLine();
 		setOut(commandLine.getOut());
 		setErr(commandLine.getErr());
 		commandLine.setCaseInsensitiveEnumValuesAllowed(true);
@@ -50,16 +52,8 @@ public class MainCommand extends BaseCommand implements Callable<Integer>, IO {
 		commandLine.registerConverter(DataSize.class, DataSize::parse);
 		commandLine.registerConverter(Expression.class, Expression::parse);
 		commandLine.registerConverter(TemplateExpression.class, Expression::parseTemplate);
-		commandLine.setExecutionStrategy(LoggingMixin.executionStrategy(executionStrategy()));
-		return commandLine;
-	}
-
-	protected IExecutionStrategy executionStrategy() {
-		return new RunLast();
-	}
-
-	public int run(String... args) {
-		return commandLine().execute(args);
+		commandLine.setExecutionStrategy(LoggingMixin.executionStrategy(commandLine.getExecutionStrategy()));
+		return commandLine.execute(args);
 	}
 
 }

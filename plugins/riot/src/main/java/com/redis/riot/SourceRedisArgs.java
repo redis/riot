@@ -134,4 +134,8 @@ public class SourceRedisArgs {
 				+ cluster + ", protocolVersion=" + protocolVersion + ", poolSize=" + poolSize + "]";
 	}
 
+	public RedisContext redisContext(RedisURI uri, SslArgs sslArgs) {
+		return RedisContext.create(redisURI(uri), cluster, protocolVersion, sslArgs);
+	}
+
 }

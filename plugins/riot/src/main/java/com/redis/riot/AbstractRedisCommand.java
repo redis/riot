@@ -15,8 +15,7 @@ public abstract class AbstractRedisCommand extends AbstractJobCommand {
 
 	@Override
 	protected void execute() throws Exception {
-		redisContext = RedisContext.create(redisArgs.redisURI(), redisArgs.isCluster(), redisArgs.getProtocolVersion(),
-				redisArgs.getSslArgs());
+		redisContext = redisArgs.redisContext();
 		try {
 			super.execute();
 		} finally {

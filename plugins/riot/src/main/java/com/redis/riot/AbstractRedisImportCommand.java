@@ -22,8 +22,7 @@ public abstract class AbstractRedisImportCommand extends AbstractImportCommand {
 
 	@Override
 	protected RedisContext targetRedisContext() {
-		return RedisContext.create(redisArgs.redisURI(), redisArgs.isCluster(), redisArgs.getProtocolVersion(),
-				redisArgs.getSslArgs());
+		return redisArgs.redisContext();
 	}
 
 	public RedisArgs getRedisArgs() {

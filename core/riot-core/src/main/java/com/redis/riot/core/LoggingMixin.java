@@ -107,10 +107,10 @@ public class LoggingMixin {
 		getTopLevelCommandLoggingMixin(mixee).level = level;
 	}
 
-	public static IExecutionStrategy executionStrategy(IExecutionStrategy strategy) {
+	public static IExecutionStrategy executionStrategy(IExecutionStrategy delegate) {
 		return r -> {
 			getTopLevelCommandLoggingMixin(r.commandSpec()).configureLoggers();
-			return strategy.execute(r);
+			return delegate.execute(r);
 		};
 	}
 

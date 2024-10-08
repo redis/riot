@@ -28,8 +28,7 @@ public abstract class AbstractRedisExportCommand extends AbstractExportCommand {
 
 	@Override
 	protected RedisContext sourceRedisContext() {
-		return RedisContext.create(redisArgs.redisURI(), redisArgs.isCluster(), redisArgs.getProtocolVersion(),
-				redisArgs.getSslArgs());
+		return redisArgs.redisContext();
 	}
 
 	@Override

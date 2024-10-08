@@ -55,6 +55,10 @@ public class TargetRedisArgs {
 		return builder.build();
 	}
 
+	public RedisContext redisContext(RedisURI uri, SslArgs sslArgs) {
+		return RedisContext.create(redisURI(uri), cluster, protocolVersion, sslArgs);
+	}
+
 	public String getUsername() {
 		return username;
 	}

@@ -197,4 +197,8 @@ public class RedisArgs {
 				+ ", cluster=" + cluster + ", protocolVersion=" + protocolVersion + ", sslArgs=" + sslArgs + "]";
 	}
 
+	public RedisContext redisContext() {
+		return RedisContext.create(redisURI(), cluster, protocolVersion, sslArgs);
+	}
+
 }
