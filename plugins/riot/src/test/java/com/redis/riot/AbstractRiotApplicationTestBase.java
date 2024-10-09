@@ -52,18 +52,15 @@ abstract class AbstractRiotApplicationTestBase extends AbstractRiotTestBase {
 		}
 
 		@Override
-		protected IExecutionStrategy executionStrategy() {
-			IExecutionStrategy strategy = super.executionStrategy();
-			return r -> {
-				execute(r);
-				for (IExecutionStrategy config : configs) {
-					config.execute(r);
-				}
-				return strategy.execute(r);
-			};
+		protected int execute(ParseResult parseResult, IExecutionStrategy defaultStrategy) {
+			configure(parseResult);
+			for (IExecutionStrategy config : configs) {
+				config.execute(parseResult);
+			}
+			return defaultStrategy.execute(parseResult);
 		}
 
-		private int execute(ParseResult parseResult) {
+		private void configure(ParseResult parseResult) {
 			for (ParseResult subParseResult : parseResult.subcommands()) {
 				Object command = subParseResult.commandSpec().commandLine().getCommand();
 				if (command instanceof OperationCommand) {
@@ -99,7 +96,6 @@ abstract class AbstractRiotApplicationTestBase extends AbstractRiotTestBase {
 					replicateCommand.setCompareMode(CompareMode.NONE);
 				}
 			}
-			return 0;
 		}
 	}
 

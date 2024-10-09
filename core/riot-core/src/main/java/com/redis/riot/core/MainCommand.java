@@ -13,26 +13,6 @@ public class MainCommand extends BaseCommand implements Callable<Integer>, IO {
 	private PrintWriter err;
 
 	@Override
-	public PrintWriter getOut() {
-		return out;
-	}
-
-	@Override
-	public void setOut(PrintWriter out) {
-		this.out = out;
-	}
-
-	@Override
-	public PrintWriter getErr() {
-		return err;
-	}
-
-	@Override
-	public void setErr(PrintWriter err) {
-		this.err = err;
-	}
-
-	@Override
 	public Integer call() throws Exception {
 		commandSpec.commandLine().usage(out);
 		return 0;
@@ -54,6 +34,26 @@ public class MainCommand extends BaseCommand implements Callable<Integer>, IO {
 		commandLine.registerConverter(TemplateExpression.class, Expression::parseTemplate);
 		commandLine.setExecutionStrategy(LoggingMixin.executionStrategy(commandLine.getExecutionStrategy()));
 		return commandLine.execute(args);
+	}
+
+	@Override
+	public PrintWriter getOut() {
+		return out;
+	}
+
+	@Override
+	public void setOut(PrintWriter out) {
+		this.out = out;
+	}
+
+	@Override
+	public PrintWriter getErr() {
+		return err;
+	}
+
+	@Override
+	public void setErr(PrintWriter err) {
+		this.err = err;
 	}
 
 }
