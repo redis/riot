@@ -141,9 +141,10 @@ public abstract class AbstractJobCommand extends AbstractCallableCommand {
 		log.info("Creating {}", step);
 		SimpleStepBuilder<I, O> builder = simpleStep(step);
 		if (stepArgs.getRetryPolicy() == RetryPolicy.NEVER && stepArgs.getSkipPolicy() == SkipPolicy.NEVER) {
-			log.info("");
+			log.info("Skipping fault-tolerance for step {}", step.getName());
 			return builder.build();
 		}
+		log.info("Adding fault-tolerance to step {}", step.getName());
 		FaultTolerantStepBuilder<I, O> ftStep = JobUtils.faultTolerant(builder);
 		step.getSkip().forEach(ftStep::skip);
 		step.getNoSkip().forEach(ftStep::noSkip);

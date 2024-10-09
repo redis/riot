@@ -57,7 +57,7 @@ abstract class AbstractRiotApplicationTestBase extends AbstractRiotTestBase {
 			for (IExecutionStrategy config : configs) {
 				config.execute(parseResult);
 			}
-			return defaultStrategy.execute(parseResult);
+			return super.execute(parseResult, defaultStrategy);
 		}
 
 		private void configure(ParseResult parseResult) {
