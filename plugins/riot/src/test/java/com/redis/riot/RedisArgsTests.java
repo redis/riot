@@ -35,7 +35,7 @@ class RedisArgsTests {
 		RangeConverter converter = new RangeConverter();
 		Assertions.assertEquals(new Range(123, 123), converter.convert("123"));
 		Assertions.assertEquals(new Range(0, 123), converter.convert("0-123"));
-		Assertions.assertEquals(new Range(123), converter.convert("123-"));
+		Assertions.assertEquals(new Range(123, 123), converter.convert("123-"));
 	}
 
 }
