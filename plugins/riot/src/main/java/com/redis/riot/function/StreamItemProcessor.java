@@ -11,14 +11,14 @@ import com.redis.spring.batch.item.redis.common.KeyValue;
 
 import io.lettuce.core.StreamMessage;
 
-public class StreamItemProcessor implements ItemProcessor<KeyValue<String, Object>, KeyValue<String, Object>> {
+public class StreamItemProcessor implements ItemProcessor<KeyValue<String>, KeyValue<String>> {
 
 	private boolean prune;
 	private boolean dropMessageIds;
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public KeyValue<String, Object> process(KeyValue<String, Object> t) {
+	public KeyValue<String> process(KeyValue<String> t) {
 		if (KeyValue.hasValue(t) && KeyValue.type(t) == DataType.STREAM) {
 			Collection<StreamMessage<?, ?>> messages = (Collection<StreamMessage<?, ?>>) t.getValue();
 			if (CollectionUtils.isEmpty(messages)) {

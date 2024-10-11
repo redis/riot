@@ -38,14 +38,14 @@ public class Generate extends AbstractRedisCommand {
 		if (StringUtils.hasLength(generateArgs.getIndex())) {
 			commands().ftCreate(generateArgs.getIndex(), indexCreateOptions(), indexFields());
 		}
-		Step<KeyValue<String, Object>, KeyValue<String, Object>> step = new Step<>(STEP_NAME, reader(), writer());
+		Step<KeyValue<String>, KeyValue<String>> step = new Step<>(STEP_NAME, reader(), writer());
 		step.taskName(TASK_NAME);
 		step.maxItemCount(generateArgs.getCount());
 		return job(step);
 	}
 
-	private RedisItemWriter<String, String, KeyValue<String, Object>> writer() {
-		RedisItemWriter<String, String, KeyValue<String, Object>> writer = RedisItemWriter.struct();
+	private RedisItemWriter<String, String, KeyValue<String>> writer() {
+		RedisItemWriter<String, String, KeyValue<String>> writer = RedisItemWriter.struct();
 		configure(writer);
 		log.info("Configuring Redis writer with {}", redisWriterArgs);
 		redisWriterArgs.configure(writer);

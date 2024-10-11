@@ -32,13 +32,13 @@ public abstract class AbstractRedisExportCommand extends AbstractExportCommand {
 	}
 
 	@Override
-	protected void configureSourceRedisReader(RedisItemReader<?, ?, ?> reader) {
+	protected void configureSourceRedisReader(RedisItemReader<?, ?> reader) {
 		super.configureSourceRedisReader(reader);
 		log.info("Configuring Redis reader with poolSize {}", poolSize);
 		reader.setPoolSize(poolSize);
 	}
 
-	protected ItemProcessor<KeyValue<String, Object>, Map<String, Object>> mapProcessor() {
+	protected ItemProcessor<KeyValue<String>, Map<String, Object>> mapProcessor() {
 		KeyValueMap mapFunction = new KeyValueMap();
 		if (keyRegex != null) {
 			mapFunction.setKey(new RegexNamedGroupFunction(keyRegex));

@@ -7,7 +7,7 @@ import com.redis.spring.batch.item.redis.common.KeyValue;
 
 import io.lettuce.core.codec.RedisCodec;
 
-public class ToStringKeyValue<K> implements Function<KeyValue<K, Object>, KeyValue<String, Object>> {
+public class ToStringKeyValue<K> implements Function<KeyValue<K>, KeyValue<String>> {
 
 	private final Function<K, String> toStringKeyFunction;
 

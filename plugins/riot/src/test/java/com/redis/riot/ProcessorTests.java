@@ -77,14 +77,14 @@ class ProcessorTests {
 	@Test
 	void keyValueToMap() {
 		KeyValueMap processor = new KeyValueMap();
-		KeyValue<String, Object> string = new KeyValue<>();
+		KeyValue<String> string = new KeyValue<>();
 		string.setKey("beer:1");
 		string.setType(DataType.STRING.getString());
 		String value = "sdfsdf";
 		string.setValue(value);
 		Map<String, ?> stringMap = processor.apply(string);
 		Assertions.assertEquals(value, stringMap.get(StringToMapFunction.DEFAULT_KEY));
-		KeyValue<String, Object> hash = new KeyValue<>();
+		KeyValue<String> hash = new KeyValue<>();
 		hash.setKey("beer:2");
 		hash.setType(DataType.HASH.getString());
 		Map<String, String> map = new HashMap<>();

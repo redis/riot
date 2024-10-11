@@ -24,7 +24,7 @@ public class RedisContext implements AutoCloseable {
 		this.connection = RedisModulesUtils.connection(client);
 	}
 
-	public void configure(RedisItemReader<?, ?, ?> reader) {
+	public void configure(RedisItemReader<?, ?> reader) {
 		reader.setClient(client);
 		reader.setDatabase(uri.getDatabase());
 	}

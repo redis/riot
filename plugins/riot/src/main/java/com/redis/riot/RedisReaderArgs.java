@@ -12,7 +12,7 @@ import com.redis.spring.batch.item.AbstractAsyncItemReader;
 import com.redis.spring.batch.item.AbstractPollableItemReader;
 import com.redis.spring.batch.item.redis.RedisItemReader;
 import com.redis.spring.batch.item.redis.RedisItemReader.ReaderMode;
-import com.redis.spring.batch.item.redis.common.KeyEvent;
+import com.redis.spring.batch.item.redis.common.KeyValue;
 import com.redis.spring.batch.item.redis.reader.KeyValueRead;
 
 import io.lettuce.core.codec.RedisCodec;
@@ -81,7 +81,7 @@ public class RedisReaderArgs {
 	@Option(names = "--read-poll", description = "Interval in millis between queue polls (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>", hidden = true)
 	private long pollTimeout = DEFAULT_POLL_TIMEOUT.toMillis();
 
-	public <K> void configure(RedisItemReader<K, ?, ?> reader) {
+	public <K> void configure(RedisItemReader<K, ?> reader) {
 		reader.setChunkSize(chunkSize);
 		reader.setFlushInterval(Duration.ofMillis(flushInterval));
 		if (idleTimeout > 0) {
@@ -107,8 +107,8 @@ public class RedisReaderArgs {
 		}
 	}
 
-	private <K> ItemProcessor<KeyEvent<K>, KeyEvent<K>> keyProcessor(RedisCodec<K, ?> codec, KeyFilterArgs args) {
-		return args.predicate(codec).map(p -> new FunctionPredicate<KeyEvent<K>, K>(KeyEvent::getKey, p))
+	private <K> ItemProcessor<KeyValue<K>, KeyValue<K>> keyProcessor(RedisCodec<K, ?> codec, KeyFilterArgs args) {
+		return args.predicate(codec).map(p -> new FunctionPredicate<KeyValue<K>, K>(KeyValue::getKey, p))
 				.map(PredicateOperator::new).map(FunctionItemProcessor::new).orElse(null);
 	}
 

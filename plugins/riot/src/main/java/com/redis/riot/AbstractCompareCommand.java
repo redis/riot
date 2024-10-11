@@ -49,24 +49,23 @@ public abstract class AbstractCompareCommand extends AbstractReplicateCommand {
 	@ArgGroup(exclusive = false, heading = "Processor options%n")
 	private KeyValueProcessorArgs processorArgs = new KeyValueProcessorArgs();
 
-	protected ItemProcessor<KeyValue<byte[], Object>, KeyValue<byte[], Object>> processor() {
+	protected ItemProcessor<KeyValue<byte[]>, KeyValue<byte[]>> processor() {
 		return RiotUtils.processor(keyValueFilter(), keyValueProcessor());
 	}
 
-	private KeyValueFilter<byte[], KeyValue<byte[], Object>> keyValueFilter() {
+	private KeyValueFilter<byte[], KeyValue<byte[]>> keyValueFilter() {
 		return new KeyValueFilter<>(ByteArrayCodec.INSTANCE, log);
 	}
 
 	protected abstract boolean isStruct();
 
-	private ItemProcessor<KeyValue<byte[], Object>, KeyValue<byte[], Object>> keyValueProcessor() {
+	private ItemProcessor<KeyValue<byte[]>, KeyValue<byte[]>> keyValueProcessor() {
 		if (isIgnoreStreamMessageId()) {
 			Assert.isTrue(isStruct(), "--no-stream-id can only be used with --struct");
 		}
 		StandardEvaluationContext evaluationContext = evaluationContext();
 		log.info("Creating processor with {}", processorArgs);
-		ItemProcessor<KeyValue<String, Object>, KeyValue<String, Object>> processor = processorArgs
-				.processor(evaluationContext);
+		ItemProcessor<KeyValue<String>, KeyValue<String>> processor = processorArgs.processor(evaluationContext);
 		if (processor == null) {
 			return null;
 		}
@@ -103,7 +102,7 @@ public abstract class AbstractCompareCommand extends AbstractReplicateCommand {
 		return step;
 	}
 
-	private RedisItemReader<byte[], byte[], Object> compareRedisReader() {
+	private RedisItemReader<byte[], byte[]> compareRedisReader() {
 		if (isQuickCompare()) {
 			log.info("Creating Redis quick compare reader");
 			return RedisItemReader.type(ByteArrayCodec.INSTANCE);
@@ -115,8 +114,8 @@ public abstract class AbstractCompareCommand extends AbstractReplicateCommand {
 	protected abstract boolean isQuickCompare();
 
 	protected KeyComparisonItemReader<byte[], byte[]> compareReader() {
-		RedisItemReader<byte[], byte[], Object> source = compareSourceReader();
-		RedisItemReader<byte[], byte[], Object> target = compareTargetReader();
+		RedisItemReader<byte[], byte[]> source = compareSourceReader();
+		RedisItemReader<byte[], byte[]> target = compareTargetReader();
 		KeyComparisonItemReader<byte[], byte[]> reader = new KeyComparisonItemReader<>(source, target);
 		reader.setComparator(keyComparator());
 		reader.setProcessor(processor());
@@ -137,20 +136,20 @@ public abstract class AbstractCompareCommand extends AbstractReplicateCommand {
 		return !processorArgs.isPropagateIds();
 	}
 
-	private RedisItemReader<byte[], byte[], Object> compareSourceReader() {
-		RedisItemReader<byte[], byte[], Object> reader = compareRedisReader();
+	private RedisItemReader<byte[], byte[]> compareSourceReader() {
+		RedisItemReader<byte[], byte[]> reader = compareRedisReader();
 		configureSourceRedisReader(reader);
 		return reader;
 	}
 
-	private RedisItemReader<byte[], byte[], Object> compareTargetReader() {
-		RedisItemReader<byte[], byte[], Object> reader = compareRedisReader();
+	private RedisItemReader<byte[], byte[]> compareTargetReader() {
+		RedisItemReader<byte[], byte[]> reader = compareRedisReader();
 		configureTargetRedisReader(reader);
 		return reader;
 	}
 
 	@Override
-	protected void configureTargetRedisReader(RedisItemReader<?, ?, ?> reader) {
+	protected void configureTargetRedisReader(RedisItemReader<?, ?> reader) {
 		super.configureTargetRedisReader(reader);
 		log.info("Configuring target Redis reader with read-from {}", targetReadFrom);
 		reader.setReadFrom(targetReadFrom.getReadFrom());

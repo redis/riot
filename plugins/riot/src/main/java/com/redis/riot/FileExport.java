@@ -93,7 +93,7 @@ public class FileExport extends AbstractRedisExportCommand {
 		}
 	}
 
-	private ItemProcessor<KeyValue<String, Object>, ?> processor(FileType fileType) {
+	private ItemProcessor<KeyValue<String>, ?> processor(FileType fileType) {
 		if (contentType(fileType) == ContentType.MAP) {
 			return mapProcessor();
 		}
@@ -102,17 +102,16 @@ public class FileExport extends AbstractRedisExportCommand {
 
 	@SuppressWarnings("unchecked")
 	private Map<String, Object> headerRecord(FileType fileType) {
-		RedisItemReader<String, String, Object> reader = RedisItemReader.struct();
+		RedisItemReader<String, String> reader = RedisItemReader.struct();
 		configureSourceRedisReader(reader);
 		try {
 			reader.open(new ExecutionContext());
 			try {
-				KeyValue<String, Object> keyValue = reader.read();
+				KeyValue<String> keyValue = reader.read();
 				if (keyValue == null) {
 					return Collections.emptyMap();
 				}
-				return ((ItemProcessor<KeyValue<String, Object>, Map<String, Object>>) processor(fileType))
-						.process(keyValue);
+				return ((ItemProcessor<KeyValue<String>, Map<String, Object>>) processor(fileType)).process(keyValue);
 			} catch (Exception e) {
 				throw new ItemStreamException("Could not read header record", e);
 			}

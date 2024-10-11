@@ -42,17 +42,17 @@ public class KeyValueDeserializer extends StdDeserializer<KeyValue> {
 		this(null);
 	}
 
-	public KeyValueDeserializer(Class<KeyValue<String, Object>> t) {
+	public KeyValueDeserializer(Class<KeyValue<String>> t) {
 		super(t);
 	}
 
 	@Override
-	public KeyValue<String, Object> deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+	public KeyValue<String> deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
 		JsonNode node = p.getCodec().readTree(p);
 		if (!node.has(KEY)) {
 			throw new InvalidFormatException(p, "No key field found", node, _valueClass);
 		}
-		KeyValue<String, Object> keyValue = new KeyValue<>();
+		KeyValue<String> keyValue = new KeyValue<>();
 		keyValue.setKey(node.get(KEY).asText());
 		JsonNode typeNode = node.get(TYPE);
 		if (typeNode != null) {

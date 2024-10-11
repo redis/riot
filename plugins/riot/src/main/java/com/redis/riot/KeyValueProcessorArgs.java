@@ -37,8 +37,8 @@ public class KeyValueProcessorArgs {
 	@Option(names = "--stream-prune", description = "Drop empty streams.")
 	private boolean prune;
 
-	public ItemProcessor<KeyValue<String, Object>, KeyValue<String, Object>> processor(EvaluationContext context) {
-		List<ItemProcessor<KeyValue<String, Object>, KeyValue<String, Object>>> processors = new ArrayList<>();
+	public ItemProcessor<KeyValue<String>, KeyValue<String>> processor(EvaluationContext context) {
+		List<ItemProcessor<KeyValue<String>, KeyValue<String>>> processors = new ArrayList<>();
 		if (keyExpression != null) {
 			processors.add(processor(t -> t.setKey(keyExpression.getValue(context, t))));
 		}

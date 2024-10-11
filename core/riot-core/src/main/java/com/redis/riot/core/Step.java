@@ -198,13 +198,9 @@ public class Step<I, O> {
 
 	@Override
 	public String toString() {
-		return "Step [name=" + name + ", reader=" + reader + ", writer=" + writer + ", taskName=" + taskName
-				+ ", statusMessageSupplier=" + statusMessageSupplier + ", maxItemCountSupplier=" + maxItemCountSupplier
-				+ ", processor=" + processor + ", executionListeners=" + executionListeners + ", readListeners="
-				+ readListeners + ", writeListeners=" + writeListeners + ", live=" + live + ", flushInterval="
-				+ flushInterval + ", idleTimeout=" + idleTimeout + ", skip=" + skip + ", noSkip=" + noSkip + ", retry="
-				+ retry + ", noRetry=" + noRetry + "]";
+		return "Step [name=" + name + ", taskName=" + taskName + ", live=" + live + ", flushInterval=" + flushInterval
+				+ ", idleTimeout=" + idleTimeout + ", skip=" + skip + ", noSkip=" + noSkip + ", retry=" + retry
+				+ ", noRetry=" + noRetry + "]";
 	}
-	
-	
+
 }

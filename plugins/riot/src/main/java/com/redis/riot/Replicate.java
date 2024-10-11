@@ -53,7 +53,7 @@ public class Replicate extends AbstractCompareCommand {
 	@Override
 	protected Job job() {
 		List<Step<?, ?>> steps = new ArrayList<>();
-		Step<KeyValue<byte[], Object>, KeyValue<byte[], Object>> replicateStep = step();
+		Step<KeyValue<byte[]>, KeyValue<byte[]>> replicateStep = step();
 		steps.add(replicateStep);
 		if (shouldCompare()) {
 			steps.add(compareStep());
@@ -68,21 +68,21 @@ public class Replicate extends AbstractCompareCommand {
 		targetRedisWriterArgs.configure(writer);
 	}
 
-	private Step<KeyValue<byte[], Object>, KeyValue<byte[], Object>> step() {
-		RedisItemReader<byte[], byte[], Object> reader = reader();
+	private Step<KeyValue<byte[]>, KeyValue<byte[]>> step() {
+		RedisItemReader<byte[], byte[]> reader = reader();
 		configureSourceRedisReader(reader);
-		RedisItemWriter<byte[], byte[], KeyValue<byte[], Object>> writer = writer();
+		RedisItemWriter<byte[], byte[], KeyValue<byte[]>> writer = writer();
 		configureTargetRedisWriter(writer);
-		Step<KeyValue<byte[], Object>, KeyValue<byte[], Object>> step = step(STEP_NAME, reader, writer);
+		Step<KeyValue<byte[]>, KeyValue<byte[]>> step = step(STEP_NAME, reader, writer);
 		step.processor(processor());
 		step.taskName(taskName(reader));
+		step.writeListener(new ReplicateLagWriteListener());
 		if (reader.getMode() != ReaderMode.SCAN) {
 			step.statusMessageSupplier(() -> liveExtraMessage(reader));
 		}
 		if (logKeys) {
 			log.info("Adding key logger");
-			ReplicateWriteLogger<byte[], Object> writeLogger = new ReplicateWriteLogger<>(log, reader.getCodec());
-			step.writeListener(writeLogger);
+			step.writeListener(new ReplicateWriteLogger<>(log, reader.getCodec()));
 			ReplicateReadLogger<byte[]> readLogger = new ReplicateReadLogger<>(log, reader.getCodec());
 			reader.addItemReadListener(readLogger);
 			reader.addItemWriteListener(readLogger);
@@ -95,7 +95,7 @@ public class Replicate extends AbstractCompareCommand {
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private RedisItemReader<byte[], byte[], Object> reader() {
+	private RedisItemReader<byte[], byte[]> reader() {
 		if (struct) {
 			log.info("Creating Redis data-structure reader");
 			return RedisItemReader.struct(ByteArrayCodec.INSTANCE);
@@ -105,7 +105,7 @@ public class Replicate extends AbstractCompareCommand {
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private RedisItemWriter<byte[], byte[], KeyValue<byte[], Object>> writer() {
+	private RedisItemWriter<byte[], byte[], KeyValue<byte[]>> writer() {
 		if (struct) {
 			log.info("Creating Redis data-structure writer");
 			return RedisItemWriter.struct(ByteArrayCodec.INSTANCE);
@@ -114,7 +114,7 @@ public class Replicate extends AbstractCompareCommand {
 		return (RedisItemWriter) RedisItemWriter.dump();
 	}
 
-	private String taskName(RedisItemReader<?, ?, ?> reader) {
+	private String taskName(RedisItemReader<?, ?> reader) {
 		switch (reader.getMode()) {
 		case SCAN:
 			return SCAN_TASK_NAME;
@@ -126,7 +126,7 @@ public class Replicate extends AbstractCompareCommand {
 	}
 
 	@SuppressWarnings("rawtypes")
-	private String liveExtraMessage(RedisItemReader<?, ?, ?> reader) {
+	private String liveExtraMessage(RedisItemReader<?, ?> reader) {
 		KeyNotificationItemReader keyReader = (KeyNotificationItemReader) reader.getReader();
 		if (keyReader == null || keyReader.getQueue() == null) {
 			return "";

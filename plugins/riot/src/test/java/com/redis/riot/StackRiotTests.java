@@ -208,12 +208,12 @@ class StackRiotTests extends RiotTests {
 		XmlObjectReader<KeyValue> xmlObjectReader = new XmlObjectReader<>(KeyValue.class);
 		xmlObjectReader.setMapper(new XmlMapper());
 		builder.xmlObjectReader(xmlObjectReader);
-		XmlItemReader<KeyValue<String, Object>> reader = (XmlItemReader) builder.build();
+		XmlItemReader<KeyValue<String>> reader = (XmlItemReader) builder.build();
 		reader.open(new ExecutionContext());
-		List<KeyValue<String, Object>> records = readAll(reader);
+		List<KeyValue<String>> records = readAll(reader);
 		reader.close();
 		Assertions.assertEquals(redisCommands.dbsize(), records.size());
-		for (KeyValue<String, Object> record : records) {
+		for (KeyValue<String> record : records) {
 			DataType type = KeyValue.type(record);
 			if (type == null) {
 				continue;

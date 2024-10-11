@@ -18,7 +18,7 @@ import com.redis.spring.batch.item.redis.common.KeyValue;
 import io.lettuce.core.ScoredValue;
 import io.lettuce.core.StreamMessage;
 
-public class KeyValueMap implements Function<KeyValue<String, Object>, Map<String, Object>> {
+public class KeyValueMap implements Function<KeyValue<String>, Map<String, Object>> {
 
 	private Function<String, Map<String, String>> key = t -> Collections.emptyMap();
 	private UnaryOperator<Map<String, String>> hash = UnaryOperator.identity();
@@ -32,7 +32,7 @@ public class KeyValueMap implements Function<KeyValue<String, Object>, Map<Strin
 	private Function<Object, Map<String, String>> defaultFunction = s -> Collections.emptyMap();
 
 	@Override
-	public Map<String, Object> apply(KeyValue<String, Object> item) {
+	public Map<String, Object> apply(KeyValue<String> item) {
 		Map<String, Object> map = new LinkedHashMap<>();
 		map.putAll(key.apply(item.getKey()));
 		map.putAll(value(item));
@@ -40,7 +40,7 @@ public class KeyValueMap implements Function<KeyValue<String, Object>, Map<Strin
 	}
 
 	@SuppressWarnings("unchecked")
-	private Map<String, String> value(KeyValue<String, Object> item) {
+	private Map<String, String> value(KeyValue<String> item) {
 		if (!KeyValue.hasType(item) || !KeyValue.hasValue(item)) {
 			return Collections.emptyMap();
 		}

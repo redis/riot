@@ -48,7 +48,7 @@ public abstract class AbstractExportCommand extends AbstractJobCommand {
 		context.setVariable(VAR_SOURCE, sourceRedisContext.getConnection().sync());
 	}
 
-	protected void configureSourceRedisReader(RedisItemReader<?, ?, ?> reader) {
+	protected void configureSourceRedisReader(RedisItemReader<?, ?> reader) {
 		configureAsyncReader(reader);
 		sourceRedisContext.configure(reader);
 		log.info("Configuring source Redis reader with {}", sourceRedisReaderArgs);
@@ -57,17 +57,16 @@ public abstract class AbstractExportCommand extends AbstractJobCommand {
 
 	protected abstract RedisContext sourceRedisContext();
 
-	protected <O> Step<KeyValue<String, Object>, O> step(ItemWriter<O> writer) {
-		RedisItemReader<String, String, Object> reader = RedisItemReader.struct();
+	protected <O> Step<KeyValue<String>, O> step(ItemWriter<O> writer) {
+		RedisItemReader<String, String> reader = RedisItemReader.struct();
 		configureSourceRedisReader(reader);
-		Step<KeyValue<String, Object>, O> step = step(STEP_NAME, reader, writer);
+		Step<KeyValue<String>, O> step = step(STEP_NAME, reader, writer);
 		step.taskName(TASK_NAME);
 		return step;
 	}
 
-	protected <K, V, T, O> Step<KeyValue<K, T>, O> step(String name, RedisItemReader<K, V, T> reader,
-			ItemWriter<O> writer) {
-		Step<KeyValue<K, T>, O> step = new Step<>(name, reader, writer);
+	protected <K, V, T, O> Step<KeyValue<K>, O> step(String name, RedisItemReader<K, V> reader, ItemWriter<O> writer) {
+		Step<KeyValue<K>, O> step = new Step<>(name, reader, writer);
 		if (reader.getMode() != ReaderMode.LIVEONLY) {
 			log.info("Configuring step with scan size estimator");
 			step.maxItemCountSupplier(reader.scanSizeEstimator());
@@ -97,8 +96,8 @@ public abstract class AbstractExportCommand extends AbstractJobCommand {
 		log.info("Retrieved config {}: {}", NOTIFY_CONFIG, actual);
 		Set<Character> expected = characterSet(NOTIFY_CONFIG_VALUE);
 		Assert.isTrue(characterSet(actual).containsAll(expected),
-				String.format("Keyspace notifications not property configured: expected '%s' but was '%s'.",
-						NOTIFY_CONFIG_VALUE, actual));
+				String.format("Keyspace notifications not property configured. Expected %s '%s' but was '%s'.",
+						NOTIFY_CONFIG, NOTIFY_CONFIG_VALUE, actual));
 	}
 
 	private Set<Character> characterSet(String string) {

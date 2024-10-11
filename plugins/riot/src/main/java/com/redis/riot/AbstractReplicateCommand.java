@@ -59,13 +59,13 @@ public abstract class AbstractReplicateCommand extends AbstractExportCommand {
 	}
 
 	@Override
-	protected void configureSourceRedisReader(RedisItemReader<?, ?, ?> reader) {
+	protected void configureSourceRedisReader(RedisItemReader<?, ?> reader) {
 		super.configureSourceRedisReader(reader);
 		log.info("Configuring source Redis reader with poolSize {}", sourceRedisArgs.getPoolSize());
 		reader.setPoolSize(sourceRedisArgs.getPoolSize());
 	}
 
-	protected void configureTargetRedisReader(RedisItemReader<?, ?, ?> reader) {
+	protected void configureTargetRedisReader(RedisItemReader<?, ?> reader) {
 		configureAsyncReader(reader);
 		targetRedisContext.configure(reader);
 		log.info("Configuring target Redis reader with poolSize {}", targetRedisArgs.getPoolSize());

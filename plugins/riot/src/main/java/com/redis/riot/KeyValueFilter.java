@@ -11,7 +11,7 @@ import com.redis.spring.batch.item.redis.common.KeyValue;
 
 import io.lettuce.core.codec.RedisCodec;
 
-public class KeyValueFilter<K, T extends KeyValue<K, ?>> implements ItemProcessor<T, T> {
+public class KeyValueFilter<K, T extends KeyValue<K>> implements ItemProcessor<T, T> {
 
 	private final Function<K, String> keyToString;
 	private final Logger log;

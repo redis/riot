@@ -107,7 +107,7 @@ public class FileImport extends AbstractRedisImportCommand {
 		Assert.isTrue(type != FileType.CSV, "CSV file import requires a Redis command");
 		Assert.isTrue(type != FileType.FIXED, "Fixed-length file import requires a Redis command");
 		ItemReader<KeyValue> reader = createReader(resource, type, KeyValue.class);
-		RedisItemWriter<String, String, KeyValue<String, Object>> writer = RedisItemWriter.struct();
+		RedisItemWriter<String, String, KeyValue<String>> writer = RedisItemWriter.struct();
 		configureTargetRedisWriter(writer);
 		return new Step<>(name, reader, writer);
 	}

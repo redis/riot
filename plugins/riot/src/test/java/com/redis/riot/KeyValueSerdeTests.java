@@ -54,7 +54,7 @@ class KeyValueSerdeTests {
 	@SuppressWarnings("unchecked")
 	@Test
 	void deserialize() throws JsonMappingException, JsonProcessingException {
-		KeyValue<String, Object> keyValue = mapper.readValue(timeseries, KeyValue.class);
+		KeyValue<String> keyValue = mapper.readValue(timeseries, KeyValue.class);
 		Assertions.assertEquals("gen:97", keyValue.getKey());
 	}
 
@@ -63,7 +63,7 @@ class KeyValueSerdeTests {
 		String key = "ts:1";
 		long memoryUsage = DataSize.ofGigabytes(1).toBytes();
 		long ttl = Instant.now().toEpochMilli();
-		KeyValue<String, Object> ts = new KeyValue<>();
+		KeyValue<String> ts = new KeyValue<>();
 		ts.setKey(key);
 		ts.setMemoryUsage(memoryUsage);
 		ts.setTtl(ttl);
@@ -85,15 +85,15 @@ class KeyValueSerdeTests {
 		GeneratorItemReader reader = new GeneratorItemReader();
 		reader.setMaxItemCount(17);
 		reader.open(new ExecutionContext());
-		List<KeyValue<String, Object>> items = AbstractTestBase.readAll(reader);
-		for (KeyValue<String, Object> item : items) {
+		List<KeyValue<String>> items = AbstractTestBase.readAll(reader);
+		for (KeyValue<String> item : items) {
 			String json = mapper.writeValueAsString(item);
-			KeyValue<String, Object> result = mapper.readValue(json, KeyValue.class);
+			KeyValue<String> result = mapper.readValue(json, KeyValue.class);
 			assertEquals(item, result);
 		}
 	}
 
-	private <K, T> void assertEquals(KeyValue<K, T> source, KeyValue<K, T> target) {
+	private <K, T> void assertEquals(KeyValue<K> source, KeyValue<K> target) {
 		Assertions.assertEquals(source.getMemoryUsage(), target.getMemoryUsage());
 		Assertions.assertEquals(source.getTtl(), target.getTtl());
 		Assertions.assertEquals(source.getType(), target.getType());
@@ -107,20 +107,20 @@ class KeyValueSerdeTests {
 		Path file = directory.resolve("redis.xml");
 		XmlMapper mapper = new XmlMapper();
 		mapper.setConfig(mapper.getSerializationConfig().withRootName("record"));
-		JacksonJsonObjectMarshaller<KeyValue<String, Object>> marshaller = new JacksonJsonObjectMarshaller<>();
+		JacksonJsonObjectMarshaller<KeyValue<String>> marshaller = new JacksonJsonObjectMarshaller<>();
 		marshaller.setObjectMapper(mapper);
-		XmlResourceItemWriter<KeyValue<String, Object>> writer = new XmlResourceItemWriterBuilder<KeyValue<String, Object>>()
+		XmlResourceItemWriter<KeyValue<String>> writer = new XmlResourceItemWriterBuilder<KeyValue<String>>()
 				.name("xml-resource-writer").resource(new FileSystemResource(file)).rootName("root")
 				.xmlObjectMarshaller(marshaller).build();
 		writer.afterPropertiesSet();
 		writer.open(new ExecutionContext());
-		KeyValue<String, Object> item1 = new KeyValue<>();
+		KeyValue<String> item1 = new KeyValue<>();
 		item1.setKey("key1");
 		item1.setTtl(123l);
 		item1.setType(DataType.HASH.getString());
 		Map<String, String> hash1 = Map.of("field1", "value1", "field2", "value2");
 		item1.setValue(hash1);
-		KeyValue<String, Object> item2 = new KeyValue<>();
+		KeyValue<String> item2 = new KeyValue<>();
 		item2.setKey("key2");
 		item2.setTtl(456l);
 		item2.setType(DataType.STREAM.getString());
@@ -129,7 +129,7 @@ class KeyValueSerdeTests {
 		writer.write(Chunk.of(item1, item2));
 		writer.close();
 		ObjectReader reader = mapper.readerFor(KeyValue.class);
-		List<KeyValue<String, Object>> keyValues = reader.<KeyValue<String, Object>>readValues(file.toFile()).readAll();
+		List<KeyValue<String>> keyValues = reader.<KeyValue<String>>readValues(file.toFile()).readAll();
 		Assertions.assertEquals(2, keyValues.size());
 		Assertions.assertEquals(item1.getKey(), keyValues.get(0).getKey());
 		Assertions.assertEquals(item2.getKey(), keyValues.get(1).getKey());
