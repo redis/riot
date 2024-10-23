@@ -46,7 +46,6 @@ dependencies {
     api project(':riot-faker')
     api group: 'com.redis', name: 'spring-batch-redis-core', version: springBatchRedisVersion
     api group: 'com.redis', name: 'spring-batch-resource', version: springBatchRedisVersion
-    implementation group: 'com.redis', name: 'lettucemod', version: lettucemodVersion
     implementation group: 'org.latencyutils', name: 'LatencyUtils', version: latencyUtilsVersion
     implementation 'org.springframework.batch:spring-batch-infrastructure'
     implementation 'org.springframework.boot:spring-boot-autoconfigure'
