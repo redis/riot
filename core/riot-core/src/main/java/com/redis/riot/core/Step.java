@@ -21,8 +21,9 @@ public class Step<I, O> {
 
 	private static final long NO_MAX_ITEM_COUNT = -1;
 	private static final String EMPTY_STRING = "";
+	public static final String DEFAULT_NAME = "step";
 
-	protected final String name;
+	private String name = DEFAULT_NAME;
 	private final ItemReader<I> reader;
 	private final ItemWriter<O> writer;
 	private String taskName;
@@ -40,14 +41,18 @@ public class Step<I, O> {
 	private Collection<Class<? extends Throwable>> retry = new HashSet<>();
 	private Collection<Class<? extends Throwable>> noRetry = new HashSet<>();
 
-	public Step(String name, ItemReader<I> reader, ItemWriter<O> writer) {
-		this.name = name;
+	public Step(ItemReader<I> reader, ItemWriter<O> writer) {
 		this.reader = reader;
 		this.writer = writer;
 	}
 
 	public String getName() {
 		return name;
+	}
+
+	public Step<I, O> name(String name) {
+		this.name = name;
+		return this;
 	}
 
 	public String getTaskName() {

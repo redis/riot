@@ -22,7 +22,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
-import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.json.JacksonJsonObjectReader;
 import org.springframework.batch.item.json.JsonItemReader;
@@ -120,7 +119,7 @@ class StackRiotTests extends RiotTests {
 	@SuppressWarnings("rawtypes")
 	@Test
 	void fileImportJsonDump(TestInfo info) throws Exception {
-		List<KeyValue> records = exportToJsonFile(info);
+		List<? extends KeyValue> records = exportToJsonFile(info);
 		redisCommands.flushall();
 		execute(info, "file-import-json", this::executeFileDumpImport);
 		awaitUntil(() -> records.size() == Math.toIntExact(redisCommands.dbsize()));
@@ -129,12 +128,12 @@ class StackRiotTests extends RiotTests {
 	@SuppressWarnings("rawtypes")
 	@Test
 	void fileExportJSON(TestInfo info) throws Exception {
-		List<KeyValue> records = exportToJsonFile(info);
+		List<? extends KeyValue> records = exportToJsonFile(info);
 		Assertions.assertEquals(redisCommands.dbsize(), records.size());
 	}
 
 	@SuppressWarnings("rawtypes")
-	private List<KeyValue> exportToJsonFile(TestInfo info) throws Exception {
+	private List<? extends KeyValue> exportToJsonFile(TestInfo info) throws Exception {
 		String filename = "file-export-json";
 		Path file = tempFile("redis.json");
 		generate(info, generator(73));
@@ -146,12 +145,7 @@ class StackRiotTests extends RiotTests {
 		objectReader.setMapper(new ObjectMapper());
 		builder.jsonObjectReader(objectReader);
 		JsonItemReader<KeyValue> reader = builder.build();
-		reader.open(new ExecutionContext());
-		try {
-			return readAll(reader);
-		} finally {
-			reader.close();
-		}
+		return readAll(info, reader);
 	}
 
 	private int executeFileDumpImport(ParseResult parseResult) {
@@ -187,12 +181,7 @@ class StackRiotTests extends RiotTests {
 		objectReader.setMapper(new ObjectMapper());
 		builder.jsonObjectReader(objectReader);
 		JsonItemReader<Map> reader = builder.build();
-		reader.open(new ExecutionContext());
-		try {
-			Assertions.assertEquals(keyCount("beer:*"), readAll(reader).size());
-		} finally {
-			reader.close();
-		}
+		Assertions.assertEquals(keyCount("beer:*"), readAll(info, reader).size());
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -209,9 +198,7 @@ class StackRiotTests extends RiotTests {
 		xmlObjectReader.setMapper(new XmlMapper());
 		builder.xmlObjectReader(xmlObjectReader);
 		XmlItemReader<KeyValue<String>> reader = (XmlItemReader) builder.build();
-		reader.open(new ExecutionContext());
-		List<KeyValue<String>> records = readAll(reader);
-		reader.close();
+		List<? extends KeyValue<String>> records = readAll(info, reader);
 		Assertions.assertEquals(redisCommands.dbsize(), records.size());
 		for (KeyValue<String> record : records) {
 			DataType type = KeyValue.type(record);
@@ -635,9 +622,7 @@ class StackRiotTests extends RiotTests {
 		assertDbNotEmpty(redisCommands);
 		KeyComparisonItemReader<String, String> reader = comparisonReader(info);
 		((DefaultKeyComparator<String, String>) reader.getComparator()).setIgnoreStreamMessageId(true);
-		reader.open(new ExecutionContext());
-		List<KeyComparison<String>> comparisons = readAll(reader);
-		reader.close();
+		List<? extends KeyComparison<String>> comparisons = readAll(info, reader);
 		KeyspaceComparison<String> comparison = new KeyspaceComparison<>(comparisons);
 		Assertions.assertFalse(comparison.getAll().isEmpty());
 		Assertions.assertEquals(Collections.emptyList(), comparison.mismatches());
@@ -655,9 +640,7 @@ class StackRiotTests extends RiotTests {
 		assertDbNotEmpty(redisCommands);
 		KeyComparisonItemReader<String, String> reader = comparisonReader(info);
 		((DefaultKeyComparator<String, String>) reader.getComparator()).setIgnoreStreamMessageId(true);
-		reader.open(new ExecutionContext());
-		List<KeyComparison<String>> comparisons = readAll(reader);
-		reader.close();
+		List<? extends KeyComparison<String>> comparisons = readAll(info, reader);
 		KeyspaceComparison<String> comparison = new KeyspaceComparison<>(comparisons);
 		Assertions.assertFalse(comparison.getAll().isEmpty());
 		KeyComparison<String> missing = comparison.mismatches().get(0);
@@ -723,7 +706,6 @@ class StackRiotTests extends RiotTests {
 		GeneratorItemReader generator = generator(count);
 		generateAsync(info, generator);
 		execute(info, filename);
-		awaitNoSubscribers();
 		List<String> keys = targetRedisCommands.keys("*");
 		Assertions.assertEquals(148, keys.size());
 		for (String key : keys) {

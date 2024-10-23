@@ -10,7 +10,11 @@ import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.ClientOptions;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.cluster.ClusterClientOptions;
+import io.lettuce.core.metrics.MicrometerCommandLatencyRecorder;
+import io.lettuce.core.metrics.MicrometerOptions;
 import io.lettuce.core.protocol.ProtocolVersion;
+import io.lettuce.core.resource.ClientResources;
+import io.micrometer.core.instrument.Metrics;
 
 public class RedisContext implements AutoCloseable {
 
@@ -56,7 +60,8 @@ public class RedisContext implements AutoCloseable {
 		}
 	}
 
-	public static RedisContext create(RedisURI uri, boolean cluster, ProtocolVersion protocolVersion, SslArgs sslArgs) {
+	public static RedisContext create(RedisURI uri, boolean cluster, ProtocolVersion protocolVersion, SslArgs sslArgs,
+			boolean metrics) {
 		RedisModulesClientBuilder clientBuilder = new RedisModulesClientBuilder();
 		clientBuilder.cluster(cluster);
 		ClientOptions.Builder options = cluster ? ClusterClientOptions.builder() : ClientOptions.builder();
@@ -64,8 +69,14 @@ public class RedisContext implements AutoCloseable {
 		if (sslArgs != null) {
 			options.sslOptions(sslArgs.sslOptions());
 		}
-		clientBuilder.clientOptions(options.build());
+		clientBuilder.options(options.build());
 		clientBuilder.uri(uri);
+		if (metrics) {
+			MicrometerOptions meterOptions = MicrometerOptions.create();
+			MicrometerCommandLatencyRecorder recorder = new MicrometerCommandLatencyRecorder(Metrics.globalRegistry,
+					meterOptions);
+			clientBuilder.resources(ClientResources.builder().commandLatencyRecorder(recorder).build());
+		}
 		return new RedisContext(uri, clientBuilder.build());
 	}
 

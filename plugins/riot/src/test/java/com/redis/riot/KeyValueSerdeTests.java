@@ -10,6 +10,7 @@ import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.springframework.batch.item.Chunk;
@@ -34,7 +35,6 @@ import com.redis.riot.file.xml.XmlResourceItemWriterBuilder;
 import com.redis.spring.batch.item.redis.common.DataType;
 import com.redis.spring.batch.item.redis.common.KeyValue;
 import com.redis.spring.batch.item.redis.gen.GeneratorItemReader;
-import com.redis.spring.batch.test.AbstractTestBase;
 
 @TestInstance(Lifecycle.PER_CLASS)
 class KeyValueSerdeTests {
@@ -81,16 +81,17 @@ class KeyValueSerdeTests {
 
 	@SuppressWarnings("unchecked")
 	@Test
-	void serde() throws Exception {
+	void serde(TestInfo info) throws Exception {
 		GeneratorItemReader reader = new GeneratorItemReader();
 		reader.setMaxItemCount(17);
 		reader.open(new ExecutionContext());
-		List<KeyValue<String>> items = AbstractTestBase.readAll(reader);
-		for (KeyValue<String> item : items) {
+		KeyValue<String> item;
+		while ((item = reader.read()) != null) {
 			String json = mapper.writeValueAsString(item);
 			KeyValue<String> result = mapper.readValue(json, KeyValue.class);
 			assertEquals(item, result);
 		}
+		reader.close();
 	}
 
 	private <K, T> void assertEquals(KeyValue<K> source, KeyValue<K> target) {

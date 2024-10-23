@@ -4,7 +4,6 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Executors;
 import java.util.function.Predicate;
 
 import org.junit.jupiter.api.Assertions;
@@ -115,10 +114,7 @@ abstract class RiotTests extends AbstractRiotApplicationTestBase {
 		StatefulRedisModulesConnection<byte[], byte[]> targetConnection = RedisModulesUtils
 				.connection(targetRedisClient, ByteArrayCodec.INSTANCE);
 		enableKeyspaceNotifications();
-		Executors.newSingleThreadExecutor().execute(() -> {
-			awaitSubscribers();
-			connection.sync().set(key, value);
-		});
+		executeWhenSubscribers(() -> connection.sync().set(key, value));
 		Replicate replication = new Replicate();
 		replication.getSourceRedisReaderArgs().setMode(ReaderMode.LIVE);
 		replication.setCompareMode(CompareMode.NONE);
@@ -135,7 +131,6 @@ abstract class RiotTests extends AbstractRiotApplicationTestBase {
 		replication.getSourceRedisReaderArgs().getKeyFilterArgs().setSlots(Arrays.asList(new Range(0, 8000)));
 		generateAsync(info, generator(100));
 		execute(replication, info);
-		awaitNoSubscribers();
 		Assertions.assertTrue(targetRedisCommands.keys("*").stream().map(SlotHash::getSlot).allMatch(between(0, 8000)));
 	}
 

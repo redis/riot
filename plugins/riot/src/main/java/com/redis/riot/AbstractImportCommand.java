@@ -48,7 +48,6 @@ import picocli.CommandLine.Command;
 public abstract class AbstractImportCommand extends AbstractJobCommand {
 
 	private static final String TASK_NAME = "Importing";
-	private static final String STEP_NAME = "step";
 	public static final String VAR_REDIS = "redis";
 
 	@ArgGroup(exclusive = false)
@@ -79,7 +78,7 @@ public abstract class AbstractImportCommand extends AbstractJobCommand {
 		Assert.isTrue(hasOperations(), "No Redis command specified");
 		RedisItemWriter<String, String, Map<String, Object>> writer = operationWriter();
 		configureTargetRedisWriter(writer);
-		Step<Map<String, Object>, Map<String, Object>> step = new Step<>(STEP_NAME, reader, writer);
+		Step<Map<String, Object>, Map<String, Object>> step = new Step<>(reader, writer);
 		step.processor(processor());
 		step.taskName(TASK_NAME);
 		return step;

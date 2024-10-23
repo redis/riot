@@ -1,121 +1,189 @@
 package com.redis.riot;
 
+import java.time.Duration;
+import java.util.Collection;
+
+import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.item.function.FunctionItemProcessor;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
+import org.springframework.util.Assert;
 
+import com.redis.riot.CompareStatusItemWriter.StatusCount;
+import com.redis.riot.core.RiotUtils;
+import com.redis.riot.core.Step;
+import com.redis.riot.function.StringKeyValue;
+import com.redis.riot.function.ToStringKeyValue;
 import com.redis.spring.batch.item.redis.RedisItemReader;
-import com.redis.spring.batch.item.redis.RedisItemWriter;
+import com.redis.spring.batch.item.redis.common.KeyValue;
+import com.redis.spring.batch.item.redis.reader.DefaultKeyComparator;
+import com.redis.spring.batch.item.redis.reader.KeyComparator;
+import com.redis.spring.batch.item.redis.reader.KeyComparison;
+import com.redis.spring.batch.item.redis.reader.KeyComparisonItemReader;
+import com.redis.spring.batch.item.redis.reader.RedisScanSizeEstimator;
 
-import io.lettuce.core.RedisURI;
+import io.lettuce.core.codec.ByteArrayCodec;
 import picocli.CommandLine.ArgGroup;
-import picocli.CommandLine.Parameters;
+import picocli.CommandLine.Option;
 
-public abstract class AbstractReplicateCommand extends AbstractExportCommand {
+public abstract class AbstractReplicateCommand extends AbstractRedisTargetExportCommand {
 
-	public static final int DEFAULT_TARGET_POOL_SIZE = RedisItemReader.DEFAULT_POOL_SIZE;
-	private static final String VAR_TARGET = "target";
+	public static final Duration DEFAULT_TTL_TOLERANCE = DefaultKeyComparator.DEFAULT_TTL_TOLERANCE;
+	public static final boolean DEFAULT_COMPARE_STREAM_MESSAGE_ID = true;
 
-	@ArgGroup(exclusive = false, heading = "TLS options%n")
-	private SslArgs sslArgs = new SslArgs();
+	private static final String COMPARE_TASK_NAME = "Comparing";
+	private static final String STATUS_DELIMITER = " | ";
 
-	@Parameters(arity = "1", index = "0", description = "Source server URI or endpoint in the form host:port.", paramLabel = "SOURCE")
-	private RedisURI sourceRedisUri;
+	@Option(names = "--target-read-from", description = "Which target Redis cluster nodes to read from: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<n>")
+	private ReadFrom targetReadFrom = ReadFrom.UPSTREAM;
+
+	@Option(names = "--show-diffs", description = "Print details of key mismatches during dataset verification. Disables progress reporting.")
+	private boolean showDiffs;
+
+	@Option(names = "--ttl-tolerance", description = "Max TTL offset in millis to consider keys equal (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>")
+	private long ttlToleranceMillis = DEFAULT_TTL_TOLERANCE.toMillis();
 
 	@ArgGroup(exclusive = false)
-	private SourceRedisArgs sourceRedisArgs = new SourceRedisArgs();
+	private EvaluationContextArgs evaluationContextArgs = new EvaluationContextArgs();
 
-	@Parameters(arity = "1", index = "1", description = "Target server URI or endpoint in the form host:port.", paramLabel = "TARGET")
-	private RedisURI targetRedisUri;
+	@ArgGroup(exclusive = false, heading = "Processor options%n")
+	private KeyValueProcessorArgs processorArgs = new KeyValueProcessorArgs();
 
-	@ArgGroup(exclusive = false)
-	private TargetRedisArgs targetRedisArgs = new TargetRedisArgs();
+	protected ItemProcessor<KeyValue<byte[]>, KeyValue<byte[]>> processor() {
+		return RiotUtils.processor(keyValueFilter(), keyValueProcessor());
+	}
 
-	private RedisContext targetRedisContext;
+	private KeyValueFilter<byte[], KeyValue<byte[]>> keyValueFilter() {
+		return new KeyValueFilter<>(ByteArrayCodec.INSTANCE, log);
+	}
 
-	@Override
-	protected void execute() throws Exception {
-		targetRedisContext = targetRedisContext();
-		try {
-			super.execute();
-		} finally {
-			targetRedisContext.close();
+	protected abstract boolean isStruct();
+
+	private ItemProcessor<KeyValue<byte[]>, KeyValue<byte[]>> keyValueProcessor() {
+		if (isIgnoreStreamMessageId()) {
+			Assert.isTrue(isStruct(), "--no-stream-id can only be used with --struct");
 		}
+		StandardEvaluationContext evaluationContext = evaluationContext();
+		log.info("Creating processor with {}", processorArgs);
+		ItemProcessor<KeyValue<String>, KeyValue<String>> processor = processorArgs.processor(evaluationContext);
+		if (processor == null) {
+			return null;
+		}
+		ToStringKeyValue<byte[]> code = new ToStringKeyValue<>(ByteArrayCodec.INSTANCE);
+		StringKeyValue<byte[]> decode = new StringKeyValue<>(ByteArrayCodec.INSTANCE);
+		return RiotUtils.processor(new FunctionItemProcessor<>(code), processor, new FunctionItemProcessor<>(decode));
+	}
+
+	private StandardEvaluationContext evaluationContext() {
+		log.info("Creating SpEL evaluation context with {}", evaluationContextArgs);
+		StandardEvaluationContext evaluationContext = evaluationContextArgs.evaluationContext();
+		configure(evaluationContext);
+		return evaluationContext;
+	}
+
+	private String compareMessage(Collection<StatusCount> counts) {
+		StringBuilder builder = new StringBuilder();
+		counts.stream().map(CompareStepListener::toString).forEach(s -> builder.append(STATUS_DELIMITER).append(s));
+		return builder.toString();
+	}
+
+	protected Step<KeyComparison<byte[]>, KeyComparison<byte[]>> compareStep() {
+		KeyComparisonItemReader<byte[], byte[]> reader = compareReader();
+		CompareStatusItemWriter<byte[]> writer = new CompareStatusItemWriter<>();
+		Step<KeyComparison<byte[]>, KeyComparison<byte[]>> step = new Step<>(reader, writer);
+		step.taskName(COMPARE_TASK_NAME);
+		step.statusMessageSupplier(() -> compareMessage(writer.getMismatches()));
+		step.maxItemCountSupplier(RedisScanSizeEstimator.from(reader.getSourceReader()));
+		if (showDiffs) {
+			log.info("Adding key diff logger");
+			step.writeListener(new CompareLoggingWriteListener<>(ByteArrayCodec.INSTANCE));
+		}
+		step.executionListener(new CompareStepListener(writer));
+		return step;
+	}
+
+	private RedisItemReader<byte[], byte[]> compareRedisReader() {
+		if (isQuickCompare()) {
+			log.info("Creating Redis quick compare reader");
+			return RedisItemReader.type(ByteArrayCodec.INSTANCE);
+		}
+		log.info("Creating Redis full compare reader");
+		return RedisItemReader.struct(ByteArrayCodec.INSTANCE);
+	}
+
+	protected abstract boolean isQuickCompare();
+
+	protected KeyComparisonItemReader<byte[], byte[]> compareReader() {
+		RedisItemReader<byte[], byte[]> source = compareSourceReader();
+		RedisItemReader<byte[], byte[]> target = compareTargetReader();
+		KeyComparisonItemReader<byte[], byte[]> reader = new KeyComparisonItemReader<>(source, target);
+		reader.setComparator(keyComparator());
+		reader.setProcessor(processor());
+		return reader;
+	}
+
+	private KeyComparator<byte[]> keyComparator() {
+		boolean ignoreStreamId = isIgnoreStreamMessageId();
+		Duration ttlTolerance = Duration.ofMillis(ttlToleranceMillis);
+		log.info("Creating KeyComparator with ttlTolerance={} ignoreStreamMessageId={}", ttlTolerance, ignoreStreamId);
+		DefaultKeyComparator<byte[], byte[]> comparator = new DefaultKeyComparator<>(ByteArrayCodec.INSTANCE);
+		comparator.setIgnoreStreamMessageId(ignoreStreamId);
+		comparator.setTtlTolerance(ttlTolerance);
+		return comparator;
+	}
+
+	protected boolean isIgnoreStreamMessageId() {
+		return !processorArgs.isPropagateIds();
+	}
+
+	private RedisItemReader<byte[], byte[]> compareSourceReader() {
+		RedisItemReader<byte[], byte[]> reader = compareRedisReader();
+		configureSourceRedisReader(reader);
+		return reader;
+	}
+
+	private RedisItemReader<byte[], byte[]> compareTargetReader() {
+		RedisItemReader<byte[], byte[]> reader = compareRedisReader();
+		configureTargetRedisReader(reader);
+		return reader;
 	}
 
 	@Override
-	protected RedisContext sourceRedisContext() {
-		log.info("Creating source Redis context with {} {} {}", sourceRedisUri, sourceRedisArgs, sslArgs);
-		return sourceRedisArgs.redisContext(sourceRedisUri, sslArgs);
-	}
-
-	private RedisContext targetRedisContext() {
-		log.info("Creating target Redis context with {} {} {}", targetRedisUri, targetRedisArgs, sslArgs);
-		return targetRedisArgs.redisContext(targetRedisUri, sslArgs);
-	}
-
-	@Override
-	protected void configure(StandardEvaluationContext context) {
-		super.configure(context);
-		context.setVariable(VAR_TARGET, targetRedisContext.getConnection().sync());
-	}
-
-	@Override
-	protected void configureSourceRedisReader(RedisItemReader<?, ?> reader) {
-		super.configureSourceRedisReader(reader);
-		log.info("Configuring source Redis reader with poolSize {}", sourceRedisArgs.getPoolSize());
-		reader.setPoolSize(sourceRedisArgs.getPoolSize());
-	}
-
 	protected void configureTargetRedisReader(RedisItemReader<?, ?> reader) {
-		configureAsyncReader(reader);
-		targetRedisContext.configure(reader);
-		log.info("Configuring target Redis reader with poolSize {}", targetRedisArgs.getPoolSize());
-		reader.setPoolSize(targetRedisArgs.getPoolSize());
+		super.configureTargetRedisReader(reader);
+		log.info("Configuring target Redis reader with read-from {}", targetReadFrom);
+		reader.setReadFrom(targetReadFrom.getReadFrom());
 	}
 
-	protected void configureTargetRedisWriter(RedisItemWriter<?, ?, ?> writer) {
-		targetRedisContext.configure(writer);
-		log.info("Configuring target Redis writer with poolSize {}", targetRedisArgs.getPoolSize());
-		writer.setPoolSize(targetRedisArgs.getPoolSize());
+	public ReadFrom getTargetReadFrom() {
+		return targetReadFrom;
 	}
 
-	public RedisURI getSourceRedisUri() {
-		return sourceRedisUri;
+	public void setTargetReadFrom(ReadFrom readFrom) {
+		this.targetReadFrom = readFrom;
 	}
 
-	public void setSourceRedisUri(RedisURI sourceRedisUri) {
-		this.sourceRedisUri = sourceRedisUri;
+	public boolean isShowDiffs() {
+		return showDiffs;
 	}
 
-	public SourceRedisArgs getSourceRedisArgs() {
-		return sourceRedisArgs;
+	public void setShowDiffs(boolean showDiffs) {
+		this.showDiffs = showDiffs;
 	}
 
-	public void setSourceRedisArgs(SourceRedisArgs sourceRedisArgs) {
-		this.sourceRedisArgs = sourceRedisArgs;
+	public long getTtlToleranceMillis() {
+		return ttlToleranceMillis;
 	}
 
-	public RedisURI getTargetRedisUri() {
-		return targetRedisUri;
+	public void setTtlToleranceMillis(long tolerance) {
+		this.ttlToleranceMillis = tolerance;
 	}
 
-	public void setTargetRedisUri(RedisURI targetRedisUri) {
-		this.targetRedisUri = targetRedisUri;
+	public KeyValueProcessorArgs getProcessorArgs() {
+		return processorArgs;
 	}
 
-	public TargetRedisArgs getTargetRedisArgs() {
-		return targetRedisArgs;
-	}
-
-	public void setTargetRedisArgs(TargetRedisArgs targetRedisArgs) {
-		this.targetRedisArgs = targetRedisArgs;
-	}
-
-	public SslArgs getSslArgs() {
-		return sslArgs;
-	}
-
-	public void setSslArgs(SslArgs sslArgs) {
-		this.sslArgs = sslArgs;
+	public void setProcessorArgs(KeyValueProcessorArgs args) {
+		this.processorArgs = args;
 	}
 
 }

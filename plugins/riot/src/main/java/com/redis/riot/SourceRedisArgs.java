@@ -4,7 +4,6 @@ import java.time.Duration;
 
 import com.redis.lettucemod.RedisURIBuilder;
 import com.redis.riot.core.RiotUtils;
-import com.redis.riot.core.RiotVersion;
 import com.redis.spring.batch.item.redis.RedisItemReader;
 
 import io.lettuce.core.RedisURI;
@@ -29,8 +28,8 @@ public class SourceRedisArgs {
 	@Option(names = "--source-insecure", description = "Allow insecure TLS connection to source by skipping cert validation.")
 	private boolean insecure;
 
-	@Option(names = "--source-client", description = "Client name used to connect to source Redis (default: ${DEFAULT-VALUE}).", paramLabel = "<name>")
-	private String clientName = RiotVersion.riotVersion();
+	@Option(names = "--source-client", description = "Client name used to connect to source Redis.", paramLabel = "<name>")
+	private String clientName;
 
 	@Option(names = "--source-cluster", description = "Enable source cluster mode.")
 	private boolean cluster;
@@ -40,6 +39,9 @@ public class SourceRedisArgs {
 
 	@Option(names = "--source-pool", description = "Max pool connections used for source Redis (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	private int poolSize = RedisItemReader.DEFAULT_POOL_SIZE;
+
+	@Option(names = "--source-command-metrics", description = "Enable Lettuce command metrics for source Redis", hidden = true)
+	private boolean metrics;
 
 	public RedisURI redisURI(RedisURI uri) {
 		RedisURIBuilder builder = new RedisURIBuilder();
@@ -127,15 +129,24 @@ public class SourceRedisArgs {
 		this.clientName = clientName;
 	}
 
+	public boolean isMetrics() {
+		return metrics;
+	}
+
+	public void setMetrics(boolean metrics) {
+		this.metrics = metrics;
+	}
+
 	@Override
 	public String toString() {
 		return "SourceRedisArgs [username=" + username + ", password=" + RiotUtils.mask(password) + ", timeout="
 				+ timeout + ", tls=" + tls + ", insecure=" + insecure + ", clientName=" + clientName + ", cluster="
-				+ cluster + ", protocolVersion=" + protocolVersion + ", poolSize=" + poolSize + "]";
+				+ cluster + ", protocolVersion=" + protocolVersion + ", poolSize=" + poolSize + ", metrics=" + metrics
+				+ "]";
 	}
 
 	public RedisContext redisContext(RedisURI uri, SslArgs sslArgs) {
-		return RedisContext.create(redisURI(uri), cluster, protocolVersion, sslArgs);
+		return RedisContext.create(redisURI(uri), cluster, protocolVersion, sslArgs, metrics);
 	}
 
 }

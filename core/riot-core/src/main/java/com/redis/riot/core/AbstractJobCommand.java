@@ -37,6 +37,7 @@ import org.springframework.retry.policy.NeverRetryPolicy;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
 import org.springframework.util.CollectionUtils;
 
 import com.redis.spring.batch.JobUtils;
@@ -83,8 +84,7 @@ public abstract class AbstractJobCommand extends AbstractCallableCommand {
 	@Override
 	protected void execute() throws Exception {
 		if (jobName == null) {
-			Assert.notNull(commandSpec, "Command spec not set");
-			jobName = commandSpec.name();
+			jobName = jobName();
 		}
 		if (jobRepository == null) {
 			jobRepository = JobUtils.jobRepositoryFactoryBean(jobRepositoryName).getObject();
@@ -108,6 +108,13 @@ public abstract class AbstractJobCommand extends AbstractCallableCommand {
 			}
 			throw wrapException(jobExecution.getFailureExceptions());
 		}
+	}
+
+	private String jobName() {
+		if (commandSpec == null) {
+			return ClassUtils.getShortName(getClass());
+		}
+		return commandSpec.name();
 	}
 
 	private JobExecutionException wrapException(List<Throwable> throwables) {
@@ -145,7 +152,7 @@ public abstract class AbstractJobCommand extends AbstractCallableCommand {
 			return builder.build();
 		}
 		log.info("Adding fault-tolerance to step {}", step.getName());
-		FaultTolerantStepBuilder<I, O> ftStep = JobUtils.faultTolerant(builder);
+		FaultTolerantStepBuilder<I, O> ftStep = builder.faultTolerant();
 		step.getSkip().forEach(ftStep::skip);
 		step.getNoSkip().forEach(ftStep::noSkip);
 		step.getRetry().forEach(ftStep::retry);
@@ -181,17 +188,15 @@ public abstract class AbstractJobCommand extends AbstractCallableCommand {
 
 	@SuppressWarnings("removal")
 	private <I, O> SimpleStepBuilder<I, O> simpleStep(Step<I, O> step) {
-		String name = jobName + "-" + step.getName();
-		if (name.length() >= 100) {
-			name = name.substring(0, 80) + "…" + name.substring(name.length() - 10);
+		String stepName = jobName + "-" + step.getName();
+		if (stepName.length() > 80) {
+			stepName = stepName.substring(0, 69) + "…" + stepName.substring(stepName.length() - 10);
 		}
 		if (step.getReader() instanceof ItemStreamSupport) {
-			ItemStreamSupport support = (ItemStreamSupport) step.getReader();
-			Assert.notNull(support.getName(), "No name specified for reader in step " + name);
-			support.setName(name + "-" + support.getName());
+			((ItemStreamSupport) step.getReader()).setName(stepName + "-reader");
 		}
-		log.info("Creating step {} with chunk size {}", name, stepArgs.getChunkSize());
-		SimpleStepBuilder<I, O> builder = new StepBuilder(name, jobRepository).<I, O>chunk(stepArgs.getChunkSize(),
+		log.info("Creating step {} with chunk size {}", stepName, stepArgs.getChunkSize());
+		SimpleStepBuilder<I, O> builder = new StepBuilder(stepName, jobRepository).<I, O>chunk(stepArgs.getChunkSize(),
 				transactionManager);
 		builder.reader(reader(step));
 		builder.writer(writer(step));

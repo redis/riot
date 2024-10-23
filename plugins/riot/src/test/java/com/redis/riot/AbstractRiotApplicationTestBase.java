@@ -83,8 +83,8 @@ abstract class AbstractRiotApplicationTestBase extends AbstractRiotTestBase {
 				if (command instanceof AbstractExportCommand) {
 					configure(((AbstractExportCommand) command).getSourceRedisReaderArgs());
 				}
-				if (command instanceof AbstractReplicateCommand) {
-					AbstractReplicateCommand targetCommand = (AbstractReplicateCommand) command;
+				if (command instanceof AbstractRedisTargetExportCommand) {
+					AbstractRedisTargetExportCommand targetCommand = (AbstractRedisTargetExportCommand) command;
 					configure(targetCommand.getSourceRedisReaderArgs());
 					targetCommand.setSourceRedisUri(redisURI);
 					targetCommand.getSourceRedisArgs().setCluster(getRedisServer().isRedisCluster());

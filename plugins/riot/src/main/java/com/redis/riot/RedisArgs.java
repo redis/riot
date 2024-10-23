@@ -59,6 +59,9 @@ public class RedisArgs {
 	@ArgGroup(exclusive = false, heading = "TLS options%n")
 	private SslArgs sslArgs = new SslArgs();
 
+	@Option(names = "--command-metrics", description = "Enable Lettuce command metrics", hidden = true)
+	private boolean metrics;
+
 	public RedisURI redisURI() {
 		RedisURIBuilder builder = new RedisURIBuilder();
 		builder.clientName(clientName);
@@ -189,16 +192,25 @@ public class RedisArgs {
 		this.clientName = clientName;
 	}
 
+	public boolean isMetrics() {
+		return metrics;
+	}
+
+	public void setMetrics(boolean metrics) {
+		this.metrics = metrics;
+	}
+
 	@Override
 	public String toString() {
 		return "SimpleRedisArgs [uri=" + uri + ", host=" + host + ", port=" + port + ", socket=" + socket
 				+ ", username=" + username + ", password=" + RiotUtils.mask(password) + ", timeout=" + timeout
 				+ ", database=" + database + ", tls=" + tls + ", insecure=" + insecure + ", clientName=" + clientName
-				+ ", cluster=" + cluster + ", protocolVersion=" + protocolVersion + ", sslArgs=" + sslArgs + "]";
+				+ ", cluster=" + cluster + ", protocolVersion=" + protocolVersion + ", sslArgs=" + sslArgs
+				+ ", metrics=" + metrics + "]";
 	}
 
 	public RedisContext redisContext() {
-		return RedisContext.create(redisURI(), cluster, protocolVersion, sslArgs);
+		return RedisContext.create(redisURI(), cluster, protocolVersion, sslArgs, metrics);
 	}
 
 }

@@ -41,6 +41,9 @@ public class TargetRedisArgs {
 	@Option(names = "--target-pool", description = "Max pool connections used for target Redis (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	private int poolSize = RedisItemWriter.DEFAULT_POOL_SIZE;
 
+	@Option(names = "--target-command-metrics", description = "Enable Lettuce command metrics for target Redis", hidden = true)
+	private boolean metrics;
+
 	public RedisURI redisURI(RedisURI uri) {
 		RedisURIBuilder builder = new RedisURIBuilder();
 		builder.uri(uri);
@@ -56,7 +59,7 @@ public class TargetRedisArgs {
 	}
 
 	public RedisContext redisContext(RedisURI uri, SslArgs sslArgs) {
-		return RedisContext.create(redisURI(uri), cluster, protocolVersion, sslArgs);
+		return RedisContext.create(redisURI(uri), cluster, protocolVersion, sslArgs, metrics);
 	}
 
 	public String getUsername() {
@@ -131,11 +134,20 @@ public class TargetRedisArgs {
 		this.clientName = clientName;
 	}
 
+	public boolean isMetrics() {
+		return metrics;
+	}
+
+	public void setMetrics(boolean metrics) {
+		this.metrics = metrics;
+	}
+
 	@Override
 	public String toString() {
 		return "TargetRedisArgs [username=" + username + ", password=" + RiotUtils.mask(password) + ", timeout="
 				+ timeout + ", tls=" + tls + ", insecure=" + insecure + ", clientName=" + clientName + ", cluster="
-				+ cluster + ", protocolVersion=" + protocolVersion + ", poolSize=" + poolSize + "]";
+				+ cluster + ", protocolVersion=" + protocolVersion + ", poolSize=" + poolSize + ", metrics=" + metrics
+				+ "]";
 	}
 
 }

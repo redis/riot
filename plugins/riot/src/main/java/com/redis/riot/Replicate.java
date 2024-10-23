@@ -7,11 +7,9 @@ import org.springframework.batch.core.Job;
 
 import com.redis.riot.core.Step;
 import com.redis.spring.batch.item.redis.RedisItemReader;
-import com.redis.spring.batch.item.redis.RedisItemReader.ReaderMode;
 import com.redis.spring.batch.item.redis.RedisItemWriter;
 import com.redis.spring.batch.item.redis.common.KeyValue;
 import com.redis.spring.batch.item.redis.reader.KeyComparisonItemReader;
-import com.redis.spring.batch.item.redis.reader.KeyNotificationItemReader;
 
 import io.lettuce.core.codec.ByteArrayCodec;
 import picocli.CommandLine.ArgGroup;
@@ -19,16 +17,15 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Command(name = "replicate", description = "Replicate a Redis database into another Redis database.")
-public class Replicate extends AbstractCompareCommand {
+public class Replicate extends AbstractReplicateCommand {
 
 	public enum CompareMode {
 		FULL, QUICK, NONE
 	}
 
-	public static final String STEP_NAME = "replicate";
 	public static final CompareMode DEFAULT_COMPARE_MODE = CompareMode.QUICK;
 
-	private static final String QUEUE_MESSAGE = " | capacity: %,d";
+	private static final String COMPARE_STEP_NAME = "compare";
 	private static final String SCAN_TASK_NAME = "Scanning";
 	private static final String LIVEONLY_TASK_NAME = "Listening";
 	private static final String LIVE_TASK_NAME = "Scanning/Listening";
@@ -53,10 +50,10 @@ public class Replicate extends AbstractCompareCommand {
 	@Override
 	protected Job job() {
 		List<Step<?, ?>> steps = new ArrayList<>();
-		Step<KeyValue<byte[]>, KeyValue<byte[]>> replicateStep = step();
-		steps.add(replicateStep);
+		Step<KeyValue<byte[]>, KeyValue<byte[]>> step = step();
+		steps.add(step);
 		if (shouldCompare()) {
-			steps.add(compareStep());
+			steps.add(compareStep().name(COMPARE_STEP_NAME));
 		}
 		return job(steps);
 	}
@@ -73,13 +70,12 @@ public class Replicate extends AbstractCompareCommand {
 		configureSourceRedisReader(reader);
 		RedisItemWriter<byte[], byte[], KeyValue<byte[]>> writer = writer();
 		configureTargetRedisWriter(writer);
-		Step<KeyValue<byte[]>, KeyValue<byte[]>> step = step(STEP_NAME, reader, writer);
+		Step<KeyValue<byte[]>, KeyValue<byte[]>> step = step(reader, writer);
 		step.processor(processor());
 		step.taskName(taskName(reader));
-		step.writeListener(new ReplicateLagWriteListener());
-		if (reader.getMode() != ReaderMode.SCAN) {
-			step.statusMessageSupplier(() -> liveExtraMessage(reader));
-		}
+		ReplicateReadWriteListener<byte[]> readWriteListener = new ReplicateReadWriteListener<>();
+		step.readListener(readWriteListener);
+		step.writeListener(readWriteListener);
 		if (logKeys) {
 			log.info("Adding key logger");
 			step.writeListener(new ReplicateWriteLogger<>(log, reader.getCodec()));
@@ -123,15 +119,6 @@ public class Replicate extends AbstractCompareCommand {
 		default:
 			return LIVE_TASK_NAME;
 		}
-	}
-
-	@SuppressWarnings("rawtypes")
-	private String liveExtraMessage(RedisItemReader<?, ?> reader) {
-		KeyNotificationItemReader keyReader = (KeyNotificationItemReader) reader.getReader();
-		if (keyReader == null || keyReader.getQueue() == null) {
-			return "";
-		}
-		return String.format(QUEUE_MESSAGE, keyReader.getQueue().remainingCapacity());
 	}
 
 	@Override

@@ -28,7 +28,6 @@ import picocli.CommandLine.ParentCommand;
 public class Ping extends AbstractRedisCommand {
 
 	private static final String TASK_NAME = "Pinging";
-	private static final String STEP_NAME = "step";
 
 	public static final int DEFAULT_COUNT = 1000;
 	public static final TimeUnit DEFAULT_TIME_UNIT = TimeUnit.MILLISECONDS;
@@ -52,7 +51,7 @@ public class Ping extends AbstractRedisCommand {
 		PingExecutionItemReader reader = new PingExecutionItemReader(commands());
 		reader.setMaxItemCount(count);
 		PingLatencyItemWriter writer = new PingLatencyItemWriter();
-		Step<PingExecution, PingExecution> step = new Step<>(STEP_NAME, reader, writer);
+		Step<PingExecution, PingExecution> step = new Step<>(reader, writer);
 		step.taskName(TASK_NAME);
 		step.maxItemCount(count);
 		return job(step);

@@ -26,7 +26,6 @@ public abstract class AbstractExportCommand extends AbstractJobCommand {
 	public static final String NOTIFY_CONFIG_VALUE = "KEA";
 
 	private static final String TASK_NAME = "Exporting";
-	private static final String STEP_NAME = "step";
 	private static final String VAR_SOURCE = "source";
 
 	@ArgGroup(exclusive = false)
@@ -51,7 +50,7 @@ public abstract class AbstractExportCommand extends AbstractJobCommand {
 	protected void configureSourceRedisReader(RedisItemReader<?, ?> reader) {
 		configureAsyncReader(reader);
 		sourceRedisContext.configure(reader);
-		log.info("Configuring source Redis reader with {}", sourceRedisReaderArgs);
+		log.info("Configuring {} with {}", reader.getName(), sourceRedisReaderArgs);
 		sourceRedisReaderArgs.configure(reader);
 	}
 
@@ -60,20 +59,20 @@ public abstract class AbstractExportCommand extends AbstractJobCommand {
 	protected <O> Step<KeyValue<String>, O> step(ItemWriter<O> writer) {
 		RedisItemReader<String, String> reader = RedisItemReader.struct();
 		configureSourceRedisReader(reader);
-		Step<KeyValue<String>, O> step = step(STEP_NAME, reader, writer);
+		Step<KeyValue<String>, O> step = step(reader, writer);
 		step.taskName(TASK_NAME);
 		return step;
 	}
 
-	protected <K, V, T, O> Step<KeyValue<K>, O> step(String name, RedisItemReader<K, V> reader, ItemWriter<O> writer) {
-		Step<KeyValue<K>, O> step = new Step<>(name, reader, writer);
+	protected <K, V, T, O> Step<KeyValue<K>, O> step(RedisItemReader<K, V> reader, ItemWriter<O> writer) {
+		Step<KeyValue<K>, O> step = new Step<>(reader, writer);
 		if (reader.getMode() != ReaderMode.LIVEONLY) {
 			log.info("Configuring step with scan size estimator");
 			step.maxItemCountSupplier(reader.scanSizeEstimator());
 		}
 		if (reader.getMode() != ReaderMode.SCAN) {
 			checkNotifyConfig(reader.getClient());
-			log.info("Configuring step {} with live true, flushInterval {}, idleTimeout {}", name,
+			log.info("Configuring export step with live true, flushInterval {}, idleTimeout {}",
 					reader.getFlushInterval(), reader.getIdleTimeout());
 			step.live(true);
 			step.flushInterval(reader.getFlushInterval());
