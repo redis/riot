@@ -166,6 +166,25 @@ assemble:
 
 distributions:
   riot:
+    docker:
+      active: ALWAYS
+      continueOnError: true
+      repository:
+        active: ALWAYS
+        commitMessage: 'riot {{tagName}}'
+      registries:
+        - serverName: DEFAULT
+          repositoryName: riotx
+      labels:
+        'org.opencontainers.image.title': 'riot'
+      imageNames:
+        - 'riotx/{{distributionName}}:{{tagName}}'
+        - 'riotx/{{distributionName}}:latest'
+      buildx:
+        enabled: true
+        platforms:
+          - 'linux/amd64'
+          - 'linux/arm64'
     scoop:
       active: ALWAYS
       continueOnError: true
@@ -192,20 +211,6 @@ distributions:
       repository:
         active: RELEASE
         commitMessage: 'riot {{tagName}}'
-    docker:
-      active: ALWAYS
-      continueOnError: true
-      repository:
-        active: ALWAYS
-        commitMessage: 'riot {{tagName}}'
-      registries:
-        - serverName: DEFAULT
-          repositoryName: riotx
-      labels:
-        'org.opencontainers.image.title': 'riot'
-      imageNames:
-        - 'riotx/riot:{{tagName}}'
-        - 'riotx/riot:latest'
 
 files:
   artifacts:
