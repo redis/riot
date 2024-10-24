@@ -36,3 +36,9 @@ ERR Error running script... This Redis command is not allowed from scripts::
 This can happen with Active/Active (CRDB) databases because the `MEMORY USAGE` command is not allowed to be run from a LUA script.
 Use the `--mem-limit -1` option to disable memory usage.
 
+[[_faq_outofmemory]]
+java.lang.OutOfMemoryError: Java heap space::
+The JVM running RIOT ran out of memory.
+Either increase max JVM heap size (`export JAVA_OPTS="-Xmx8g"`) or reduce RIOT memory usage by lowering `threads`, `batch`, `read-batch` and `read-queue`.
+
+
