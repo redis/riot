@@ -166,33 +166,6 @@ assemble:
 
 distributions:
   riot:
-    brew:
-      active: ALWAYS
-      continueOnError: true
-      formulaName: riot
-      multiPlatform: true
-      repository:
-        active: RELEASE
-        commitMessage: 'riot {{tagName}}'  
-    docker:
-      active: ALWAYS
-      continueOnError: true
-      repository:
-        active: ALWAYS
-        commitMessage: 'riot {{tagName}}'
-      registries:
-        - serverName: DEFAULT
-          repositoryName: riotx
-      labels:
-        'org.opencontainers.image.title': 'riot'
-      imageNames:
-        - 'riotx/{{distributionName}}:{{tagName}}'
-        - 'riotx/{{distributionName}}:latest'
-      buildx:
-        enabled: true
-        platforms:
-          - 'linux/amd64'
-          - 'linux/arm64'
     scoop:
       active: ALWAYS
       continueOnError: true
@@ -210,17 +183,34 @@ distributions:
         extraProperties:
           skipFlatpak: 'true'
 
-  riot-standalone:
-    appImage:
-      active: NEVER
-      componentId: com.redis.riot
-      developerName: Redis
-      categories:
-        - Development
+  riot-standalone:  
+    brew:
+      active: ALWAYS
+      continueOnError: true
+      formulaName: riot
+      multiPlatform: true
       repository:
         active: RELEASE
-        name: riot-appimage
         commitMessage: 'riot {{tagName}}'
+    docker:
+      active: ALWAYS
+      continueOnError: true
+      repository:
+        active: ALWAYS
+        commitMessage: 'riot {{tagName}}'
+      registries:
+        - serverName: DEFAULT
+          repositoryName: riotx
+      labels:
+        'org.opencontainers.image.title': 'riot'
+      imageNames:
+        - 'riotx/riot:{{tagName}}'
+        - 'riotx/riot:latest'
+      buildx:
+        enabled: true
+        platforms:
+          - 'linux/amd64'
+          - 'linux/arm64'
 
 files:
   artifacts:
