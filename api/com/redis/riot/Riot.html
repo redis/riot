@@ -11,7 +11,7 @@
 <link rel="stylesheet" type="text/css" href="../../../script-dir/jquery-ui.min.css" title="Style">
 <link rel="stylesheet" type="text/css" href="../../../jquery-ui.overrides.css" title="Style">
 <script type="text/javascript" src="../../../script.js"></script>
-<script type="text/javascript" src="../../../script-dir/jquery-3.6.1.min.js"></script>
+<script type="text/javascript" src="../../../script-dir/jquery-3.7.1.min.js"></script>
 <script type="text/javascript" src="../../../script-dir/jquery-ui.min.js"></script>
 </head>
 <body class="class-declaration-page">
@@ -126,12 +126,13 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected picocli.CommandLine</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#commandLine()" class="member-name-link">commandLine</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected picocli.CommandLine.IExecutionStrategy</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#executionStrategy()" class="member-name-link">executionStrategy</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static int</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#executionStrategy(picocli.CommandLine.ParseResult)" class="member-name-link">executionStrategy</a><wbr>(picocli.CommandLine.ParseResult&nbsp;parseResult)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#configureCommandLine(picocli.CommandLine)" class="member-name-link">configureCommandLine</a><wbr>(picocli.CommandLine&nbsp;commandLine)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected int</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#execute(picocli.CommandLine.ParseResult,picocli.CommandLine.IExecutionStrategy)" class="member-name-link">execute</a><wbr>(picocli.CommandLine.ParseResult&nbsp;parseResult,
+ picocli.CommandLine.IExecutionStrategy&nbsp;defaultStrategy)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#main(java.lang.String%5B%5D)" class="member-name-link">main</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>[]&nbsp;args)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
@@ -186,19 +187,16 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="executionStrategy()">
-<h3>executionStrategy</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">picocli.CommandLine.IExecutionStrategy</span>&nbsp;<span class="element-name">executionStrategy</span>()</div>
-<dl class="notes">
-<dt>Overrides:</dt>
-<dd><code><a href="core/MainCommand.html#executionStrategy()">executionStrategy</a></code>&nbsp;in class&nbsp;<code><a href="core/MainCommand.html" title="class in com.redis.riot.core">MainCommand</a></code></dd>
-</dl>
+<section class="detail" id="configureCommandLine(picocli.CommandLine)">
+<h3>configureCommandLine</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">configureCommandLine</span><wbr><span class="parameters">(picocli.CommandLine&nbsp;commandLine)</span></div>
 </section>
 </li>
 <li>
-<section class="detail" id="executionStrategy(picocli.CommandLine.ParseResult)">
-<h3>executionStrategy</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">executionStrategy</span><wbr><span class="parameters">(picocli.CommandLine.ParseResult&nbsp;parseResult)</span></div>
+<section class="detail" id="execute(picocli.CommandLine.ParseResult,picocli.CommandLine.IExecutionStrategy)">
+<h3>execute</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">execute</span><wbr><span class="parameters">(picocli.CommandLine.ParseResult&nbsp;parseResult,
+ picocli.CommandLine.IExecutionStrategy&nbsp;defaultStrategy)</span></div>
 </section>
 </li>
 </ul>

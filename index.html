@@ -92,7 +92,7 @@ $(addBlockSwitches);
 <h1>Redis Input/Output Tools (RIOT)</h1>
 <div class="details">
 <span id="author" class="author">Julien Ruaux</span><br>
-<span id="revnumber">version 4.1.3</span>
+<span id="revnumber">version 4.1.4</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -132,7 +132,7 @@ $(addBlockSwitches);
 <h2 id="_introduction"><a class="anchor" href="#_introduction"></a>Introduction</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>RIOT is a command-line utility to get data in and out of Redis. It supports any Redis-compatible database like <a href="https://redis.io/docs/latest/operate/rc/">Redis Cloud</a>, <a href="https://redis.io/docs/latest/operate/oss_and_stack/">Redis Community Edition</a>, <a href="https://redis.io/docs/latest/operate/rs/">Redis Software</a>, or <a href="#_elasticache">ElastiCache</a>.</p>
+<p>RIOT is a command-line utility to get data in and out of Redis. It supports any Redis-compatible database like <a href="https://redis.io/docs/latest/operate/rc/">Redis Cloud</a>, <a href="https://redis.io/docs/latest/operate/oss_and_stack/">Redis Community Edition</a>, <a href="https://redis.io/docs/latest/operate/rs/">Redis Software</a>.</p>
 </div>
 <div class="paragraph">
 <p>RIOT includes the following features:</p>
@@ -220,10 +220,10 @@ scoop install riot</code></pre>
 </td>
 <td class="content">
 <div class="paragraph">
-<p><code>riot-4.1.3.zip</code> requires Java 11 or greater to be installed.</p>
+<p><code>riot-4.1.4.zip</code> requires Java 11 or greater to be installed.</p>
 </div>
 <div class="paragraph">
-<p><code>riot-standalone-4.1.3-*.zip</code> includes its own Java runtime and does not require a Java installation.</p>
+<p><code>riot-standalone-4.1.4-*.zip</code> includes its own Java runtime and does not require a Java installation.</p>
 </div>
 </td>
 </tr>
@@ -1940,13 +1940,22 @@ Use the <code>--mem-limit -1</code> option to disable memory usage.</p>
 </dd>
 </dl>
 </div>
+<div id="_faq_outofmemory" class="dlist">
+<dl>
+<dt class="hdlist1">java.lang.OutOfMemoryError: Java heap space</dt>
+<dd>
+<p>The JVM running RIOT ran out of memory.
+Either increase max JVM heap size (<code>export JAVA_OPTS="-Xmx8g"</code>) or reduce RIOT memory usage by lowering <code>threads</code>, <code>batch</code>, <code>read-batch</code> and <code>read-queue</code>.</p>
+</dd>
+</dl>
+</div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 4.1.3<br>
-Last updated 2024-09-15 20:02:42 UTC
+Version 4.1.4<br>
+Last updated 2024-10-24 15:21:30 UTC
 </div>
 </div>
 <link rel="stylesheet" href="./coderay-asciidoctor.css">

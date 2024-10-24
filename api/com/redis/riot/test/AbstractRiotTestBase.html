@@ -11,7 +11,7 @@
 <link rel="stylesheet" type="text/css" href="../../../../script-dir/jquery-ui.min.css" title="Style">
 <link rel="stylesheet" type="text/css" href="../../../../jquery-ui.overrides.css" title="Style">
 <script type="text/javascript" src="../../../../script.js"></script>
-<script type="text/javascript" src="../../../../script-dir/jquery-3.6.1.min.js"></script>
+<script type="text/javascript" src="../../../../script-dir/jquery-3.7.1.min.js"></script>
 <script type="text/javascript" src="../../../../script-dir/jquery-ui.min.js"></script>
 </head>
 <body class="class-declaration-page">
@@ -104,7 +104,7 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="inherited-list">
 <h3 id="fields-inherited-from-class-com.redis.spring.batch.test.AbstractTargetTestBase">Fields inherited from class&nbsp;com.redis.spring.batch.test.AbstractTargetTestBase</h3>
-<code>targetRedisClient, targetRedisCommands, targetRedisConnection, targetRedisURI</code></div>
+<code>DEFAULT_TTL_TOLERANCE, targetRedisClient, targetRedisCommands, targetRedisURI</code></div>
 <div class="inherited-list">
 <h3 id="fields-inherited-from-class-com.redis.spring.batch.test.AbstractTestBase">Fields inherited from class&nbsp;com.redis.spring.batch.test.AbstractTestBase</h3>
 <code>DEFAULT_AWAIT_POLL_INTERVAL, DEFAULT_AWAIT_TIMEOUT, DEFAULT_CHUNK_SIZE, DEFAULT_IDLE_TIMEOUT, DEFAULT_POLL_DELAY, jobRepository, log, redisAsyncCommands, redisClient, redisCommands, redisConnection, redisURI</code></div>
@@ -164,10 +164,10 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-com.redis.spring.batch.test.AbstractTargetTestBase">Methods inherited from class&nbsp;com.redis.spring.batch.test.AbstractTargetTestBase</h3>
-<code>assertCompare, compare, comparisonReader, comparisonReader, getTargetRedisServer, logDiffs</code></div>
+<code>assertCompare, assertTtlEquals, compare, comparisonReader, comparisonReader, dumpWriter, getTargetRedisServer, logDiffs, replicate, runAndCompare, setTtlTolerance, structWriter, structWriter, structWriter, targetRedisConnection</code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-com.redis.spring.batch.test.AbstractTestBase">Methods inherited from class&nbsp;com.redis.spring.batch.test.AbstractTestBase</h3>
-<code>assertDbNotEmpty, assertMessageBody, assertStreamEquals, awaitNoSubscribers, awaitRunning, awaitSubscribers, awaitTermination, awaitUntil, awaitUntilFalse, client, configure, dumpReader, enableKeyspaceNotifications, faultTolerant, flushingStep, generate, generate, generateAsync, generateStreams, generator, getAwaitPollDelay, getAwaitPollInterval, getAwaitTimeout, getChunkSize, getIdleTimeout, getRedisServer, job, job, keyCount, live, map, name, readAll, readAllAndClose, redisURI, run, run, run, run, setAwaitPollDelay, setAwaitPollInterval, setAwaitTimeout, setChunkSize, setIdleTimeout, setName, step, step, step, step, streamReader, structReader, structReader, testInfo, toByteArray, toString, writer</code></div>
+<code>assertDbNotEmpty, assertMessageBody, assertStreamEquals, awaitRunning, awaitTermination, awaitUntil, awaitUntilFalse, client, dumpReader, enableKeyspaceNotifications, executeWhenSubscribers, generate, generate, generateAsync, generateStreams, generator, getAwaitPollDelay, getAwaitPollInterval, getAwaitTimeout, getChunkSize, getIdleTimeout, getRedisServer, job, job, keyCount, map, name, readAll, redisURI, run, run, run, run, setAwaitPollDelay, setAwaitPollInterval, setAwaitTimeout, setChunkSize, setIdleTimeout, step, step, step, step, streamReader, structReader, structReader, structReader, testInfo, toByteArray, toString, writer</code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-java.lang.Object">Methods inherited from class&nbsp;java.lang.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></h3>
 <code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#clone()" title="class or interface in java.lang" class="external-link">clone</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="external-link">equals</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#finalize()" title="class or interface in java.lang" class="external-link">finalize</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#getClass()" title="class or interface in java.lang" class="external-link">getClass</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="external-link">hashCode</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#notify()" title="class or interface in java.lang" class="external-link">notify</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#notifyAll()" title="class or interface in java.lang" class="external-link">notifyAll</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#toString()" title="class or interface in java.lang" class="external-link">toString</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait()" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait(long)" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait(long,int)" title="class or interface in java.lang" class="external-link">wait</a></code></div>

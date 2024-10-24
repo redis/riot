@@ -11,7 +11,7 @@
 <link rel="stylesheet" type="text/css" href="../../../script-dir/jquery-ui.min.css" title="Style">
 <link rel="stylesheet" type="text/css" href="../../../jquery-ui.overrides.css" title="Style">
 <script type="text/javascript" src="../../../script.js"></script>
-<script type="text/javascript" src="../../../script-dir/jquery-3.6.1.min.js"></script>
+<script type="text/javascript" src="../../../script-dir/jquery-3.7.1.min.js"></script>
 <script type="text/javascript" src="../../../script-dir/jquery-ui.min.js"></script>
 </head>
 <body class="class-declaration-page">
@@ -46,7 +46,7 @@ loadScripts(document, 'script');</script>
 <ul class="sub-nav-list">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li><a href="#field-summary">Field</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor-summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method-summary">Method</a></li>
 </ul>
@@ -76,26 +76,12 @@ loadScripts(document, 'script');</script>
 <div class="inheritance">com.redis.riot.TargetRedisArgs</div>
 </div>
 <section class="class-description" id="class-description">
-<dl class="notes">
-<dt>All Implemented Interfaces:</dt>
-<dd><code><a href="RedisArgs.html" title="interface in com.redis.riot">RedisArgs</a></code></dd>
-</dl>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">TargetRedisArgs</span>
-<span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>
-implements <a href="RedisArgs.html" title="interface in com.redis.riot">RedisArgs</a></span></div>
+<span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
 </section>
 <section class="summary">
 <ul class="summary-list">
-<!-- =========== FIELD SUMMARY =========== -->
-<li>
-<section class="field-summary" id="field-summary">
-<h2>Field Summary</h2>
-<div class="inherited-list">
-<h3 id="fields-inherited-from-class-com.redis.riot.RedisArgs">Fields inherited from interface&nbsp;com.redis.riot.<a href="RedisArgs.html" title="interface in com.redis.riot">RedisArgs</a></h3>
-<code><a href="RedisArgs.html#DEFAULT_CLIENT_NAME">DEFAULT_CLIENT_NAME</a>, <a href="RedisArgs.html#DEFAULT_CLUSTER">DEFAULT_CLUSTER</a>, <a href="RedisArgs.html#DEFAULT_DATABASE">DEFAULT_DATABASE</a>, <a href="RedisArgs.html#DEFAULT_HOST">DEFAULT_HOST</a>, <a href="RedisArgs.html#DEFAULT_INSECURE">DEFAULT_INSECURE</a>, <a href="RedisArgs.html#DEFAULT_PORT">DEFAULT_PORT</a>, <a href="RedisArgs.html#DEFAULT_PROTOCOL_VERSION">DEFAULT_PROTOCOL_VERSION</a>, <a href="RedisArgs.html#DEFAULT_TIMEOUT">DEFAULT_TIMEOUT</a>, <a href="RedisArgs.html#DEFAULT_TLS">DEFAULT_TLS</a></code></div>
-</section>
-</li>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
 <li>
 <section class="constructor-summary" id="constructor-summary">
@@ -145,16 +131,29 @@ implements <a href="RedisArgs.html" title="interface in com.redis.riot">RedisArg
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isInsecure()" class="member-name-link">isInsecure</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isTls()" class="member-name-link">isTls</a>()</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isMetrics()" class="member-name-link">isMetrics</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setClientName(java.lang.String)" class="member-name-link">setClientName</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;clientName)</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isTls()" class="member-name-link">isTls</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="RedisContext.html" title="class in com.redis.riot">RedisContext</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#redisContext(io.lettuce.core.RedisURI,com.redis.riot.SslArgs)" class="member-name-link">redisContext</a><wbr>(io.lettuce.core.RedisURI&nbsp;uri,
+ <a href="SslArgs.html" title="class in com.redis.riot">SslArgs</a>&nbsp;sslArgs)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>io.lettuce.core.RedisURI</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#redisURI(io.lettuce.core.RedisURI)" class="member-name-link">redisURI</a><wbr>(io.lettuce.core.RedisURI&nbsp;uri)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setCluster(boolean)" class="member-name-link">setCluster</a><wbr>(boolean&nbsp;cluster)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setClientName(java.lang.String)" class="member-name-link">setClientName</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;clientName)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setInsecure(boolean)" class="member-name-link">setInsecure</a><wbr>(boolean&nbsp;insecure)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setCluster(boolean)" class="member-name-link">setCluster</a><wbr>(boolean&nbsp;cluster)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setInsecure(boolean)" class="member-name-link">setInsecure</a><wbr>(boolean&nbsp;insecure)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setMetrics(boolean)" class="member-name-link">setMetrics</a><wbr>(boolean&nbsp;metrics)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setPassword(char%5B%5D)" class="member-name-link">setPassword</a><wbr>(char[]&nbsp;password)</code></div>
@@ -183,9 +182,6 @@ implements <a href="RedisArgs.html" title="interface in com.redis.riot">RedisArg
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-java.lang.Object">Methods inherited from class&nbsp;java.lang.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></h3>
 <code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#clone()" title="class or interface in java.lang" class="external-link">clone</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="external-link">equals</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#finalize()" title="class or interface in java.lang" class="external-link">finalize</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#getClass()" title="class or interface in java.lang" class="external-link">getClass</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="external-link">hashCode</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#notify()" title="class or interface in java.lang" class="external-link">notify</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#notifyAll()" title="class or interface in java.lang" class="external-link">notifyAll</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait()" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait(long)" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait(long,int)" title="class or interface in java.lang" class="external-link">wait</a></code></div>
-<div class="inherited-list">
-<h3 id="methods-inherited-from-class-com.redis.riot.RedisArgs">Methods inherited from interface&nbsp;com.redis.riot.<a href="RedisArgs.html" title="interface in com.redis.riot">RedisArgs</a></h3>
-<code><a href="RedisArgs.html#getDatabase()">getDatabase</a>, <a href="RedisArgs.html#getHost()">getHost</a>, <a href="RedisArgs.html#getPort()">getPort</a>, <a href="RedisArgs.html#getSocket()">getSocket</a>, <a href="RedisArgs.html#getSslArgs()">getSslArgs</a>, <a href="RedisArgs.html#getUri()">getUri</a>, <a href="RedisArgs.html#redisContext()">redisContext</a>, <a href="RedisArgs.html#redisContext(io.lettuce.core.RedisURI)">redisContext</a>, <a href="RedisArgs.html#redisContext(io.lettuce.core.RedisURI,com.redis.riot.SslArgs)">redisContext</a>, <a href="RedisArgs.html#redisURI()">redisURI</a>, <a href="RedisArgs.html#redisURI(io.lettuce.core.RedisURI)">redisURI</a></code></div>
 </section>
 </li>
 </ul>
@@ -212,13 +208,22 @@ implements <a href="RedisArgs.html" title="interface in com.redis.riot">RedisArg
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
+<section class="detail" id="redisURI(io.lettuce.core.RedisURI)">
+<h3>redisURI</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">io.lettuce.core.RedisURI</span>&nbsp;<span class="element-name">redisURI</span><wbr><span class="parameters">(io.lettuce.core.RedisURI&nbsp;uri)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="redisContext(io.lettuce.core.RedisURI,com.redis.riot.SslArgs)">
+<h3>redisContext</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="RedisContext.html" title="class in com.redis.riot">RedisContext</a></span>&nbsp;<span class="element-name">redisContext</span><wbr><span class="parameters">(io.lettuce.core.RedisURI&nbsp;uri,
+ <a href="SslArgs.html" title="class in com.redis.riot">SslArgs</a>&nbsp;sslArgs)</span></div>
+</section>
+</li>
+<li>
 <section class="detail" id="getUsername()">
 <h3>getUsername</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">getUsername</span>()</div>
-<dl class="notes">
-<dt>Specified by:</dt>
-<dd><code><a href="RedisArgs.html#getUsername()">getUsername</a></code>&nbsp;in interface&nbsp;<code><a href="RedisArgs.html" title="interface in com.redis.riot">RedisArgs</a></code></dd>
-</dl>
 </section>
 </li>
 <li>
@@ -231,10 +236,6 @@ implements <a href="RedisArgs.html" title="interface in com.redis.riot">RedisArg
 <section class="detail" id="getPassword()">
 <h3>getPassword</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">char[]</span>&nbsp;<span class="element-name">getPassword</span>()</div>
-<dl class="notes">
-<dt>Specified by:</dt>
-<dd><code><a href="RedisArgs.html#getPassword()">getPassword</a></code>&nbsp;in interface&nbsp;<code><a href="RedisArgs.html" title="interface in com.redis.riot">RedisArgs</a></code></dd>
-</dl>
 </section>
 </li>
 <li>
@@ -247,10 +248,6 @@ implements <a href="RedisArgs.html" title="interface in com.redis.riot">RedisArg
 <section class="detail" id="isInsecure()">
 <h3>isInsecure</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isInsecure</span>()</div>
-<dl class="notes">
-<dt>Specified by:</dt>
-<dd><code><a href="RedisArgs.html#isInsecure()">isInsecure</a></code>&nbsp;in interface&nbsp;<code><a href="RedisArgs.html" title="interface in com.redis.riot">RedisArgs</a></code></dd>
-</dl>
 </section>
 </li>
 <li>
@@ -263,10 +260,6 @@ implements <a href="RedisArgs.html" title="interface in com.redis.riot">RedisArg
 <section class="detail" id="isCluster()">
 <h3>isCluster</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isCluster</span>()</div>
-<dl class="notes">
-<dt>Specified by:</dt>
-<dd><code><a href="RedisArgs.html#isCluster()">isCluster</a></code>&nbsp;in interface&nbsp;<code><a href="RedisArgs.html" title="interface in com.redis.riot">RedisArgs</a></code></dd>
-</dl>
 </section>
 </li>
 <li>
@@ -279,10 +272,6 @@ implements <a href="RedisArgs.html" title="interface in com.redis.riot">RedisArg
 <section class="detail" id="getProtocolVersion()">
 <h3>getProtocolVersion</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">io.lettuce.core.protocol.ProtocolVersion</span>&nbsp;<span class="element-name">getProtocolVersion</span>()</div>
-<dl class="notes">
-<dt>Specified by:</dt>
-<dd><code><a href="RedisArgs.html#getProtocolVersion()">getProtocolVersion</a></code>&nbsp;in interface&nbsp;<code><a href="RedisArgs.html" title="interface in com.redis.riot">RedisArgs</a></code></dd>
-</dl>
 </section>
 </li>
 <li>
@@ -307,12 +296,6 @@ implements <a href="RedisArgs.html" title="interface in com.redis.riot">RedisArg
 <section class="detail" id="getTimeout()">
 <h3>getTimeout</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">long</span>&nbsp;<span class="element-name">getTimeout</span>()</div>
-<dl class="notes">
-<dt>Specified by:</dt>
-<dd><code><a href="RedisArgs.html#getTimeout()">getTimeout</a></code>&nbsp;in interface&nbsp;<code><a href="RedisArgs.html" title="interface in com.redis.riot">RedisArgs</a></code></dd>
-<dt>Returns:</dt>
-<dd>timeout duration in seconds</dd>
-</dl>
 </section>
 </li>
 <li>
@@ -325,10 +308,6 @@ implements <a href="RedisArgs.html" title="interface in com.redis.riot">RedisArg
 <section class="detail" id="isTls()">
 <h3>isTls</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isTls</span>()</div>
-<dl class="notes">
-<dt>Specified by:</dt>
-<dd><code><a href="RedisArgs.html#isTls()">isTls</a></code>&nbsp;in interface&nbsp;<code><a href="RedisArgs.html" title="interface in com.redis.riot">RedisArgs</a></code></dd>
-</dl>
 </section>
 </li>
 <li>
@@ -341,16 +320,24 @@ implements <a href="RedisArgs.html" title="interface in com.redis.riot">RedisArg
 <section class="detail" id="getClientName()">
 <h3>getClientName</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">getClientName</span>()</div>
-<dl class="notes">
-<dt>Specified by:</dt>
-<dd><code><a href="RedisArgs.html#getClientName()">getClientName</a></code>&nbsp;in interface&nbsp;<code><a href="RedisArgs.html" title="interface in com.redis.riot">RedisArgs</a></code></dd>
-</dl>
 </section>
 </li>
 <li>
 <section class="detail" id="setClientName(java.lang.String)">
 <h3>setClientName</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setClientName</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;clientName)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="isMetrics()">
+<h3>isMetrics</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isMetrics</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="setMetrics(boolean)">
+<h3>setMetrics</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setMetrics</span><wbr><span class="parameters">(boolean&nbsp;metrics)</span></div>
 </section>
 </li>
 <li>

@@ -11,7 +11,7 @@
 <link rel="stylesheet" type="text/css" href="../../../script-dir/jquery-ui.min.css" title="Style">
 <link rel="stylesheet" type="text/css" href="../../../jquery-ui.overrides.css" title="Style">
 <script type="text/javascript" src="../../../script.js"></script>
-<script type="text/javascript" src="../../../script-dir/jquery-3.6.1.min.js"></script>
+<script type="text/javascript" src="../../../script-dir/jquery-3.7.1.min.js"></script>
 <script type="text/javascript" src="../../../script-dir/jquery-ui.min.js"></script>
 </head>
 <body class="class-declaration-page">
@@ -88,7 +88,7 @@ loadScripts(document, 'script');</script>
 </dl>
 <dl class="notes">
 <dt>Direct Known Subclasses:</dt>
-<dd><code><a href="AbstractRedisExportCommand.html" title="class in com.redis.riot">AbstractRedisExportCommand</a></code>, <code><a href="AbstractReplicateCommand.html" title="class in com.redis.riot">AbstractReplicateCommand</a></code></dd>
+<dd><code><a href="AbstractRedisExportCommand.html" title="class in com.redis.riot">AbstractRedisExportCommand</a></code>, <code><a href="AbstractRedisTargetExportCommand.html" title="class in com.redis.riot">AbstractRedisTargetExportCommand</a></code></dd>
 </dl>
 <hr>
 <div class="type-signature"><span class="modifiers">public abstract class </span><span class="element-name type-name-label">AbstractExportCommand</span>
@@ -151,7 +151,7 @@ loadScripts(document, 'script');</script>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#configure(org.springframework.expression.spel.support.StandardEvaluationContext)" class="member-name-link">configure</a><wbr>(org.springframework.expression.spel.support.StandardEvaluationContext&nbsp;context)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#configureSourceRedisReader(com.redis.spring.batch.item.redis.RedisItemReader)" class="member-name-link">configureSourceRedisReader</a><wbr>(com.redis.spring.batch.item.redis.RedisItemReader&lt;?,<wbr>?,<wbr>?&gt;&nbsp;reader)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#configureSourceRedisReader(com.redis.spring.batch.item.redis.RedisItemReader)" class="member-name-link">configureSourceRedisReader</a><wbr>(com.redis.spring.batch.item.redis.RedisItemReader&lt;?,<wbr>?&gt;&nbsp;reader)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#execute()" class="member-name-link">execute</a>()</code></div>
@@ -168,12 +168,11 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected &lt;K,<wbr>
 V,<wbr>
 T,<wbr>
-O&gt;&nbsp;<a href="core/Step.html" title="class in com.redis.riot.core">Step</a>&lt;com.redis.spring.batch.item.redis.common.KeyValue&lt;K,<wbr>T&gt;,<wbr>O&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#step(java.lang.String,com.redis.spring.batch.item.redis.RedisItemReader,org.springframework.batch.item.ItemWriter)" class="member-name-link">step</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;name,
- com.redis.spring.batch.item.redis.RedisItemReader&lt;K,<wbr>V,<wbr>T&gt;&nbsp;reader,
+O&gt;&nbsp;<a href="core/Step.html" title="class in com.redis.riot.core">Step</a>&lt;com.redis.spring.batch.item.redis.common.KeyValue&lt;K&gt;,<wbr>O&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#step(com.redis.spring.batch.item.redis.RedisItemReader,org.springframework.batch.item.ItemWriter)" class="member-name-link">step</a><wbr>(com.redis.spring.batch.item.redis.RedisItemReader&lt;K,<wbr>V&gt;&nbsp;reader,
  org.springframework.batch.item.ItemWriter&lt;O&gt;&nbsp;writer)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected &lt;O&gt;&nbsp;<a href="core/Step.html" title="class in com.redis.riot.core">Step</a>&lt;com.redis.spring.batch.item.redis.common.KeyValue&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;,<wbr>O&gt;</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected &lt;O&gt;&nbsp;<a href="core/Step.html" title="class in com.redis.riot.core">Step</a>&lt;com.redis.spring.batch.item.redis.common.KeyValue&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;,<wbr>O&gt;</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#step(org.springframework.batch.item.ItemWriter)" class="member-name-link">step</a><wbr>(org.springframework.batch.item.ItemWriter&lt;O&gt;&nbsp;writer)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 </div>
@@ -271,7 +270,7 @@ O&gt;&nbsp;<a href="core/Step.html" title="class in com.redis.riot.core">Step</a
 <li>
 <section class="detail" id="configureSourceRedisReader(com.redis.spring.batch.item.redis.RedisItemReader)">
 <h3>configureSourceRedisReader</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">configureSourceRedisReader</span><wbr><span class="parameters">(com.redis.spring.batch.item.redis.RedisItemReader&lt;?,<wbr>?,<wbr>?&gt;&nbsp;reader)</span></div>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">configureSourceRedisReader</span><wbr><span class="parameters">(com.redis.spring.batch.item.redis.RedisItemReader&lt;?,<wbr>?&gt;&nbsp;reader)</span></div>
 </section>
 </li>
 <li>
@@ -284,18 +283,17 @@ O&gt;&nbsp;<a href="core/Step.html" title="class in com.redis.riot.core">Step</a
 <section class="detail" id="step(org.springframework.batch.item.ItemWriter)">
 <h3>step</h3>
 <div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="type-parameters">&lt;O&gt;</span>
-<span class="return-type"><a href="core/Step.html" title="class in com.redis.riot.core">Step</a>&lt;com.redis.spring.batch.item.redis.common.KeyValue&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;,<wbr>O&gt;</span>&nbsp;<span class="element-name">step</span><wbr><span class="parameters">(org.springframework.batch.item.ItemWriter&lt;O&gt;&nbsp;writer)</span></div>
+<span class="return-type"><a href="core/Step.html" title="class in com.redis.riot.core">Step</a>&lt;com.redis.spring.batch.item.redis.common.KeyValue&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;,<wbr>O&gt;</span>&nbsp;<span class="element-name">step</span><wbr><span class="parameters">(org.springframework.batch.item.ItemWriter&lt;O&gt;&nbsp;writer)</span></div>
 </section>
 </li>
 <li>
-<section class="detail" id="step(java.lang.String,com.redis.spring.batch.item.redis.RedisItemReader,org.springframework.batch.item.ItemWriter)">
+<section class="detail" id="step(com.redis.spring.batch.item.redis.RedisItemReader,org.springframework.batch.item.ItemWriter)">
 <h3>step</h3>
 <div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="type-parameters">&lt;K,<wbr>
 V,<wbr>
 T,<wbr>
 O&gt;</span>
-<span class="return-type"><a href="core/Step.html" title="class in com.redis.riot.core">Step</a>&lt;com.redis.spring.batch.item.redis.common.KeyValue&lt;K,<wbr>T&gt;,<wbr>O&gt;</span>&nbsp;<span class="element-name">step</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;name,
- com.redis.spring.batch.item.redis.RedisItemReader&lt;K,<wbr>V,<wbr>T&gt;&nbsp;reader,
+<span class="return-type"><a href="core/Step.html" title="class in com.redis.riot.core">Step</a>&lt;com.redis.spring.batch.item.redis.common.KeyValue&lt;K&gt;,<wbr>O&gt;</span>&nbsp;<span class="element-name">step</span><wbr><span class="parameters">(com.redis.spring.batch.item.redis.RedisItemReader&lt;K,<wbr>V&gt;&nbsp;reader,
  org.springframework.batch.item.ItemWriter&lt;O&gt;&nbsp;writer)</span></div>
 </section>
 </li>

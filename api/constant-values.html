@@ -11,7 +11,7 @@
 <link rel="stylesheet" type="text/css" href="script-dir/jquery-ui.min.css" title="Style">
 <link rel="stylesheet" type="text/css" href="jquery-ui.overrides.css" title="Style">
 <script type="text/javascript" src="script.js"></script>
-<script type="text/javascript" src="script-dir/jquery-3.6.1.min.js"></script>
+<script type="text/javascript" src="script-dir/jquery-3.7.1.min.js"></script>
 <script type="text/javascript" src="script-dir/jquery-ui.min.js"></script>
 </head>
 <body class="constants-summary-page">
@@ -61,20 +61,6 @@ loadScripts(document, 'script');</script>
 <h2 title="com.redis">com.redis.*</h2>
 <ul class="block-list">
 <li>
-<div class="caption"><span>com.redis.riot.<a href="com/redis/riot/AbstractCompareCommand.html" title="class in com.redis.riot">AbstractCompareCommand</a></span></div>
-<div class="summary-table three-column-summary">
-<div class="table-header col-first">Modifier and Type</div>
-<div class="table-header col-second">Constant Field</div>
-<div class="table-header col-last">Value</div>
-<div class="col-first even-row-color"><code id="com.redis.riot.AbstractCompareCommand.COMPARE_STEP_NAME">public&nbsp;static&nbsp;final&nbsp;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second even-row-color"><code><a href="com/redis/riot/AbstractCompareCommand.html#COMPARE_STEP_NAME">COMPARE_STEP_NAME</a></code></div>
-<div class="col-last even-row-color"><code>"compare"</code></div>
-<div class="col-first odd-row-color"><code id="com.redis.riot.AbstractCompareCommand.DEFAULT_COMPARE_STREAM_MESSAGE_ID">public&nbsp;static&nbsp;final&nbsp;boolean</code></div>
-<div class="col-second odd-row-color"><code><a href="com/redis/riot/AbstractCompareCommand.html#DEFAULT_COMPARE_STREAM_MESSAGE_ID">DEFAULT_COMPARE_STREAM_MESSAGE_ID</a></code></div>
-<div class="col-last odd-row-color"><code>true</code></div>
-</div>
-</li>
-<li>
 <div class="caption"><span>com.redis.riot.<a href="com/redis/riot/AbstractExportCommand.html" title="class in com.redis.riot">AbstractExportCommand</a></span></div>
 <div class="summary-table three-column-summary">
 <div class="table-header col-first">Modifier and Type</div>
@@ -100,14 +86,25 @@ loadScripts(document, 'script');</script>
 </div>
 </li>
 <li>
+<div class="caption"><span>com.redis.riot.<a href="com/redis/riot/AbstractRedisTargetExportCommand.html" title="class in com.redis.riot">AbstractRedisTargetExportCommand</a></span></div>
+<div class="summary-table three-column-summary">
+<div class="table-header col-first">Modifier and Type</div>
+<div class="table-header col-second">Constant Field</div>
+<div class="table-header col-last">Value</div>
+<div class="col-first even-row-color"><code id="com.redis.riot.AbstractRedisTargetExportCommand.DEFAULT_TARGET_POOL_SIZE">public&nbsp;static&nbsp;final&nbsp;int</code></div>
+<div class="col-second even-row-color"><code><a href="com/redis/riot/AbstractRedisTargetExportCommand.html#DEFAULT_TARGET_POOL_SIZE">DEFAULT_TARGET_POOL_SIZE</a></code></div>
+<div class="col-last even-row-color"><code>8</code></div>
+</div>
+</li>
+<li>
 <div class="caption"><span>com.redis.riot.<a href="com/redis/riot/AbstractReplicateCommand.html" title="class in com.redis.riot">AbstractReplicateCommand</a></span></div>
 <div class="summary-table three-column-summary">
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Constant Field</div>
 <div class="table-header col-last">Value</div>
-<div class="col-first even-row-color"><code id="com.redis.riot.AbstractReplicateCommand.DEFAULT_TARGET_POOL_SIZE">public&nbsp;static&nbsp;final&nbsp;int</code></div>
-<div class="col-second even-row-color"><code><a href="com/redis/riot/AbstractReplicateCommand.html#DEFAULT_TARGET_POOL_SIZE">DEFAULT_TARGET_POOL_SIZE</a></code></div>
-<div class="col-last even-row-color"><code>8</code></div>
+<div class="col-first even-row-color"><code id="com.redis.riot.AbstractReplicateCommand.DEFAULT_COMPARE_STREAM_MESSAGE_ID">public&nbsp;static&nbsp;final&nbsp;boolean</code></div>
+<div class="col-second even-row-color"><code><a href="com/redis/riot/AbstractReplicateCommand.html#DEFAULT_COMPARE_STREAM_MESSAGE_ID">DEFAULT_COMPARE_STREAM_MESSAGE_ID</a></code></div>
+<div class="col-last even-row-color"><code>true</code></div>
 </div>
 </li>
 <li>
@@ -297,35 +294,6 @@ loadScripts(document, 'script');</script>
 </div>
 </li>
 <li>
-<div class="caption"><span>com.redis.riot.<a href="com/redis/riot/RedisArgs.html" title="interface in com.redis.riot">RedisArgs</a></span></div>
-<div class="summary-table three-column-summary">
-<div class="table-header col-first">Modifier and Type</div>
-<div class="table-header col-second">Constant Field</div>
-<div class="table-header col-last">Value</div>
-<div class="col-first even-row-color"><code id="com.redis.riot.RedisArgs.DEFAULT_CLUSTER">public&nbsp;static&nbsp;final&nbsp;boolean</code></div>
-<div class="col-second even-row-color"><code><a href="com/redis/riot/RedisArgs.html#DEFAULT_CLUSTER">DEFAULT_CLUSTER</a></code></div>
-<div class="col-last even-row-color"><code>false</code></div>
-<div class="col-first odd-row-color"><code id="com.redis.riot.RedisArgs.DEFAULT_DATABASE">public&nbsp;static&nbsp;final&nbsp;int</code></div>
-<div class="col-second odd-row-color"><code><a href="com/redis/riot/RedisArgs.html#DEFAULT_DATABASE">DEFAULT_DATABASE</a></code></div>
-<div class="col-last odd-row-color"><code>0</code></div>
-<div class="col-first even-row-color"><code id="com.redis.riot.RedisArgs.DEFAULT_HOST">public&nbsp;static&nbsp;final&nbsp;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second even-row-color"><code><a href="com/redis/riot/RedisArgs.html#DEFAULT_HOST">DEFAULT_HOST</a></code></div>
-<div class="col-last even-row-color"><code>"127.0.0.1"</code></div>
-<div class="col-first odd-row-color"><code id="com.redis.riot.RedisArgs.DEFAULT_INSECURE">public&nbsp;static&nbsp;final&nbsp;boolean</code></div>
-<div class="col-second odd-row-color"><code><a href="com/redis/riot/RedisArgs.html#DEFAULT_INSECURE">DEFAULT_INSECURE</a></code></div>
-<div class="col-last odd-row-color"><code>false</code></div>
-<div class="col-first even-row-color"><code id="com.redis.riot.RedisArgs.DEFAULT_PORT">public&nbsp;static&nbsp;final&nbsp;int</code></div>
-<div class="col-second even-row-color"><code><a href="com/redis/riot/RedisArgs.html#DEFAULT_PORT">DEFAULT_PORT</a></code></div>
-<div class="col-last even-row-color"><code>6379</code></div>
-<div class="col-first odd-row-color"><code id="com.redis.riot.RedisArgs.DEFAULT_TIMEOUT">public&nbsp;static&nbsp;final&nbsp;long</code></div>
-<div class="col-second odd-row-color"><code><a href="com/redis/riot/RedisArgs.html#DEFAULT_TIMEOUT">DEFAULT_TIMEOUT</a></code></div>
-<div class="col-last odd-row-color"><code>60L</code></div>
-<div class="col-first even-row-color"><code id="com.redis.riot.RedisArgs.DEFAULT_TLS">public&nbsp;static&nbsp;final&nbsp;boolean</code></div>
-<div class="col-second even-row-color"><code><a href="com/redis/riot/RedisArgs.html#DEFAULT_TLS">DEFAULT_TLS</a></code></div>
-<div class="col-last even-row-color"><code>false</code></div>
-</div>
-</li>
-<li>
 <div class="caption"><span>com.redis.riot.<a href="com/redis/riot/RedisReaderArgs.html" title="class in com.redis.riot">RedisReaderArgs</a></span></div>
 <div class="summary-table three-column-summary">
 <div class="table-header col-first">Modifier and Type</div>
@@ -363,14 +331,14 @@ loadScripts(document, 'script');</script>
 </div>
 </li>
 <li>
-<div class="caption"><span>com.redis.riot.<a href="com/redis/riot/Replicate.html" title="class in com.redis.riot">Replicate</a></span></div>
+<div class="caption"><span>com.redis.riot.<a href="com/redis/riot/ReplicateReadWriteListener.html" title="class in com.redis.riot">ReplicateReadWriteListener</a>&lt;<a href="com/redis/riot/ReplicateReadWriteListener.html" title="type parameter in ReplicateReadWriteListener">K</a>&gt;</span></div>
 <div class="summary-table three-column-summary">
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Constant Field</div>
 <div class="table-header col-last">Value</div>
-<div class="col-first even-row-color"><code id="com.redis.riot.Replicate.STEP_NAME">public&nbsp;static&nbsp;final&nbsp;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second even-row-color"><code><a href="com/redis/riot/Replicate.html#STEP_NAME">STEP_NAME</a></code></div>
-<div class="col-last even-row-color"><code>"replicate"</code></div>
+<div class="col-first even-row-color"><code id="com.redis.riot.ReplicateReadWriteListener.METRICS_PREFIX">public&nbsp;static&nbsp;final&nbsp;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second even-row-color"><code><a href="com/redis/riot/ReplicateReadWriteListener.html#METRICS_PREFIX">METRICS_PREFIX</a></code></div>
+<div class="col-last even-row-color"><code>"riot.replicate."</code></div>
 </div>
 </li>
 </ul>
@@ -395,6 +363,17 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color"><code id="com.redis.riot.core.ProgressArgs.DEFAULT_UPDATE_INTERVAL">public&nbsp;static&nbsp;final&nbsp;long</code></div>
 <div class="col-second even-row-color"><code><a href="com/redis/riot/core/ProgressArgs.html#DEFAULT_UPDATE_INTERVAL">DEFAULT_UPDATE_INTERVAL</a></code></div>
 <div class="col-last even-row-color"><code>1000L</code></div>
+</div>
+</li>
+<li>
+<div class="caption"><span>com.redis.riot.core.<a href="com/redis/riot/core/Step.html" title="class in com.redis.riot.core">Step</a>&lt;<a href="com/redis/riot/core/Step.html" title="type parameter in Step">I</a>,<wbr><a href="com/redis/riot/core/Step.html" title="type parameter in Step">O</a>&gt;</span></div>
+<div class="summary-table three-column-summary">
+<div class="table-header col-first">Modifier and Type</div>
+<div class="table-header col-second">Constant Field</div>
+<div class="table-header col-last">Value</div>
+<div class="col-first even-row-color"><code id="com.redis.riot.core.Step.DEFAULT_NAME">public&nbsp;static&nbsp;final&nbsp;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second even-row-color"><code><a href="com/redis/riot/core/Step.html#DEFAULT_NAME">DEFAULT_NAME</a></code></div>
+<div class="col-last even-row-color"><code>"step"</code></div>
 </div>
 </li>
 <li>
