@@ -206,11 +206,6 @@ distributions:
       imageNames:
         - 'riotx/riot:{{tagName}}'
         - 'riotx/riot:latest'
-      buildx:
-        enabled: true
-        platforms:
-          - 'linux/amd64'
-          - 'linux/arm64'
 
 files:
   artifacts:
