@@ -5,6 +5,7 @@ import java.time.Duration;
 import com.redis.lettucemod.RedisURIBuilder;
 import com.redis.riot.core.RiotUtils;
 import com.redis.riot.core.RiotVersion;
+import com.redis.spring.batch.item.redis.RedisItemReader;
 
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.SslVerifyMode;
@@ -59,10 +60,24 @@ public class RedisArgs {
 	@ArgGroup(exclusive = false, heading = "TLS options%n")
 	private SslArgs sslArgs = new SslArgs();
 
-	@Option(names = "--command-metrics", description = "Enable Lettuce command metrics", hidden = true)
-	private boolean metrics;
+	@Option(names = "--pool", description = "Max number of Redis connections (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
+	private int poolSize = RedisItemReader.DEFAULT_POOL_SIZE;
 
-	public RedisURI redisURI() {
+	@Option(names = "--read-from", description = "Which Redis cluster nodes to read from: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<name>")
+	private ReadFrom readFrom = ReadFrom.UPSTREAM;
+
+	public RedisContext redisContext() {
+		RedisContext context = new RedisContext();
+		context.cluster(cluster);
+		context.poolSize(poolSize);
+		context.protocolVersion(protocolVersion);
+		context.readFrom(readFrom.getReadFrom());
+		context.sslOptions(sslArgs.sslOptions());
+		context.uri(uri());
+		return context;
+	}
+
+	public RedisURI uri() {
 		RedisURIBuilder builder = new RedisURIBuilder();
 		builder.clientName(clientName);
 		builder.database(database);
@@ -192,12 +207,20 @@ public class RedisArgs {
 		this.clientName = clientName;
 	}
 
-	public boolean isMetrics() {
-		return metrics;
+	public int getPoolSize() {
+		return poolSize;
 	}
 
-	public void setMetrics(boolean metrics) {
-		this.metrics = metrics;
+	public void setPoolSize(int poolSize) {
+		this.poolSize = poolSize;
+	}
+
+	public ReadFrom getReadFrom() {
+		return readFrom;
+	}
+
+	public void setReadFrom(ReadFrom readFrom) {
+		this.readFrom = readFrom;
 	}
 
 	@Override
@@ -205,12 +228,8 @@ public class RedisArgs {
 		return "SimpleRedisArgs [uri=" + uri + ", host=" + host + ", port=" + port + ", socket=" + socket
 				+ ", username=" + username + ", password=" + RiotUtils.mask(password) + ", timeout=" + timeout
 				+ ", database=" + database + ", tls=" + tls + ", insecure=" + insecure + ", clientName=" + clientName
-				+ ", cluster=" + cluster + ", protocolVersion=" + protocolVersion + ", sslArgs=" + sslArgs
-				+ ", metrics=" + metrics + "]";
-	}
-
-	public RedisContext redisContext() {
-		return RedisContext.create(redisURI(), cluster, protocolVersion, sslArgs, metrics);
+				+ ", cluster=" + cluster + ", poolSize=" + poolSize + ", protocolVersion=" + protocolVersion
+				+ ", readFrom=" + readFrom + ", sslArgs=" + sslArgs + "]";
 	}
 
 }

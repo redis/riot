@@ -10,12 +10,12 @@ import io.lettuce.core.RedisURI;
 class RedisArgsTests {
 
 	@Test
-	void simpleRedisArgsURI() {
+	void redisArgsURI() {
 		RedisArgs args = new RedisArgs();
 		RedisURI baseUri = RedisURI.create("redis://localhost");
 		args.setUri(baseUri);
 		args.setClientName("ansdf");
-		RedisURI uri = args.redisURI();
+		RedisURI uri = args.uri();
 		Assertions.assertEquals(baseUri.getHost(), uri.getHost());
 		Assertions.assertEquals(baseUri.getPort(), uri.getPort());
 		Assertions.assertEquals(args.getClientName(), uri.getClientName());

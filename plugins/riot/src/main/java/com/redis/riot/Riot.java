@@ -1,5 +1,8 @@
 package com.redis.riot;
 
+import java.util.Arrays;
+import java.util.List;
+
 import com.redis.riot.core.MainCommand;
 import com.redis.riot.operation.OperationCommand;
 import com.redis.spring.batch.item.redis.common.Range;
@@ -13,9 +16,7 @@ import picocli.CommandLine.ParseResult;
 import picocli.CommandLine.RunFirst;
 import software.amazon.awssdk.regions.Region;
 
-@Command(name = "riot", versionProvider = Versions.class, headerHeading = "A data import/export tool for Redis.%n%n", footerHeading = "%nRun 'riot COMMAND --help' for more information on a command.%n%nFor more help on how to use RIOT, head to http://redis.github.io/riot%n", subcommands = {
-		DatabaseExport.class, DatabaseImport.class, FakerImport.class, FileExport.class, FileImport.class,
-		Generate.class, Ping.class, Replicate.class, Compare.class, GenerateCompletion.class })
+@Command(name = "riot", versionProvider = Versions.class, headerHeading = "A data import/export tool for Redis.%n%n", footerHeading = "%nRun 'riot COMMAND --help' for more information on a command.%n%nFor more help on how to use RIOT, head to http://redis.github.io/riot%n")
 public class Riot extends MainCommand {
 
 	public static void main(String[] args) {
@@ -25,16 +26,58 @@ public class Riot extends MainCommand {
 	@Override
 	protected CommandLine commandLine() {
 		CommandLine commandLine = super.commandLine();
+		subcommands().forEach(commandLine::addSubcommand);
 		IExecutionStrategy defaultStrategy = commandLine.getExecutionStrategy();
 		commandLine.setExecutionStrategy(r -> execute(r, defaultStrategy));
-		configureCommandLine(commandLine);
-		return commandLine;
-	}
-
-	public static void configureCommandLine(CommandLine commandLine) {
 		commandLine.registerConverter(RedisURI.class, new RedisURIConverter());
 		commandLine.registerConverter(Region.class, Region::of);
 		commandLine.registerConverter(Range.class, new RangeConverter());
+		return commandLine;
+	}
+
+	protected List<Object> subcommands() {
+		return Arrays.asList(databaseExport(), databaseImport(), fakerImport(), fileExport(), fileImport(), generate(),
+				ping(), replicate(), compare(), generateCompletion());
+	}
+
+	protected GenerateCompletion generateCompletion() {
+		return new GenerateCompletion();
+	}
+
+	protected Compare compare() {
+		return new Compare();
+	}
+
+	protected Replicate replicate() {
+		return new Replicate();
+	}
+
+	protected Ping ping() {
+		return new Ping();
+	}
+
+	protected Generate generate() {
+		return new Generate();
+	}
+
+	protected FileImport fileImport() {
+		return new FileImport();
+	}
+
+	protected FileExport fileExport() {
+		return new FileExport();
+	}
+
+	protected FakerImport fakerImport() {
+		return new FakerImport();
+	}
+
+	protected DatabaseImport databaseImport() {
+		return new DatabaseImport();
+	}
+
+	protected DatabaseExport databaseExport() {
+		return new DatabaseExport();
 	}
 
 	protected int execute(ParseResult parseResult, IExecutionStrategy defaultStrategy) {

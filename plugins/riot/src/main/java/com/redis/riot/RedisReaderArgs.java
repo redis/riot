@@ -51,9 +51,6 @@ public class RedisReaderArgs {
 	@Option(names = "--read-batch", description = "Number of values each reader thread should read in a pipelined call (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	private int chunkSize = DEFAULT_CHUNK_SIZE;
 
-	@Option(names = "--read-from", description = "Which Redis cluster nodes to read from: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<name>")
-	private ReadFrom readFrom = ReadFrom.UPSTREAM;
-
 	@Option(names = "--mem-limit", description = "Max mem usage for a key to be read, for example 12KB 5MB. Use 0 for no limit but still read mem usage.", paramLabel = "<size>")
 	private DataSize memUsageLimit;
 
@@ -94,7 +91,6 @@ public class RedisReaderArgs {
 		reader.setPollTimeout(Duration.ofMillis(pollTimeout));
 		reader.setProcessor(keyProcessor(reader.getCodec(), keyFilterArgs));
 		reader.setQueueCapacity(queueCapacity);
-		reader.setReadFrom(readFrom.getReadFrom());
 		reader.setRetryLimit(retryLimit);
 		reader.setScanCount(scanCount);
 		reader.setSkipLimit(skipLimit);
@@ -158,14 +154,6 @@ public class RedisReaderArgs {
 
 	public void setChunkSize(int chunkSize) {
 		this.chunkSize = chunkSize;
-	}
-
-	public ReadFrom getReadFrom() {
-		return readFrom;
-	}
-
-	public void setReadFrom(ReadFrom readFrom) {
-		this.readFrom = readFrom;
 	}
 
 	public DataSize getMemUsageLimit() {
@@ -252,8 +240,8 @@ public class RedisReaderArgs {
 	public String toString() {
 		return "RedisReaderArgs [mode=" + mode + ", keyPattern=" + keyPattern + ", keyType=" + keyType + ", scanCount="
 				+ scanCount + ", queueCapacity=" + queueCapacity + ", threads=" + threads + ", chunkSize=" + chunkSize
-				+ ", readFrom=" + readFrom + ", memUsageLimit=" + memUsageLimit + ", memUsageSamples=" + memUsageSamples
-				+ ", flushInterval=" + flushInterval + ", idleTimeout=" + idleTimeout + ", notificationQueueCapacity="
+				+ ", memUsageLimit=" + memUsageLimit + ", memUsageSamples=" + memUsageSamples + ", flushInterval="
+				+ flushInterval + ", idleTimeout=" + idleTimeout + ", notificationQueueCapacity="
 				+ notificationQueueCapacity + ", retryLimit=" + retryLimit + ", skipLimit=" + skipLimit
 				+ ", keyFilterArgs=" + keyFilterArgs + ", pollTimeout=" + pollTimeout + "]";
 	}

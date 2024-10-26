@@ -33,9 +33,6 @@ public abstract class AbstractReplicateCommand extends AbstractRedisTargetExport
 	private static final String COMPARE_TASK_NAME = "Comparing";
 	private static final String STATUS_DELIMITER = " | ";
 
-	@Option(names = "--target-read-from", description = "Which target Redis cluster nodes to read from: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<n>")
-	private ReadFrom targetReadFrom = ReadFrom.UPSTREAM;
-
 	@Option(names = "--show-diffs", description = "Print details of key mismatches during dataset verification. Disables progress reporting.")
 	private boolean showDiffs;
 
@@ -145,21 +142,6 @@ public abstract class AbstractReplicateCommand extends AbstractRedisTargetExport
 		RedisItemReader<byte[], byte[]> reader = compareRedisReader();
 		configureTargetRedisReader(reader);
 		return reader;
-	}
-
-	@Override
-	protected void configureTargetRedisReader(RedisItemReader<?, ?> reader) {
-		super.configureTargetRedisReader(reader);
-		log.info("Configuring target Redis reader with read-from {}", targetReadFrom);
-		reader.setReadFrom(targetReadFrom.getReadFrom());
-	}
-
-	public ReadFrom getTargetReadFrom() {
-		return targetReadFrom;
-	}
-
-	public void setTargetReadFrom(ReadFrom readFrom) {
-		this.targetReadFrom = readFrom;
 	}
 
 	public boolean isShowDiffs() {

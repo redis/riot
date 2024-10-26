@@ -34,6 +34,7 @@ public abstract class AbstractRedisTargetExportCommand extends AbstractExportCom
 	@Override
 	protected void execute() throws Exception {
 		targetRedisContext = targetRedisContext();
+		targetRedisContext.afterPropertiesSet();
 		try {
 			super.execute();
 		} finally {
@@ -44,12 +45,16 @@ public abstract class AbstractRedisTargetExportCommand extends AbstractExportCom
 	@Override
 	protected RedisContext sourceRedisContext() {
 		log.info("Creating source Redis context with {} {} {}", sourceRedisUri, sourceRedisArgs, sslArgs);
-		return sourceRedisArgs.redisContext(sourceRedisUri, sslArgs);
+		RedisContext context = sourceRedisArgs.redisContext(sourceRedisUri);
+		context.sslOptions(sslArgs.sslOptions());
+		return context;
 	}
 
 	private RedisContext targetRedisContext() {
 		log.info("Creating target Redis context with {} {} {}", targetRedisUri, targetRedisArgs, sslArgs);
-		return targetRedisArgs.redisContext(targetRedisUri, sslArgs);
+		RedisContext context = targetRedisArgs.redisContext(targetRedisUri);
+		context.sslOptions(sslArgs.sslOptions());
+		return context;
 	}
 
 	@Override
@@ -58,24 +63,13 @@ public abstract class AbstractRedisTargetExportCommand extends AbstractExportCom
 		context.setVariable(VAR_TARGET, targetRedisContext.getConnection().sync());
 	}
 
-	@Override
-	protected void configureSourceRedisReader(RedisItemReader<?, ?> reader) {
-		super.configureSourceRedisReader(reader);
-		log.info("Configuring source Redis reader with poolSize {}", sourceRedisArgs.getPoolSize());
-		reader.setPoolSize(sourceRedisArgs.getPoolSize());
-	}
-
 	protected void configureTargetRedisReader(RedisItemReader<?, ?> reader) {
 		configureAsyncReader(reader);
 		targetRedisContext.configure(reader);
-		log.info("Configuring target Redis reader with poolSize {}", targetRedisArgs.getPoolSize());
-		reader.setPoolSize(targetRedisArgs.getPoolSize());
 	}
 
 	protected void configureTargetRedisWriter(RedisItemWriter<?, ?, ?> writer) {
 		targetRedisContext.configure(writer);
-		log.info("Configuring target Redis writer with poolSize {}", targetRedisArgs.getPoolSize());
-		writer.setPoolSize(targetRedisArgs.getPoolSize());
 	}
 
 	public RedisURI getSourceRedisUri() {

@@ -37,15 +37,14 @@ public class SourceRedisArgs {
 	@Option(names = "--source-resp", description = "Redis protocol version used to connect to source: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<ver>")
 	private ProtocolVersion protocolVersion = ProtocolVersion.RESP2;
 
-	@Option(names = "--source-pool", description = "Max pool connections used for source Redis (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
+	@Option(names = "--source-pool", description = "Max number of source Redis connections (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	private int poolSize = RedisItemReader.DEFAULT_POOL_SIZE;
 
-	@Option(names = "--source-command-metrics", description = "Enable Lettuce command metrics for source Redis", hidden = true)
-	private boolean metrics;
+	@Option(names = "--source-read-from", description = "Which source Redis cluster nodes to read from: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<n>")
+	private ReadFrom readFrom = ReadFrom.UPSTREAM;
 
-	public RedisURI redisURI(RedisURI uri) {
+	private RedisURIBuilder uriBuilder() {
 		RedisURIBuilder builder = new RedisURIBuilder();
-		builder.uri(uri);
 		builder.clientName(clientName);
 		builder.password(password);
 		builder.timeout(Duration.ofSeconds(timeout));
@@ -54,7 +53,17 @@ public class SourceRedisArgs {
 		if (insecure) {
 			builder.verifyMode(SslVerifyMode.NONE);
 		}
-		return builder.build();
+		return builder;
+	}
+
+	public RedisContext redisContext(RedisURI uri) {
+		RedisContext context = new RedisContext();
+		context.cluster(cluster);
+		context.poolSize(poolSize);
+		context.protocolVersion(protocolVersion);
+		context.readFrom(readFrom.getReadFrom());
+		context.uri(uriBuilder().uri(uri).build());
+		return context;
 	}
 
 	public String getUsername() {
@@ -129,24 +138,20 @@ public class SourceRedisArgs {
 		this.clientName = clientName;
 	}
 
-	public boolean isMetrics() {
-		return metrics;
+	public ReadFrom getReadFrom() {
+		return readFrom;
 	}
 
-	public void setMetrics(boolean metrics) {
-		this.metrics = metrics;
+	public void setReadFrom(ReadFrom readFrom) {
+		this.readFrom = readFrom;
 	}
 
 	@Override
 	public String toString() {
 		return "SourceRedisArgs [username=" + username + ", password=" + RiotUtils.mask(password) + ", timeout="
 				+ timeout + ", tls=" + tls + ", insecure=" + insecure + ", clientName=" + clientName + ", cluster="
-				+ cluster + ", protocolVersion=" + protocolVersion + ", poolSize=" + poolSize + ", metrics=" + metrics
+				+ cluster + ", protocolVersion=" + protocolVersion + ", poolSize=" + poolSize + ", readFrom=" + readFrom
 				+ "]";
-	}
-
-	public RedisContext redisContext(RedisURI uri, SslArgs sslArgs) {
-		return RedisContext.create(redisURI(uri), cluster, protocolVersion, sslArgs, metrics);
 	}
 
 }

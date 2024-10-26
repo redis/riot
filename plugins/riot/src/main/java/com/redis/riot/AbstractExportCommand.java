@@ -36,6 +36,7 @@ public abstract class AbstractExportCommand extends AbstractJobCommand {
 	@Override
 	protected void execute() throws Exception {
 		sourceRedisContext = sourceRedisContext();
+		sourceRedisContext.afterPropertiesSet();
 		try {
 			super.execute();
 		} finally {

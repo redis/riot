@@ -16,7 +16,6 @@ import com.redis.spring.batch.item.redis.gen.GeneratorItemReader;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
 
 @Command(name = "generate", description = "Generate Redis data structures.")
 public class Generate extends AbstractRedisCommand {
@@ -25,9 +24,6 @@ public class Generate extends AbstractRedisCommand {
 
 	@ArgGroup(exclusive = false)
 	private GenerateArgs generateArgs = new GenerateArgs();
-
-	@Option(names = "--pool", description = "Max number of Redis connections in pool (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
-	private int poolSize = RedisItemWriter.DEFAULT_POOL_SIZE;
 
 	@ArgGroup(exclusive = false, heading = "Redis writer options%n")
 	private RedisWriterArgs redisWriterArgs = new RedisWriterArgs();
@@ -48,8 +44,6 @@ public class Generate extends AbstractRedisCommand {
 		configure(writer);
 		log.info("Configuring Redis writer with {}", redisWriterArgs);
 		redisWriterArgs.configure(writer);
-		log.info("Configuring Redis writer with poolSize {}", poolSize);
-		writer.setPoolSize(poolSize);
 		return writer;
 	}
 
@@ -117,14 +111,6 @@ public class Generate extends AbstractRedisCommand {
 
 	public void setGenerateArgs(GenerateArgs args) {
 		this.generateArgs = args;
-	}
-
-	public int getPoolSize() {
-		return poolSize;
-	}
-
-	public void setPoolSize(int poolSize) {
-		this.poolSize = poolSize;
 	}
 
 }

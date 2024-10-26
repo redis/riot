@@ -15,7 +15,6 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import com.redis.riot.core.AbstractJobCommand;
-import com.redis.riot.core.Expression;
 import com.redis.riot.core.QuietMapAccessor;
 import com.redis.riot.core.RiotUtils;
 import com.redis.riot.core.Step;
@@ -87,6 +86,7 @@ public abstract class AbstractImportCommand extends AbstractJobCommand {
 	@Override
 	protected void execute() throws Exception {
 		targetRedisContext = targetRedisContext();
+		targetRedisContext.afterPropertiesSet();
 		try {
 			super.execute();
 		} finally {
@@ -125,24 +125,6 @@ public abstract class AbstractImportCommand extends AbstractJobCommand {
 		targetRedisContext.configure(writer);
 		log.info("Configuring target Redis writer with {}", targetRedisWriterArgs);
 		targetRedisWriterArgs.configure(writer);
-	}
-
-	static class ExpressionProcessor implements ItemProcessor<Map<String, Object>, Map<String, Object>> {
-
-		private final EvaluationContext context;
-		private final Map<String, Expression> expressions;
-
-		public ExpressionProcessor(EvaluationContext context, Map<String, Expression> expressions) {
-			this.context = context;
-			this.expressions = expressions;
-		}
-
-		@Override
-		public Map<String, Object> process(Map<String, Object> item) throws Exception {
-			expressions.forEach((k, v) -> item.put(k, v.getValue(context, item)));
-			return item;
-		}
-
 	}
 
 	public RedisWriterArgs getTargetRedisWriterArgs() {
