@@ -5,6 +5,45 @@
 
 image::architecture.svg[]
 
+[[_concepts_redis_uri]]
+== Redis URI
+
+{project-title} follows the https://github.com/redis/redis-specifications/tree/master/uri[Redis URI] specification, which supports standalone, sentinel and cluster Redis deployments with plain, SSL, TLS and unix domain socket connections.
+
+TIP: You can use the `host:port` short hand for `redis://host:port`.
+
+TIP: You can provide the database, password and timeouts within the Redis URI.
+
+Redis Standalone::
+  `redis :// [[username :] password@] host [:port][/database]
+          [?[timeout=timeout[d|h|m|s|ms|us|ns]] [&clientName=clientName]
+          [&libraryName=libraryName] [&libraryVersion=libraryVersion] ]`
+Redis Standalone (SSL)::
+  `rediss :// [[username :] password@] host [: port][/database]
+           [?[timeout=timeout[d|h|m|s|ms|us|ns]] [&clientName=clientName]
+           [&libraryName=libraryName] [&libraryVersion=libraryVersion] ]`
+Redis Standalone (Unix Domain Sockets)::
+  `redis-socket :// [[username :] password@]path
+                 [?[timeout=timeout[d|h|m|s|ms|us|ns]] [&database=database]
+                 [&clientName=clientName] [&libraryName=libraryName]
+                 [&libraryVersion=libraryVersion] ]`
+Redis Sentinel::
+  `redis-sentinel :// [[username :] password@] host1[:port1] [, host2[:port2]] [, hostN[:portN]] [/database]
+                   [?[timeout=timeout[d|h|m|s|ms|us|ns]] [&sentinelMasterId=sentinelMasterId]
+                   [&clientName=clientName] [&libraryName=libraryName]
+                   [&libraryVersion=libraryVersion] ]`
+
+.Timeout Units
+[horizontal]
+`d`:: Days
+`h`:: Hours
+`m`:: Minutes
+`s`:: Seconds
+`ms`:: Milliseconds
+`us`:: Microseconds
+`ns`:: Nanoseconds
+
+
 [[_concepts_batching]]
 == Batching
 

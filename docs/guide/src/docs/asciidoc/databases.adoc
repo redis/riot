@@ -46,7 +46,7 @@ See the <<_db_drivers,Drivers>> section for more details.
 
 [source,console]
 ----
-riot db-import -h <redis host> -p <redis port> --url <jdbc url> SQL [REDIS COMMAND...]
+riot db-import --jdbc-url <jdbc url> SQL [REDIS COMMAND...]
 ----
 
 To show the full usage, run:
@@ -69,7 +69,6 @@ In this example the Redis options will not be taken into account:
 riot db-import "SELECT * FROM customers" hset -h myredis.com -p 6380
 ----
 ====
-
 
 The keys that will be written are constructed from input records by concatenating the keyspace prefix and key fields.
 
@@ -104,7 +103,7 @@ See the <<_db_drivers,Drivers>> section for more details.
 The general usage is:
 [source,console]
 ----
-riot db-export -h <redis host> -p <redis port> --url <jdbc url> SQL
+riot db-export --jdbc-url <jdbc url> SQL
 ----
 
 To show the full usage, run:

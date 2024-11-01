@@ -1,44 +1,30 @@
 [[_faq]]
 = FAQ
 
-[[_faq_logs_cutoff]]
+[qanda]
 Logs are cut off or missing::
-This could be due to concurrency issues in the terminal when refreshing the progress bar and displaying logs.
-Try running with job option `--progress log`.
-
-[[_faq_unknown_options]]
+  This could be due to concurrency issues in the terminal when refreshing the progress bar and displaying logs.
+  Try running with job option `--progress log`.
 Unknown options: '--keyspace', '--key'::
-You must specify one or more Redis commands with import commands (<<_file_import,`file-import`>>, <<_datagen_faker,`faker`>>, <<_db_import,`db-import`>>).
-
-[[_faq_dump_version]]
+  You must specify one or more Redis commands with import commands (<<_file_import,`file-import`>>, <<_datagen_faker,`faker`>>, <<_db_import,`db-import`>>).
 ERR DUMP payload version or checksum are wrong::
-Redis 7 DUMP format is not backwards compatible with previous versions.
-To replicate between different Redis versions, use <<_replication_type_struct,Type-Based Replication>>.
-
-[[_faq_replication_timeout]]
+  Redis 7 DUMP format is not backwards compatible with previous versions.
+  To replicate between different Redis versions, use <<_replication_type_struct,Type-Based Replication>>.
 Process gets stuck during replication and eventually times out::
-This could be due to big keys clogging the replication pipes.
-In these cases it might be hard to catch the offending key(s).
-Try running the same command with `--info` and `--progress log` so that all errors are reported.
-Check the database with `redis-cli` {link_redis_bigkeys} and/or use reader options to filter these keys out.
-
-[[_faq_noauth]]
+  This could be due to big keys clogging the replication pipes.
+  In these cases it might be hard to catch the offending key(s).
+  Try running the same command with `--info` and `--progress log` so that all errors are reported.
+  Check the database with `redis-cli` {link_redis_bigkeys} and/or use reader options to filter these keys out.
 NOAUTH Authentication required::
-This issue occurs when you fail to supply the `--pass <password>` parameter.
-
-[[_faq_stream_id]]
+  This issue occurs when you fail to supply the `--pass <password>` parameter.
 ERR The ID argument cannot be a complete ID because xadd-id-uniqueness-mode is strict::
-This usually happens in Active/Active (CRDB) setups where stream message IDs cannot be copied over to the target database.
-Use the `--no-stream-id` option to disable ID propagation.
-
-[[_faq_script]]
+  This usually happens in Active/Active (CRDB) setups where stream message IDs cannot be copied over to the target database.
+  Use the `--no-stream-id` option to disable ID propagation.
 ERR Error running script... This Redis command is not allowed from scripts::
-This can happen with Active/Active (CRDB) databases because the `MEMORY USAGE` command is not allowed to be run from a LUA script.
-Use the `--mem-limit -1` option to disable memory usage.
-
-[[_faq_outofmemory]]
+  This can happen with Active/Active (CRDB) databases because the `MEMORY USAGE` command is not allowed to be run from a LUA script.
+  Use the `--mem-limit -1` option to disable memory usage.
 java.lang.OutOfMemoryError: Java heap space::
-The JVM running RIOT ran out of memory.
-Either increase max JVM heap size (`export JAVA_OPTS="-Xmx8g"`) or reduce RIOT memory usage by lowering `threads`, `batch`, `read-batch` and `read-queue`.
+  The RIOT JVM ran out of memory.
+  Either increase max JVM heap size (`export JAVA_OPTS="-Xmx8g"`) or reduce RIOT memory usage by lowering `threads`, `batch`, `read-batch` and `read-queue`.
 
 

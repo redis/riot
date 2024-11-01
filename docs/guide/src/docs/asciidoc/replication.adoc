@@ -3,10 +3,14 @@
 
 The `replicate` command reads data from a *source* Redis database and writes to a *target* Redis database.
 
+The basic usage is:
+
 [source,console]
 ----
-riot replicate SOURCE TARGET [--mode <scan|live|liveonly>] [--struct] [OPTIONS]
+riot replicate [OPTIONS] SOURCE TARGET
 ----
+
+where SOURCE and TARGET are <<_concepts_redis_uri,Redis URIs>>.
 
 For the full usage, run:
 [source,console]
@@ -14,20 +18,38 @@ For the full usage, run:
 riot replicate --help
 ----
 
+TIP: To replicate a Redis logical database other than the default (`0`), specify the database in the source Redis URI.
+For example `riot replicate redis://source:6379/1 redis://target:6379` replicates database `1`.
+
 A status bar shows progress with a percentage of keys that have been replicated.
 The total number of keys is estimated when the process starts and it can change by the time it is finished, for example if keys are deleted or added during replication.
 
 [[_replication_mode]]
 == Replication Modes
 
+The `--mode` option allows you to specify how {project-title} identifies keys to be replicated.
+Possible values: `SCAN` (default), `LIVE`, `LIVEONLY`.
+
 [[_replication_mode_scan]]
-=== Scan
+=== `SCAN`
 This mode uses the `SCAN` command to identify keys to propagate to the target Redis database.
 
+.Scan replication example
+[source,console]
+----
+include::{testdir}/replicate[]
+----
+
 [[_replication_mode_live]]
-=== Live
+=== `LIVE`
 This mode builds upon scan replication by also listening for changes on the source Redis database.
 Whenever a key is modified its corresponding value is read and propagated to the target Redis database.
+
+.Live replication example
+[source,console]
+----
+include::{testdir}/replicate-live[]
+----
 
 Live replication relies on keyspace notifications for capturing these changes.
 
@@ -53,10 +75,15 @@ If you need assistance please contact your Redis account team.
 ====
 
 [[_replication_mode_liveonly]]
-=== Live Only
+=== `LIVEONLY`
 In this mode only keyspace notifications are used.
 
 == Replication Types
+
+{project-title} offers two different mechanisms for reading and writing keys:
+
+* Dump & restore (default)
+* Data structure replication (`--struct`)
 
 [[_replication_type_dump]]
 === Dump & Restore
@@ -78,7 +105,7 @@ There are situations where Dump & Restore cannot be used, for example:
 * The target Redis database does not support the RESTORE command ({link_redis_crdb})
 * Incompatible DUMP formats between source and target ({link_redis_7})
 
-In those cases you can use another replication strategy that is data structure-specific: each key is introspected to determine its type and then use the corresponding read/write commands:
+In those cases you can use another replication strategy that is data structure-specific: each key is introspected to determine its type and then use the corresponding read/write commands.
 
 [%header,cols="h,1,1"]
 |=========================================================
@@ -98,17 +125,6 @@ In those cases you can use another replication strategy that is data structure-s
 WARNING: This replication strategy is more intensive in terms of CPU, memory, and network for all the machines involved (source Redis, target Redis, and {project-title} machines).
 Adjust number of threads, batch and queue sizes accordingly.
 
-.Snapshot replication example
-[source,console]
-----
-include::{testdir}/replicate[]
-----
-
-.Live replication example
-[source,console]
-----
-include::{testdir}/replicate-live[]
-----
 
 .Type-based replication example
 [source,console]
@@ -135,7 +151,6 @@ Verification can also be run on-demand using the `compare` command:
 ----
 riot compare SOURCE TARGET [OPTIONS]
 ----
-
 
 The output looks like this:
 
