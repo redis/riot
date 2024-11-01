@@ -173,4 +173,10 @@ public class RedisContext implements InitializingBean, AutoCloseable {
 		return this;
 	}
 
+	public static RedisContext of(RedisArgs args) {
+		RedisContext context = of(args.getUri(), args);
+		context.sslOptions(args.getSslArgs().sslOptions());
+		return context;
+	}
+
 }

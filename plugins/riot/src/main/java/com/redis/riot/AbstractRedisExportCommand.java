@@ -23,7 +23,7 @@ public abstract class AbstractRedisExportCommand extends AbstractExportCommand {
 
 	@Override
 	protected RedisContext sourceRedisContext() {
-		return RedisContext.of(redisArgs.getUri(), redisArgs);
+		return RedisContext.of(redisArgs);
 	}
 
 	protected ItemProcessor<KeyValue<String>, Map<String, Object>> mapProcessor() {

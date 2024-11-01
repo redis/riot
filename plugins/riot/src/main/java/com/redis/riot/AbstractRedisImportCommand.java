@@ -9,7 +9,7 @@ public abstract class AbstractRedisImportCommand extends AbstractImportCommand {
 
 	@Override
 	protected RedisContext targetRedisContext() {
-		return RedisContext.of(redisArgs.getUri(), redisArgs);
+		return RedisContext.of(redisArgs);
 	}
 
 	public RedisArgs getRedisArgs() {
