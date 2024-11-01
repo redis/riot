@@ -92,7 +92,7 @@ $(addBlockSwitches);
 <h1>Redis Input/Output Tools (RIOT)</h1>
 <div class="details">
 <span id="author" class="author">Julien Ruaux</span><br>
-<span id="revnumber">version 4.1.4</span>
+<span id="revnumber">version 4.1.5</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -101,6 +101,7 @@ $(addBlockSwitches);
 <li><a href="#_install">Install</a></li>
 <li><a href="#_concepts">Concepts</a>
 <ul class="sectlevel2">
+<li><a href="#_concepts_redis_uri">Redis URI</a></li>
 <li><a href="#_concepts_batching">Batching</a></li>
 <li><a href="#_concepts_threads">Multi-threading</a></li>
 <li><a href="#_concepts_processing">Processing</a></li>
@@ -186,6 +187,36 @@ $(addBlockSwitches);
 <div class="paragraph">
 <p>RIOT is supported by Redis, Inc. on a good faith effort basis. To report bugs, request features, or receive assistance, please <a href="https://github.com/redis/riot/issues">file an issue</a> or contact your Redis account team.</p>
 </div>
+<h3 id="_riot_x" class="discrete">RIOT-X</h3>
+<div class="paragraph">
+<p><a href="https://redis-field-engineering.github.io/riotx/">RIOT-X</a> is an extension to RIOT which provides the following additional features for <a href="https://redis.io/cloud/">Redis Cloud</a> and <a href="https://redis.io/enterprise/">Redis Software</a>:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Observability</p>
+</li>
+<li>
+<p>Memcached Replication</p>
+</li>
+<li>
+<p>Stream Import/Export: Redis &lt;&#8594; Redis Stream</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Full documentation for RIOT-X is available here: <a href="https://redis-field-engineering.github.io/riotx/">redis-field-engineering.github.io/riotx</a></p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/riotx-dashboard-replication.png" alt="riotx dashboard replication">
+</div>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/riotx-dashboard-jvm.png" alt="riotx dashboard jvm">
+</div>
+</div>
 </div>
 </div>
 <div class="sect1">
@@ -220,10 +251,10 @@ scoop install riot</code></pre>
 </td>
 <td class="content">
 <div class="paragraph">
-<p><code>riot-4.1.4.zip</code> requires Java 11 or greater to be installed.</p>
+<p><code>riot-4.1.5.zip</code> requires Java 11 or greater to be installed.</p>
 </div>
 <div class="paragraph">
-<p><code>riot-standalone-4.1.4-*.zip</code> includes its own Java runtime and does not require a Java installation.</p>
+<p><code>riot-standalone-4.1.5-*.zip</code> includes its own Java runtime and does not require a Java installation.</p>
 </div>
 </td>
 </tr>
@@ -252,6 +283,127 @@ scoop install riot</code></pre>
 </div>
 </div>
 <div class="sect2">
+<h3 id="_concepts_redis_uri"><a class="anchor" href="#_concepts_redis_uri"></a>Redis URI</h3>
+<div class="paragraph">
+<p>RIOT follows the <a href="https://github.com/redis/redis-specifications/tree/master/uri">Redis URI</a> specification, which supports standalone, sentinel and cluster Redis deployments with plain, SSL, TLS and unix domain socket connections.</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+You can use the <code>host:port</code> short hand for <code>redis://host:port</code>.
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+You can provide the database, password and timeouts within the Redis URI.
+</td>
+</tr>
+</table>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Redis Standalone</dt>
+<dd>
+<p><code>redis :// [[username :] password@] host [:port][/database]
+        [?[timeout=timeout[d|h|m|s|ms|us|ns]] [&amp;clientName=clientName]
+        [&amp;libraryName=libraryName] [&amp;libraryVersion=libraryVersion] ]</code></p>
+</dd>
+<dt class="hdlist1">Redis Standalone (SSL)</dt>
+<dd>
+<p><code>rediss :// [[username :] password@] host [: port][/database]
+         [?[timeout=timeout[d|h|m|s|ms|us|ns]] [&amp;clientName=clientName]
+         [&amp;libraryName=libraryName] [&amp;libraryVersion=libraryVersion] ]</code></p>
+</dd>
+<dt class="hdlist1">Redis Standalone (Unix Domain Sockets)</dt>
+<dd>
+<p><code>redis-socket :// [[username :] password@]path
+               [?[timeout=timeout[d|h|m|s|ms|us|ns]] [&amp;database=database]
+               [&amp;clientName=clientName] [&amp;libraryName=libraryName]
+               [&amp;libraryVersion=libraryVersion] ]</code></p>
+</dd>
+<dt class="hdlist1">Redis Sentinel</dt>
+<dd>
+<p><code>redis-sentinel :// [[username :] password@] host1[:port1] [, host2[:port2]] [, hostN[:portN]] [/database]
+                 [?[timeout=timeout[d|h|m|s|ms|us|ns]] [&amp;sentinelMasterId=sentinelMasterId]
+                 [&amp;clientName=clientName] [&amp;libraryName=libraryName]
+                 [&amp;libraryVersion=libraryVersion] ]</code></p>
+</dd>
+</dl>
+</div>
+<div class="hdlist">
+<div class="title">Timeout Units</div>
+<table>
+<tr>
+<td class="hdlist1">
+<code>d</code>
+</td>
+<td class="hdlist2">
+<p>Days</p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+<code>h</code>
+</td>
+<td class="hdlist2">
+<p>Hours</p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+<code>m</code>
+</td>
+<td class="hdlist2">
+<p>Minutes</p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+<code>s</code>
+</td>
+<td class="hdlist2">
+<p>Seconds</p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+<code>ms</code>
+</td>
+<td class="hdlist2">
+<p>Milliseconds</p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+<code>us</code>
+</td>
+<td class="hdlist2">
+<p>Microseconds</p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+<code>ns</code>
+</td>
+<td class="hdlist2">
+<p>Nanoseconds</p>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
 <h3 id="_concepts_batching"><a class="anchor" href="#_concepts_batching"></a>Batching</h3>
 <div class="paragraph">
 <p>Processing in RIOT is done in batches: a fixed number of records is read from the source, processed, and written to the target.
@@ -277,7 +429,7 @@ Here, only one reader is being accessed from multiple threads.</p>
 <div class="listingblock">
 <div class="title">Multi-threading example</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="console">riot db-import &quot;SELECT * FROM orders&quot; --url &quot;jdbc:postgresql://host:port/database&quot; --username appuser --password passwd --threads 3 hset --keyspace order --key order_id</code></pre>
+<pre class="CodeRay highlight"><code data-lang="console">riot db-import &quot;SELECT * FROM orders&quot; --jdbc-url &quot;jdbc:postgresql://host:port/database&quot; --jdbc-username appuser --jdbc-password passwd --threads 3 hset --keyspace order --key order_id</code></pre>
 </div>
 </div>
 </div>
@@ -702,7 +854,7 @@ See the <a href="#_db_drivers">Drivers</a> section for more details.
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="console">riot db-import -h &lt;redis host&gt; -p &lt;redis port&gt; --url &lt;jdbc url&gt; SQL [REDIS COMMAND...]</code></pre>
+<pre class="CodeRay highlight"><code data-lang="console">riot db-import --jdbc-url &lt;jdbc url&gt; SQL [REDIS COMMAND...]</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -749,13 +901,13 @@ See the <a href="#_db_drivers">Drivers</a> section for more details.
 <div class="listingblock">
 <div class="title">PostgreSQL Import Example</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="console">riot db-import &quot;SELECT * FROM orders&quot; --url &quot;jdbc:postgresql://host:port/database&quot; --username appuser --password passwd hset --keyspace order --key order_id</code></pre>
+<pre class="CodeRay highlight"><code data-lang="console">riot db-import &quot;SELECT * FROM orders&quot; --jdbc-url &quot;jdbc:postgresql://host:port/database&quot; --jdbc-username appuser --jdbc-password passwd hset --keyspace order --key order_id</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">Import from PostgreSQL to JSON strings</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="console">riot db-import &quot;SELECT * FROM orders&quot; --url &quot;jdbc:postgresql://host:port/database&quot; --username appuser --password passwd set --keyspace order --key order_id</code></pre>
+<pre class="CodeRay highlight"><code data-lang="console">riot db-import &quot;SELECT * FROM orders&quot; --jdbc-url &quot;jdbc:postgresql://host:port/database&quot; --jdbc-username appuser --jdbc-password passwd set --keyspace order --key order_id</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -804,7 +956,7 @@ See the <a href="#_db_drivers">Drivers</a> section for more details.
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="console">riot db-export -h &lt;redis host&gt; -p &lt;redis port&gt; --url &lt;jdbc url&gt; SQL</code></pre>
+<pre class="CodeRay highlight"><code data-lang="console">riot db-export --jdbc-url &lt;jdbc url&gt; SQL</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -818,7 +970,7 @@ See the <a href="#_db_drivers">Drivers</a> section for more details.
 <div class="listingblock">
 <div class="title">Example: export to PostgreSQL</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="console">riot db-export &quot;INSERT INTO mytable (id, field1, field2) VALUES (CAST(:id AS SMALLINT), :field1, :field2)&quot; --url &quot;jdbc:postgresql://host:port/database&quot; --username appuser --password passwd --key-pattern &quot;gen:*&quot; --key-regex &quot;gen:(?&lt;id&gt;.*)&quot;</code></pre>
+<pre class="CodeRay highlight"><code data-lang="console">riot db-export &quot;INSERT INTO mytable (id, field1, field2) VALUES (CAST(:id AS SMALLINT), :field1, :field2)&quot; --jdbc-url &quot;jdbc:postgresql://host:port/database&quot; --jdbc-username appuser --jdbc-password passwd --key-pattern &quot;gen:*&quot; --key-regex &quot;gen:(?&lt;id&gt;.*)&quot;</code></pre>
 </div>
 </div>
 </div>
@@ -1304,10 +1456,16 @@ Otherwise specify the field names using the <code>--fields</code> option.</p>
 <div class="paragraph">
 <p>The <code>replicate</code> command reads data from a <strong>source</strong> Redis database and writes to a <strong>target</strong> Redis database.</p>
 </div>
+<div class="paragraph">
+<p>The basic usage is:</p>
+</div>
 <div class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="console">riot replicate SOURCE TARGET [--mode &lt;scan|live|liveonly&gt;] [--struct] [OPTIONS]</code></pre>
+<pre class="CodeRay highlight"><code data-lang="console">riot replicate [OPTIONS] SOURCE TARGET</code></pre>
 </div>
+</div>
+<div class="paragraph">
+<p>where SOURCE and TARGET are <a href="#_concepts_redis_uri">Redis URIs</a>.</p>
 </div>
 <div class="paragraph">
 <p>For the full usage, run:</p>
@@ -1317,23 +1475,52 @@ Otherwise specify the field names using the <code>--fields</code> option.</p>
 <pre class="CodeRay highlight"><code data-lang="console">riot replicate --help</code></pre>
 </div>
 </div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+To replicate a Redis logical database other than the default (<code>0</code>), specify the database in the source Redis URI.
+For example <code>riot replicate redis://source:6379/1 redis://target:6379</code> replicates database <code>1</code>.
+</td>
+</tr>
+</table>
+</div>
 <div class="paragraph">
 <p>A status bar shows progress with a percentage of keys that have been replicated.
 The total number of keys is estimated when the process starts and it can change by the time it is finished, for example if keys are deleted or added during replication.</p>
 </div>
 <div class="sect3">
 <h4 id="_replication_mode"><a class="anchor" href="#_replication_mode"></a>Replication Modes</h4>
+<div class="paragraph">
+<p>The <code>--mode</code> option allows you to specify how RIOT identifies keys to be replicated.
+Possible values: <code>SCAN</code> (default), <code>LIVE</code>, <code>LIVEONLY</code>.</p>
+</div>
 <div class="sect4">
-<h5 id="_replication_mode_scan"><a class="anchor" href="#_replication_mode_scan"></a>Scan</h5>
+<h5 id="_replication_mode_scan"><a class="anchor" href="#_replication_mode_scan"></a><code>SCAN</code></h5>
 <div class="paragraph">
 <p>This mode uses the <code>SCAN</code> command to identify keys to propagate to the target Redis database.</p>
 </div>
+<div class="listingblock">
+<div class="title">Scan replication example</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">riot replicate redis://source redis://target</code></pre>
+</div>
+</div>
 </div>
 <div class="sect4">
-<h5 id="_replication_mode_live"><a class="anchor" href="#_replication_mode_live"></a>Live</h5>
+<h5 id="_replication_mode_live"><a class="anchor" href="#_replication_mode_live"></a><code>LIVE</code></h5>
 <div class="paragraph">
 <p>This mode builds upon scan replication by also listening for changes on the source Redis database.
 Whenever a key is modified its corresponding value is read and propagated to the target Redis database.</p>
+</div>
+<div class="listingblock">
+<div class="title">Live replication example</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">riot replicate --mode live redis://source redis://target</code></pre>
+</div>
 </div>
 <div class="paragraph">
 <p>Live replication relies on keyspace notifications for capturing these changes.</p>
@@ -1381,7 +1568,7 @@ If you need assistance please contact your Redis account team.</p>
 </div>
 </div>
 <div class="sect4">
-<h5 id="_replication_mode_liveonly"><a class="anchor" href="#_replication_mode_liveonly"></a>Live Only</h5>
+<h5 id="_replication_mode_liveonly"><a class="anchor" href="#_replication_mode_liveonly"></a><code>LIVEONLY</code></h5>
 <div class="paragraph">
 <p>In this mode only keyspace notifications are used.</p>
 </div>
@@ -1389,6 +1576,19 @@ If you need assistance please contact your Redis account team.</p>
 </div>
 <div class="sect3">
 <h4 id="_replication_types"><a class="anchor" href="#_replication_types"></a>Replication Types</h4>
+<div class="paragraph">
+<p>RIOT offers two different mechanisms for reading and writing keys:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Dump &amp; restore (default)</p>
+</li>
+<li>
+<p>Data structure replication (<code>--struct</code>)</p>
+</li>
+</ul>
+</div>
 <div class="sect4">
 <h5 id="_replication_type_dump"><a class="anchor" href="#_replication_type_dump"></a>Dump &amp; Restore</h5>
 <div class="paragraph">
@@ -1425,7 +1625,7 @@ If live replication is enabled the reader also subscribes to keyspace notificati
 </ul>
 </div>
 <div class="paragraph">
-<p>In those cases you can use another replication strategy that is data structure-specific: each key is introspected to determine its type and then use the corresponding read/write commands:</p>
+<p>In those cases you can use another replication strategy that is data structure-specific: each key is introspected to determine its type and then use the corresponding read/write commands.</p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
@@ -1495,18 +1695,6 @@ Adjust number of threads, batch and queue sizes accordingly.
 </td>
 </tr>
 </table>
-</div>
-<div class="listingblock">
-<div class="title">Snapshot replication example</div>
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="console">riot replicate --batch 10 redis://source redis://target</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="title">Live replication example</div>
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="console">riot replicate --mode live redis://source redis://target</code></pre>
-</div>
 </div>
 <div class="listingblock">
 <div class="title">Type-based replication example</div>
@@ -1877,85 +2065,57 @@ Do note that the source database is specified first and the target database is s
 <div class="sect1">
 <h2 id="_faq"><a class="anchor" href="#_faq"></a>FAQ</h2>
 <div class="sectionbody">
-<div id="_faq_logs_cutoff" class="dlist">
-<dl>
-<dt class="hdlist1">Logs are cut off or missing</dt>
-<dd>
+<div class="qlist qanda">
+<ol>
+<li>
+<p><em>Logs are cut off or missing</em></p>
 <p>This could be due to concurrency issues in the terminal when refreshing the progress bar and displaying logs.
 Try running with job option <code>--progress log</code>.</p>
-</dd>
-</dl>
-</div>
-<div id="_faq_unknown_options" class="dlist">
-<dl>
-<dt class="hdlist1">Unknown options: '--keyspace', '--key'</dt>
-<dd>
+</li>
+<li>
+<p><em>Unknown options: '--keyspace', '--key'</em></p>
 <p>You must specify one or more Redis commands with import commands (<a href="#_file_import"><code>file-import</code></a>, <a href="#_datagen_faker"><code>faker</code></a>, <a href="#_db_import"><code>db-import</code></a>).</p>
-</dd>
-</dl>
-</div>
-<div id="_faq_dump_version" class="dlist">
-<dl>
-<dt class="hdlist1">ERR DUMP payload version or checksum are wrong</dt>
-<dd>
+</li>
+<li>
+<p><em>ERR DUMP payload version or checksum are wrong</em></p>
 <p>Redis 7 DUMP format is not backwards compatible with previous versions.
 To replicate between different Redis versions, use <a href="#_replication_type_struct">Type-Based Replication</a>.</p>
-</dd>
-</dl>
-</div>
-<div id="_faq_replication_timeout" class="dlist">
-<dl>
-<dt class="hdlist1">Process gets stuck during replication and eventually times out</dt>
-<dd>
+</li>
+<li>
+<p><em>Process gets stuck during replication and eventually times out</em></p>
 <p>This could be due to big keys clogging the replication pipes.
 In these cases it might be hard to catch the offending key(s).
 Try running the same command with <code>--info</code> and <code>--progress log</code> so that all errors are reported.
 Check the database with <code>redis-cli</code> <a href="https://developer.redis.com/operate/redis-at-scale/observability/identifying-issues/#scanning-keys">Big keys</a> and/or use reader options to filter these keys out.</p>
-</dd>
-</dl>
-</div>
-<div id="_faq_noauth" class="dlist">
-<dl>
-<dt class="hdlist1">NOAUTH Authentication required</dt>
-<dd>
+</li>
+<li>
+<p><em>NOAUTH Authentication required</em></p>
 <p>This issue occurs when you fail to supply the <code>--pass &lt;password&gt;</code> parameter.</p>
-</dd>
-</dl>
-</div>
-<div id="_faq_stream_id" class="dlist">
-<dl>
-<dt class="hdlist1">ERR The ID argument cannot be a complete ID because xadd-id-uniqueness-mode is strict</dt>
-<dd>
+</li>
+<li>
+<p><em>ERR The ID argument cannot be a complete ID because xadd-id-uniqueness-mode is strict</em></p>
 <p>This usually happens in Active/Active (CRDB) setups where stream message IDs cannot be copied over to the target database.
 Use the <code>--no-stream-id</code> option to disable ID propagation.</p>
-</dd>
-</dl>
-</div>
-<div id="_faq_script" class="dlist">
-<dl>
-<dt class="hdlist1">ERR Error running script&#8230;&#8203; This Redis command is not allowed from scripts</dt>
-<dd>
+</li>
+<li>
+<p><em>ERR Error running script&#8230;&#8203; This Redis command is not allowed from scripts</em></p>
 <p>This can happen with Active/Active (CRDB) databases because the <code>MEMORY USAGE</code> command is not allowed to be run from a LUA script.
 Use the <code>--mem-limit -1</code> option to disable memory usage.</p>
-</dd>
-</dl>
-</div>
-<div id="_faq_outofmemory" class="dlist">
-<dl>
-<dt class="hdlist1">java.lang.OutOfMemoryError: Java heap space</dt>
-<dd>
-<p>The JVM running RIOT ran out of memory.
+</li>
+<li>
+<p><em>java.lang.OutOfMemoryError: Java heap space</em></p>
+<p>The RIOT JVM ran out of memory.
 Either increase max JVM heap size (<code>export JAVA_OPTS="-Xmx8g"</code>) or reduce RIOT memory usage by lowering <code>threads</code>, <code>batch</code>, <code>read-batch</code> and <code>read-queue</code>.</p>
-</dd>
-</dl>
+</li>
+</ol>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 4.1.4<br>
-Last updated 2024-10-24 15:21:30 UTC
+Version 4.1.5<br>
+Last updated 2024-11-01 15:54:50 UTC
 </div>
 </div>
 <link rel="stylesheet" href="./coderay-asciidoctor.css">

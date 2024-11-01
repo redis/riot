@@ -78,12 +78,12 @@ loadScripts(document, 'script');</script>
 <section class="class-description" id="class-description">
 <dl class="notes">
 <dt>All Implemented Interfaces:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/AutoCloseable.html" title="class or interface in java.lang" class="external-link">AutoCloseable</a></code></dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/AutoCloseable.html" title="class or interface in java.lang" class="external-link">AutoCloseable</a></code>, <code>org.springframework.beans.factory.InitializingBean</code></dd>
 </dl>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">RedisContext</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>
-implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/AutoCloseable.html" title="class or interface in java.lang" class="external-link">AutoCloseable</a></span></div>
+implements org.springframework.beans.factory.InitializingBean, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/AutoCloseable.html" title="class or interface in java.lang" class="external-link">AutoCloseable</a></span></div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -95,8 +95,7 @@ implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base
 <div class="summary-table two-column-summary">
 <div class="table-header col-first">Constructor</div>
 <div class="table-header col-last">Description</div>
-<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(io.lettuce.core.RedisURI,io.lettuce.core.AbstractRedisClient)" class="member-name-link">RedisContext</a><wbr>(io.lettuce.core.RedisURI&nbsp;uri,
- io.lettuce.core.AbstractRedisClient&nbsp;client)</code></div>
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E()" class="member-name-link">RedisContext</a>()</code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 </div>
 </section>
@@ -113,30 +112,72 @@ implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#close()" class="member-name-link">close</a>()</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#afterPropertiesSet()" class="member-name-link">afterPropertiesSet</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#configure(com.redis.spring.batch.item.redis.RedisItemReader)" class="member-name-link">configure</a><wbr>(com.redis.spring.batch.item.redis.RedisItemReader&lt;?,<wbr>?&gt;&nbsp;reader)</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="RedisContext.html" title="class in com.redis.riot">RedisContext</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#clientResources(io.lettuce.core.resource.ClientResources)" class="member-name-link">clientResources</a><wbr>(io.lettuce.core.resource.ClientResources&nbsp;clientResources)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#configure(com.redis.spring.batch.item.redis.RedisItemWriter)" class="member-name-link">configure</a><wbr>(com.redis.spring.batch.item.redis.RedisItemWriter&lt;?,<wbr>?,<wbr>?&gt;&nbsp;writer)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#close()" class="member-name-link">close</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="RedisContext.html" title="class in com.redis.riot">RedisContext</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#create(io.lettuce.core.RedisURI,boolean,io.lettuce.core.protocol.ProtocolVersion,com.redis.riot.SslArgs,boolean)" class="member-name-link">create</a><wbr>(io.lettuce.core.RedisURI&nbsp;uri,
- boolean&nbsp;cluster,
- io.lettuce.core.protocol.ProtocolVersion&nbsp;protocolVersion,
- <a href="SslArgs.html" title="class in com.redis.riot">SslArgs</a>&nbsp;sslArgs,
- boolean&nbsp;metrics)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="RedisContext.html" title="class in com.redis.riot">RedisContext</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#cluster(boolean)" class="member-name-link">cluster</a><wbr>(boolean&nbsp;cluster)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#configure(com.redis.spring.batch.item.redis.RedisItemReader)" class="member-name-link">configure</a><wbr>(com.redis.spring.batch.item.redis.RedisItemReader&lt;?,<wbr>?&gt;&nbsp;reader)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#configure(com.redis.spring.batch.item.redis.RedisItemWriter)" class="member-name-link">configure</a><wbr>(com.redis.spring.batch.item.redis.RedisItemWriter&lt;?,<wbr>?,<wbr>?&gt;&nbsp;writer)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>io.lettuce.core.AbstractRedisClient</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getClient()" class="member-name-link">getClient</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>com.redis.lettucemod.api.StatefulRedisModulesConnection&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getConnection()" class="member-name-link">getConnection</a>()</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>io.lettuce.core.resource.ClientResources</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getClientResources()" class="member-name-link">getClientResources</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>io.lettuce.core.RedisURI</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getUri()" class="member-name-link">getUri</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>com.redis.lettucemod.api.StatefulRedisModulesConnection&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getConnection()" class="member-name-link">getConnection</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getPoolSize()" class="member-name-link">getPoolSize</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>io.lettuce.core.protocol.ProtocolVersion</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getProtocolVersion()" class="member-name-link">getProtocolVersion</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>io.lettuce.core.ReadFrom</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getReadFrom()" class="member-name-link">getReadFrom</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>io.lettuce.core.SslOptions</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getSslOptions()" class="member-name-link">getSslOptions</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>io.lettuce.core.RedisURI</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getUri()" class="member-name-link">getUri</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isCluster()" class="member-name-link">isCluster</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="RedisContext.html" title="class in com.redis.riot">RedisContext</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#of(com.redis.riot.RedisArgs)" class="member-name-link">of</a><wbr>(<a href="RedisArgs.html" title="class in com.redis.riot">RedisArgs</a>&nbsp;args)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="RedisContext.html" title="class in com.redis.riot">RedisContext</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#of(io.lettuce.core.RedisURI,com.redis.riot.RedisClientArgs)" class="member-name-link">of</a><wbr>(io.lettuce.core.RedisURI&nbsp;uri,
+ <a href="RedisClientArgs.html" title="interface in com.redis.riot">RedisClientArgs</a>&nbsp;args)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="RedisContext.html" title="class in com.redis.riot">RedisContext</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#poolSize(int)" class="member-name-link">poolSize</a><wbr>(int&nbsp;size)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="RedisContext.html" title="class in com.redis.riot">RedisContext</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#protocolVersion(io.lettuce.core.protocol.ProtocolVersion)" class="member-name-link">protocolVersion</a><wbr>(io.lettuce.core.protocol.ProtocolVersion&nbsp;protocolVersion)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="RedisContext.html" title="class in com.redis.riot">RedisContext</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#readFrom(io.lettuce.core.ReadFrom)" class="member-name-link">readFrom</a><wbr>(io.lettuce.core.ReadFrom&nbsp;readFrom)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="RedisContext.html" title="class in com.redis.riot">RedisContext</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#sslOptions(io.lettuce.core.SslOptions)" class="member-name-link">sslOptions</a><wbr>(io.lettuce.core.SslOptions&nbsp;sslOptions)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="RedisContext.html" title="class in com.redis.riot">RedisContext</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#uri(io.lettuce.core.RedisURI)" class="member-name-link">uri</a><wbr>(io.lettuce.core.RedisURI&nbsp;uri)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
 </div>
@@ -155,10 +196,9 @@ implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base
 <h2>Constructor Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="&lt;init&gt;(io.lettuce.core.RedisURI,io.lettuce.core.AbstractRedisClient)">
+<section class="detail" id="&lt;init&gt;()">
 <h3>RedisContext</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">RedisContext</span><wbr><span class="parameters">(io.lettuce.core.RedisURI&nbsp;uri,
- io.lettuce.core.AbstractRedisClient&nbsp;client)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">RedisContext</span>()</div>
 </section>
 </li>
 </ul>
@@ -169,6 +209,16 @@ implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base
 <section class="method-details" id="method-detail">
 <h2>Method Details</h2>
 <ul class="member-list">
+<li>
+<section class="detail" id="afterPropertiesSet()">
+<h3>afterPropertiesSet</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">afterPropertiesSet</span>()</div>
+<dl class="notes">
+<dt>Specified by:</dt>
+<dd><code>afterPropertiesSet</code>&nbsp;in interface&nbsp;<code>org.springframework.beans.factory.InitializingBean</code></dd>
+</dl>
+</section>
+</li>
 <li>
 <section class="detail" id="configure(com.redis.spring.batch.item.redis.RedisItemReader)">
 <h3>configure</h3>
@@ -182,9 +232,20 @@ implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base
 </section>
 </li>
 <li>
-<section class="detail" id="getUri()">
-<h3>getUri</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">io.lettuce.core.RedisURI</span>&nbsp;<span class="element-name">getUri</span>()</div>
+<section class="detail" id="close()">
+<h3>close</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">close</span>()</div>
+<dl class="notes">
+<dt>Specified by:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/AutoCloseable.html#close()" title="class or interface in java.lang" class="external-link">close</a></code>&nbsp;in interface&nbsp;<code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/AutoCloseable.html" title="class or interface in java.lang" class="external-link">AutoCloseable</a></code></dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="of(io.lettuce.core.RedisURI,com.redis.riot.RedisClientArgs)">
+<h3>of</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="RedisContext.html" title="class in com.redis.riot">RedisContext</a></span>&nbsp;<span class="element-name">of</span><wbr><span class="parameters">(io.lettuce.core.RedisURI&nbsp;uri,
+ <a href="RedisClientArgs.html" title="interface in com.redis.riot">RedisClientArgs</a>&nbsp;args)</span></div>
 </section>
 </li>
 <li>
@@ -200,23 +261,93 @@ implements <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base
 </section>
 </li>
 <li>
-<section class="detail" id="close()">
-<h3>close</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">close</span>()</div>
-<dl class="notes">
-<dt>Specified by:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/AutoCloseable.html#close()" title="class or interface in java.lang" class="external-link">close</a></code>&nbsp;in interface&nbsp;<code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/AutoCloseable.html" title="class or interface in java.lang" class="external-link">AutoCloseable</a></code></dd>
-</dl>
+<section class="detail" id="getUri()">
+<h3>getUri</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">io.lettuce.core.RedisURI</span>&nbsp;<span class="element-name">getUri</span>()</div>
 </section>
 </li>
 <li>
-<section class="detail" id="create(io.lettuce.core.RedisURI,boolean,io.lettuce.core.protocol.ProtocolVersion,com.redis.riot.SslArgs,boolean)">
-<h3>create</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="RedisContext.html" title="class in com.redis.riot">RedisContext</a></span>&nbsp;<span class="element-name">create</span><wbr><span class="parameters">(io.lettuce.core.RedisURI&nbsp;uri,
- boolean&nbsp;cluster,
- io.lettuce.core.protocol.ProtocolVersion&nbsp;protocolVersion,
- <a href="SslArgs.html" title="class in com.redis.riot">SslArgs</a>&nbsp;sslArgs,
- boolean&nbsp;metrics)</span></div>
+<section class="detail" id="uri(io.lettuce.core.RedisURI)">
+<h3>uri</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="RedisContext.html" title="class in com.redis.riot">RedisContext</a></span>&nbsp;<span class="element-name">uri</span><wbr><span class="parameters">(io.lettuce.core.RedisURI&nbsp;uri)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="isCluster()">
+<h3>isCluster</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isCluster</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="cluster(boolean)">
+<h3>cluster</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="RedisContext.html" title="class in com.redis.riot">RedisContext</a></span>&nbsp;<span class="element-name">cluster</span><wbr><span class="parameters">(boolean&nbsp;cluster)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="getProtocolVersion()">
+<h3>getProtocolVersion</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">io.lettuce.core.protocol.ProtocolVersion</span>&nbsp;<span class="element-name">getProtocolVersion</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="protocolVersion(io.lettuce.core.protocol.ProtocolVersion)">
+<h3>protocolVersion</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="RedisContext.html" title="class in com.redis.riot">RedisContext</a></span>&nbsp;<span class="element-name">protocolVersion</span><wbr><span class="parameters">(io.lettuce.core.protocol.ProtocolVersion&nbsp;protocolVersion)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="getSslOptions()">
+<h3>getSslOptions</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">io.lettuce.core.SslOptions</span>&nbsp;<span class="element-name">getSslOptions</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="sslOptions(io.lettuce.core.SslOptions)">
+<h3>sslOptions</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="RedisContext.html" title="class in com.redis.riot">RedisContext</a></span>&nbsp;<span class="element-name">sslOptions</span><wbr><span class="parameters">(io.lettuce.core.SslOptions&nbsp;sslOptions)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="getPoolSize()">
+<h3>getPoolSize</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getPoolSize</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="poolSize(int)">
+<h3>poolSize</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="RedisContext.html" title="class in com.redis.riot">RedisContext</a></span>&nbsp;<span class="element-name">poolSize</span><wbr><span class="parameters">(int&nbsp;size)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="getReadFrom()">
+<h3>getReadFrom</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">io.lettuce.core.ReadFrom</span>&nbsp;<span class="element-name">getReadFrom</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="readFrom(io.lettuce.core.ReadFrom)">
+<h3>readFrom</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="RedisContext.html" title="class in com.redis.riot">RedisContext</a></span>&nbsp;<span class="element-name">readFrom</span><wbr><span class="parameters">(io.lettuce.core.ReadFrom&nbsp;readFrom)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="getClientResources()">
+<h3>getClientResources</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">io.lettuce.core.resource.ClientResources</span>&nbsp;<span class="element-name">getClientResources</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="clientResources(io.lettuce.core.resource.ClientResources)">
+<h3>clientResources</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="RedisContext.html" title="class in com.redis.riot">RedisContext</a></span>&nbsp;<span class="element-name">clientResources</span><wbr><span class="parameters">(io.lettuce.core.resource.ClientResources&nbsp;clientResources)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="of(com.redis.riot.RedisArgs)">
+<h3>of</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="RedisContext.html" title="class in com.redis.riot">RedisContext</a></span>&nbsp;<span class="element-name">of</span><wbr><span class="parameters">(<a href="RedisArgs.html" title="class in com.redis.riot">RedisArgs</a>&nbsp;args)</span></div>
 </section>
 </li>
 </ul>

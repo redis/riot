@@ -140,30 +140,21 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#configureTargetRedisWriter(com.redis.spring.batch.item.redis.RedisItemWriter)" class="member-name-link">configureTargetRedisWriter</a><wbr>(com.redis.spring.batch.item.redis.RedisItemWriter&lt;?,<wbr>?,<wbr>?&gt;&nbsp;writer)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getPoolSize()" class="member-name-link">getPoolSize</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="RedisArgs.html" title="class in com.redis.riot">RedisArgs</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getRedisArgs()" class="member-name-link">getRedisArgs</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setPoolSize(int)" class="member-name-link">setPoolSize</a><wbr>(int&nbsp;poolSize)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setRedisArgs(com.redis.riot.RedisArgs)" class="member-name-link">setRedisArgs</a><wbr>(<a href="RedisArgs.html" title="class in com.redis.riot">RedisArgs</a>&nbsp;clientArgs)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setRedisArgs(com.redis.riot.RedisArgs)" class="member-name-link">setRedisArgs</a><wbr>(<a href="RedisArgs.html" title="class in com.redis.riot">RedisArgs</a>&nbsp;clientArgs)</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected <a href="RedisContext.html" title="class in com.redis.riot">RedisContext</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#targetRedisContext()" class="member-name-link">targetRedisContext</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected <a href="RedisContext.html" title="class in com.redis.riot">RedisContext</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#targetRedisContext()" class="member-name-link">targetRedisContext</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
 </div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-com.redis.riot.AbstractImportCommand">Methods inherited from class&nbsp;com.redis.riot.<a href="AbstractImportCommand.html" title="class in com.redis.riot">AbstractImportCommand</a></h3>
-<code><a href="AbstractImportCommand.html#execute()">execute</a>, <a href="AbstractImportCommand.html#getEvaluationContextArgs()">getEvaluationContextArgs</a>, <a href="AbstractImportCommand.html#getImportOperationCommands()">getImportOperationCommands</a>, <a href="AbstractImportCommand.html#getProcessorArgs()">getProcessorArgs</a>, <a href="AbstractImportCommand.html#getTargetRedisWriterArgs()">getTargetRedisWriterArgs</a>, <a href="AbstractImportCommand.html#hasOperations()">hasOperations</a>, <a href="AbstractImportCommand.html#operations()">operations</a>, <a href="AbstractImportCommand.html#operationWriter()">operationWriter</a>, <a href="AbstractImportCommand.html#processor()">processor</a>, <a href="AbstractImportCommand.html#processor(org.springframework.expression.EvaluationContext,com.redis.riot.ImportProcessorArgs)">processor</a>, <a href="AbstractImportCommand.html#setEvaluationContextArgs(com.redis.riot.EvaluationContextArgs)">setEvaluationContextArgs</a>, <a href="AbstractImportCommand.html#setImportOperationCommands(com.redis.riot.operation.OperationCommand...)">setImportOperationCommands</a>, <a href="AbstractImportCommand.html#setImportOperationCommands(java.util.List)">setImportOperationCommands</a>, <a href="AbstractImportCommand.html#setProcessorArgs(com.redis.riot.ImportProcessorArgs)">setProcessorArgs</a>, <a href="AbstractImportCommand.html#setTargetRedisWriterArgs(com.redis.riot.RedisWriterArgs)">setTargetRedisWriterArgs</a>, <a href="AbstractImportCommand.html#step(org.springframework.batch.item.ItemReader)">step</a></code></div>
+<code><a href="AbstractImportCommand.html#configureTargetRedisWriter(com.redis.spring.batch.item.redis.RedisItemWriter)">configureTargetRedisWriter</a>, <a href="AbstractImportCommand.html#execute()">execute</a>, <a href="AbstractImportCommand.html#getEvaluationContextArgs()">getEvaluationContextArgs</a>, <a href="AbstractImportCommand.html#getImportOperationCommands()">getImportOperationCommands</a>, <a href="AbstractImportCommand.html#getProcessorArgs()">getProcessorArgs</a>, <a href="AbstractImportCommand.html#getTargetRedisWriterArgs()">getTargetRedisWriterArgs</a>, <a href="AbstractImportCommand.html#hasOperations()">hasOperations</a>, <a href="AbstractImportCommand.html#operations()">operations</a>, <a href="AbstractImportCommand.html#operationWriter()">operationWriter</a>, <a href="AbstractImportCommand.html#processor()">processor</a>, <a href="AbstractImportCommand.html#processor(org.springframework.expression.EvaluationContext,com.redis.riot.ImportProcessorArgs)">processor</a>, <a href="AbstractImportCommand.html#setEvaluationContextArgs(com.redis.riot.EvaluationContextArgs)">setEvaluationContextArgs</a>, <a href="AbstractImportCommand.html#setImportOperationCommands(com.redis.riot.operation.OperationCommand...)">setImportOperationCommands</a>, <a href="AbstractImportCommand.html#setImportOperationCommands(java.util.List)">setImportOperationCommands</a>, <a href="AbstractImportCommand.html#setProcessorArgs(com.redis.riot.ImportProcessorArgs)">setProcessorArgs</a>, <a href="AbstractImportCommand.html#setTargetRedisWriterArgs(com.redis.riot.RedisWriterArgs)">setTargetRedisWriterArgs</a>, <a href="AbstractImportCommand.html#step(org.springframework.batch.item.ItemReader)">step</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-com.redis.riot.core.AbstractJobCommand">Methods inherited from class&nbsp;com.redis.riot.core.<a href="core/AbstractJobCommand.html" title="class in com.redis.riot.core">AbstractJobCommand</a></h3>
 <code><a href="core/AbstractJobCommand.html#configureAsyncReader(com.redis.spring.batch.item.AbstractAsyncItemReader)">configureAsyncReader</a>, <a href="core/AbstractJobCommand.html#getJobArgs()">getJobArgs</a>, <a href="core/AbstractJobCommand.html#getJobLauncher()">getJobLauncher</a>, <a href="core/AbstractJobCommand.html#getJobName()">getJobName</a>, <a href="core/AbstractJobCommand.html#getJobRepository()">getJobRepository</a>, <a href="core/AbstractJobCommand.html#getJobRepositoryName()">getJobRepositoryName</a>, <a href="core/AbstractJobCommand.html#getTransactionManager()">getTransactionManager</a>, <a href="core/AbstractJobCommand.html#job()">job</a>, <a href="core/AbstractJobCommand.html#job(com.redis.riot.core.Step...)">job</a>, <a href="core/AbstractJobCommand.html#job(java.util.Collection)">job</a>, <a href="core/AbstractJobCommand.html#setJobArgs(com.redis.riot.core.StepArgs)">setJobArgs</a>, <a href="core/AbstractJobCommand.html#setJobLauncher(org.springframework.batch.core.launch.JobLauncher)">setJobLauncher</a>, <a href="core/AbstractJobCommand.html#setJobName(java.lang.String)">setJobName</a>, <a href="core/AbstractJobCommand.html#setJobRepository(org.springframework.batch.core.repository.JobRepository)">setJobRepository</a>, <a href="core/AbstractJobCommand.html#setJobRepositoryName(java.lang.String)">setJobRepositoryName</a>, <a href="core/AbstractJobCommand.html#setTransactionManager(org.springframework.transaction.PlatformTransactionManager)">setTransactionManager</a>, <a href="core/AbstractJobCommand.html#shouldShowProgress()">shouldShowProgress</a></code></div>
@@ -199,16 +190,6 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="configureTargetRedisWriter(com.redis.spring.batch.item.redis.RedisItemWriter)">
-<h3>configureTargetRedisWriter</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">configureTargetRedisWriter</span><wbr><span class="parameters">(com.redis.spring.batch.item.redis.RedisItemWriter&lt;?,<wbr>?,<wbr>?&gt;&nbsp;writer)</span></div>
-<dl class="notes">
-<dt>Overrides:</dt>
-<dd><code><a href="AbstractImportCommand.html#configureTargetRedisWriter(com.redis.spring.batch.item.redis.RedisItemWriter)">configureTargetRedisWriter</a></code>&nbsp;in class&nbsp;<code><a href="AbstractImportCommand.html" title="class in com.redis.riot">AbstractImportCommand</a></code></dd>
-</dl>
-</section>
-</li>
-<li>
 <section class="detail" id="targetRedisContext()">
 <h3>targetRedisContext</h3>
 <div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="RedisContext.html" title="class in com.redis.riot">RedisContext</a></span>&nbsp;<span class="element-name">targetRedisContext</span>()</div>
@@ -228,18 +209,6 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="setRedisArgs(com.redis.riot.RedisArgs)">
 <h3>setRedisArgs</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setRedisArgs</span><wbr><span class="parameters">(<a href="RedisArgs.html" title="class in com.redis.riot">RedisArgs</a>&nbsp;clientArgs)</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="getPoolSize()">
-<h3>getPoolSize</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getPoolSize</span>()</div>
-</section>
-</li>
-<li>
-<section class="detail" id="setPoolSize(int)">
-<h3>setPoolSize</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setPoolSize</span><wbr><span class="parameters">(int&nbsp;poolSize)</span></div>
 </section>
 </li>
 </ul>

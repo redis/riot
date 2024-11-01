@@ -60,11 +60,15 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/core/QuietMapAccessor.html#canRead(org.springframework.expression.EvaluationContext,java.lang.Object,java.lang.String)" class="member-name-link">canRead(EvaluationContext, Object, String)</a> - Method in class com.redis.riot.core.<a href="../com/redis/riot/core/QuietMapAccessor.html" title="class in com.redis.riot.core">QuietMapAccessor</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="../com/redis/riot/RedisContext.html#clientResources(io.lettuce.core.resource.ClientResources)" class="member-name-link">clientResources(ClientResources)</a> - Method in class com.redis.riot.<a href="../com/redis/riot/RedisContext.html" title="class in com.redis.riot">RedisContext</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/core/ThrottledItemWriter.html#close()" class="member-name-link">close()</a> - Method in class com.redis.riot.core.<a href="../com/redis/riot/core/ThrottledItemWriter.html" title="class in com.redis.riot.core">ThrottledItemWriter</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/file/xml/XmlObjectReader.html#close()" class="member-name-link">close()</a> - Method in class com.redis.riot.file.xml.<a href="../com/redis/riot/file/xml/XmlObjectReader.html" title="class in com.redis.riot.file.xml">XmlObjectReader</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/RedisContext.html#close()" class="member-name-link">close()</a> - Method in class com.redis.riot.<a href="../com/redis/riot/RedisContext.html" title="class in com.redis.riot">RedisContext</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="../com/redis/riot/RedisContext.html#cluster(boolean)" class="member-name-link">cluster(boolean)</a> - Method in class com.redis.riot.<a href="../com/redis/riot/RedisContext.html" title="class in com.redis.riot">RedisContext</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/core/processor/CollectionToMapFunction.html" class="type-name-link" title="class in com.redis.riot.core.processor">CollectionToMapFunction</a> - Class in <a href="../com/redis/riot/core/processor/package-summary.html">com.redis.riot.core.processor</a></dt>
 <dd>&nbsp;</dd>
@@ -98,6 +102,8 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/core/BaseCommand.html#commandSpec" class="member-name-link">commandSpec</a> - Variable in class com.redis.riot.core.<a href="../com/redis/riot/core/BaseCommand.html" title="class in com.redis.riot.core">BaseCommand</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="../com/redis/riot/Riot.html#compare()" class="member-name-link">compare()</a> - Method in class com.redis.riot.<a href="../com/redis/riot/Riot.html" title="class in com.redis.riot">Riot</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/Compare.html" class="type-name-link" title="class in com.redis.riot">Compare</a> - Class in <a href="../com/redis/riot/package-summary.html">com.redis.riot</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/Compare.html#%3Cinit%3E()" class="member-name-link">Compare()</a> - Constructor for class com.redis.riot.<a href="../com/redis/riot/Compare.html" title="class in com.redis.riot">Compare</a></dt>
@@ -105,6 +111,8 @@ loadScripts(document, 'script');</script>
 <dt><a href="../com/redis/riot/CompareLoggingWriteListener.html" class="type-name-link" title="class in com.redis.riot">CompareLoggingWriteListener</a>&lt;<a href="../com/redis/riot/CompareLoggingWriteListener.html" title="type parameter in CompareLoggingWriteListener">K</a>&gt; - Class in <a href="../com/redis/riot/package-summary.html">com.redis.riot</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/CompareLoggingWriteListener.html#%3Cinit%3E(io.lettuce.core.codec.RedisCodec)" class="member-name-link">CompareLoggingWriteListener(RedisCodec&lt;K, ?&gt;)</a> - Constructor for class com.redis.riot.<a href="../com/redis/riot/CompareLoggingWriteListener.html" title="class in com.redis.riot">CompareLoggingWriteListener</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="../com/redis/riot/CompareMode.html" class="type-name-link" title="enum class in com.redis.riot">CompareMode</a> - Enum Class in <a href="../com/redis/riot/package-summary.html">com.redis.riot</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/AbstractReplicateCommand.html#compareReader()" class="member-name-link">compareReader()</a> - Method in class com.redis.riot.<a href="../com/redis/riot/AbstractReplicateCommand.html" title="class in com.redis.riot">AbstractReplicateCommand</a></dt>
 <dd>&nbsp;</dd>
@@ -144,23 +152,13 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/core/AbstractJobCommand.html#configureAsyncReader(com.redis.spring.batch.item.AbstractAsyncItemReader)" class="member-name-link">configureAsyncReader(AbstractAsyncItemReader&lt;?, ?&gt;)</a> - Method in class com.redis.riot.core.<a href="../com/redis/riot/core/AbstractJobCommand.html" title="class in com.redis.riot.core">AbstractJobCommand</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/Riot.html#configureCommandLine(picocli.CommandLine)" class="member-name-link">configureCommandLine(CommandLine)</a> - Static method in class com.redis.riot.<a href="../com/redis/riot/Riot.html" title="class in com.redis.riot">Riot</a></dt>
-<dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/core/LoggingMixin.html#configureLoggers()" class="member-name-link">configureLoggers()</a> - Method in class com.redis.riot.core.<a href="../com/redis/riot/core/LoggingMixin.html" title="class in com.redis.riot.core">LoggingMixin</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/AbstractExportCommand.html#configureSourceRedisReader(com.redis.spring.batch.item.redis.RedisItemReader)" class="member-name-link">configureSourceRedisReader(RedisItemReader&lt;?, ?&gt;)</a> - Method in class com.redis.riot.<a href="../com/redis/riot/AbstractExportCommand.html" title="class in com.redis.riot">AbstractExportCommand</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/AbstractRedisExportCommand.html#configureSourceRedisReader(com.redis.spring.batch.item.redis.RedisItemReader)" class="member-name-link">configureSourceRedisReader(RedisItemReader&lt;?, ?&gt;)</a> - Method in class com.redis.riot.<a href="../com/redis/riot/AbstractRedisExportCommand.html" title="class in com.redis.riot">AbstractRedisExportCommand</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/AbstractRedisTargetExportCommand.html#configureSourceRedisReader(com.redis.spring.batch.item.redis.RedisItemReader)" class="member-name-link">configureSourceRedisReader(RedisItemReader&lt;?, ?&gt;)</a> - Method in class com.redis.riot.<a href="../com/redis/riot/AbstractRedisTargetExportCommand.html" title="class in com.redis.riot">AbstractRedisTargetExportCommand</a></dt>
-<dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/AbstractRedisTargetExportCommand.html#configureTargetRedisReader(com.redis.spring.batch.item.redis.RedisItemReader)" class="member-name-link">configureTargetRedisReader(RedisItemReader&lt;?, ?&gt;)</a> - Method in class com.redis.riot.<a href="../com/redis/riot/AbstractRedisTargetExportCommand.html" title="class in com.redis.riot">AbstractRedisTargetExportCommand</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/AbstractReplicateCommand.html#configureTargetRedisReader(com.redis.spring.batch.item.redis.RedisItemReader)" class="member-name-link">configureTargetRedisReader(RedisItemReader&lt;?, ?&gt;)</a> - Method in class com.redis.riot.<a href="../com/redis/riot/AbstractReplicateCommand.html" title="class in com.redis.riot">AbstractReplicateCommand</a></dt>
-<dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/AbstractImportCommand.html#configureTargetRedisWriter(com.redis.spring.batch.item.redis.RedisItemWriter)" class="member-name-link">configureTargetRedisWriter(RedisItemWriter&lt;?, ?, ?&gt;)</a> - Method in class com.redis.riot.<a href="../com/redis/riot/AbstractImportCommand.html" title="class in com.redis.riot">AbstractImportCommand</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/AbstractRedisImportCommand.html#configureTargetRedisWriter(com.redis.spring.batch.item.redis.RedisItemWriter)" class="member-name-link">configureTargetRedisWriter(RedisItemWriter&lt;?, ?, ?&gt;)</a> - Method in class com.redis.riot.<a href="../com/redis/riot/AbstractRedisImportCommand.html" title="class in com.redis.riot">AbstractRedisImportCommand</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/AbstractRedisTargetExportCommand.html#configureTargetRedisWriter(com.redis.spring.batch.item.redis.RedisItemWriter)" class="member-name-link">configureTargetRedisWriter(RedisItemWriter&lt;?, ?, ?&gt;)</a> - Method in class com.redis.riot.<a href="../com/redis/riot/AbstractRedisTargetExportCommand.html" title="class in com.redis.riot">AbstractRedisTargetExportCommand</a></dt>
 <dd>&nbsp;</dd>
@@ -175,8 +173,6 @@ loadScripts(document, 'script');</script>
 <dt><a href="../com/redis/riot/RangeConverter.html#convert(java.lang.String)" class="member-name-link">convert(String)</a> - Method in class com.redis.riot.<a href="../com/redis/riot/RangeConverter.html" title="class in com.redis.riot">RangeConverter</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/RedisURIConverter.html#convert(java.lang.String)" class="member-name-link">convert(String)</a> - Method in class com.redis.riot.<a href="../com/redis/riot/RedisURIConverter.html" title="class in com.redis.riot">RedisURIConverter</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/RedisContext.html#create(io.lettuce.core.RedisURI,boolean,io.lettuce.core.protocol.ProtocolVersion,com.redis.riot.SslArgs,boolean)" class="member-name-link">create(RedisURI, boolean, ProtocolVersion, SslArgs, boolean)</a> - Static method in class com.redis.riot.<a href="../com/redis/riot/RedisContext.html" title="class in com.redis.riot">RedisContext</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/FileExport.html#create(org.springframework.core.io.WritableResource,com.redis.riot.file.FileType,java.util.function.Supplier)" class="member-name-link">create(WritableResource, FileType, Supplier&lt;Map&lt;String, Object&gt;&gt;)</a> - Method in class com.redis.riot.<a href="../com/redis/riot/FileExport.html" title="class in com.redis.riot">FileExport</a></dt>
 <dd>&nbsp;</dd>

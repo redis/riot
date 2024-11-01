@@ -62,6 +62,8 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/core/QuietMapAccessor.html#read(org.springframework.expression.EvaluationContext,java.lang.Object,java.lang.String)" class="member-name-link">read(EvaluationContext, Object, String)</a> - Method in class com.redis.riot.core.<a href="../com/redis/riot/core/QuietMapAccessor.html" title="class in com.redis.riot.core">QuietMapAccessor</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="../com/redis/riot/RedisContext.html#readFrom(io.lettuce.core.ReadFrom)" class="member-name-link">readFrom(ReadFrom)</a> - Method in class com.redis.riot.<a href="../com/redis/riot/RedisContext.html" title="class in com.redis.riot">RedisContext</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/ReadFrom.html" class="type-name-link" title="enum class in com.redis.riot">ReadFrom</a> - Enum Class in <a href="../com/redis/riot/package-summary.html">com.redis.riot</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/core/Step.html#readListener(org.springframework.batch.core.ItemReadListener)" class="member-name-link">readListener(ItemReadListener&lt;I&gt;)</a> - Method in class com.redis.riot.core.<a href="../com/redis/riot/core/Step.html" title="class in com.redis.riot.core">Step</a></dt>
@@ -70,25 +72,15 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/RedisArgs.html#%3Cinit%3E()" class="member-name-link">RedisArgs()</a> - Constructor for class com.redis.riot.<a href="../com/redis/riot/RedisArgs.html" title="class in com.redis.riot">RedisArgs</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/RedisArgs.html#redisContext()" class="member-name-link">redisContext()</a> - Method in class com.redis.riot.<a href="../com/redis/riot/RedisArgs.html" title="class in com.redis.riot">RedisArgs</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/SourceRedisArgs.html#redisContext(io.lettuce.core.RedisURI,com.redis.riot.SslArgs)" class="member-name-link">redisContext(RedisURI, SslArgs)</a> - Method in class com.redis.riot.<a href="../com/redis/riot/SourceRedisArgs.html" title="class in com.redis.riot">SourceRedisArgs</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/TargetRedisArgs.html#redisContext(io.lettuce.core.RedisURI,com.redis.riot.SslArgs)" class="member-name-link">redisContext(RedisURI, SslArgs)</a> - Method in class com.redis.riot.<a href="../com/redis/riot/TargetRedisArgs.html" title="class in com.redis.riot">TargetRedisArgs</a></dt>
+<dt><a href="../com/redis/riot/RedisClientArgs.html" class="type-name-link" title="interface in com.redis.riot">RedisClientArgs</a> - Interface in <a href="../com/redis/riot/package-summary.html">com.redis.riot</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/RedisContext.html" class="type-name-link" title="class in com.redis.riot">RedisContext</a> - Class in <a href="../com/redis/riot/package-summary.html">com.redis.riot</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/RedisContext.html#%3Cinit%3E(io.lettuce.core.RedisURI,io.lettuce.core.AbstractRedisClient)" class="member-name-link">RedisContext(RedisURI, AbstractRedisClient)</a> - Constructor for class com.redis.riot.<a href="../com/redis/riot/RedisContext.html" title="class in com.redis.riot">RedisContext</a></dt>
+<dt><a href="../com/redis/riot/RedisContext.html#%3Cinit%3E()" class="member-name-link">RedisContext()</a> - Constructor for class com.redis.riot.<a href="../com/redis/riot/RedisContext.html" title="class in com.redis.riot">RedisContext</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/RedisReaderArgs.html" class="type-name-link" title="class in com.redis.riot">RedisReaderArgs</a> - Class in <a href="../com/redis/riot/package-summary.html">com.redis.riot</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/RedisReaderArgs.html#%3Cinit%3E()" class="member-name-link">RedisReaderArgs()</a> - Constructor for class com.redis.riot.<a href="../com/redis/riot/RedisReaderArgs.html" title="class in com.redis.riot">RedisReaderArgs</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/RedisArgs.html#redisURI()" class="member-name-link">redisURI()</a> - Method in class com.redis.riot.<a href="../com/redis/riot/RedisArgs.html" title="class in com.redis.riot">RedisArgs</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/SourceRedisArgs.html#redisURI(io.lettuce.core.RedisURI)" class="member-name-link">redisURI(RedisURI)</a> - Method in class com.redis.riot.<a href="../com/redis/riot/SourceRedisArgs.html" title="class in com.redis.riot">SourceRedisArgs</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/TargetRedisArgs.html#redisURI(io.lettuce.core.RedisURI)" class="member-name-link">redisURI(RedisURI)</a> - Method in class com.redis.riot.<a href="../com/redis/riot/TargetRedisArgs.html" title="class in com.redis.riot">TargetRedisArgs</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/RedisURIConverter.html" class="type-name-link" title="class in com.redis.riot">RedisURIConverter</a> - Class in <a href="../com/redis/riot/package-summary.html">com.redis.riot</a></dt>
 <dd>&nbsp;</dd>
@@ -112,19 +104,15 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/ReadFrom.html#REPLICA_PREFERRED" class="member-name-link">REPLICA_PREFERRED</a> - Enum constant in enum class com.redis.riot.<a href="../com/redis/riot/ReadFrom.html" title="enum class in com.redis.riot">ReadFrom</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="../com/redis/riot/Riot.html#replicate()" class="member-name-link">replicate()</a> - Method in class com.redis.riot.<a href="../com/redis/riot/Riot.html" title="class in com.redis.riot">Riot</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/Replicate.html" class="type-name-link" title="class in com.redis.riot">Replicate</a> - Class in <a href="../com/redis/riot/package-summary.html">com.redis.riot</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/Replicate.html#%3Cinit%3E()" class="member-name-link">Replicate()</a> - Constructor for class com.redis.riot.<a href="../com/redis/riot/Replicate.html" title="class in com.redis.riot">Replicate</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/Replicate.CompareMode.html" class="type-name-link" title="enum class in com.redis.riot">Replicate.CompareMode</a> - Enum Class in <a href="../com/redis/riot/package-summary.html">com.redis.riot</a></dt>
-<dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/ReplicateReadLogger.html" class="type-name-link" title="class in com.redis.riot">ReplicateReadLogger</a>&lt;<a href="../com/redis/riot/ReplicateReadLogger.html" title="type parameter in ReplicateReadLogger">K</a>&gt; - Class in <a href="../com/redis/riot/package-summary.html">com.redis.riot</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/ReplicateReadLogger.html#%3Cinit%3E(org.slf4j.Logger,io.lettuce.core.codec.RedisCodec)" class="member-name-link">ReplicateReadLogger(Logger, RedisCodec&lt;K, ?&gt;)</a> - Constructor for class com.redis.riot.<a href="../com/redis/riot/ReplicateReadLogger.html" title="class in com.redis.riot">ReplicateReadLogger</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/ReplicateReadWriteListener.html" class="type-name-link" title="class in com.redis.riot">ReplicateReadWriteListener</a>&lt;<a href="../com/redis/riot/ReplicateReadWriteListener.html" title="type parameter in ReplicateReadWriteListener">K</a>&gt; - Class in <a href="../com/redis/riot/package-summary.html">com.redis.riot</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/ReplicateReadWriteListener.html#%3Cinit%3E()" class="member-name-link">ReplicateReadWriteListener()</a> - Constructor for class com.redis.riot.<a href="../com/redis/riot/ReplicateReadWriteListener.html" title="class in com.redis.riot">ReplicateReadWriteListener</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/ReplicateWriteLogger.html" class="type-name-link" title="class in com.redis.riot">ReplicateWriteLogger</a>&lt;<a href="../com/redis/riot/ReplicateWriteLogger.html" title="type parameter in ReplicateWriteLogger">K</a>&gt; - Class in <a href="../com/redis/riot/package-summary.html">com.redis.riot</a></dt>
 <dd>&nbsp;</dd>
@@ -159,8 +147,6 @@ loadScripts(document, 'script');</script>
 <dt><a href="../com/redis/riot/Riot.html#%3Cinit%3E()" class="member-name-link">Riot()</a> - Constructor for class com.redis.riot.<a href="../com/redis/riot/Riot.html" title="class in com.redis.riot">Riot</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/core/RiotUtils.html" class="type-name-link" title="class in com.redis.riot.core">RiotUtils</a> - Class in <a href="../com/redis/riot/core/package-summary.html">com.redis.riot.core</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/core/RiotVersion.html#riotVersion()" class="member-name-link">riotVersion()</a> - Static method in class com.redis.riot.core.<a href="../com/redis/riot/core/RiotVersion.html" title="class in com.redis.riot.core">RiotVersion</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/core/RiotVersion.html" class="type-name-link" title="class in com.redis.riot.core">RiotVersion</a> - Class in <a href="../com/redis/riot/core/package-summary.html">com.redis.riot.core</a></dt>
 <dd>&nbsp;</dd>
