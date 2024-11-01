@@ -16,7 +16,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.DoubleNode;
 import com.fasterxml.jackson.databind.node.LongNode;
 import com.redis.lettucemod.timeseries.Sample;
-import com.redis.spring.batch.item.redis.common.DataType;
 import com.redis.spring.batch.item.redis.common.KeyValue;
 
 import io.lettuce.core.ScoredValue;
@@ -68,30 +67,30 @@ public class KeyValueDeserializer extends StdDeserializer<KeyValue> {
 		}
 		JsonNode valueNode = node.get(VALUE);
 		if (valueNode != null) {
-			DataType type = KeyValue.type(keyValue);
-			if (type != null) {
-				keyValue.setValue(value(type, valueNode, ctxt));
-			}
+			keyValue.setValue(value(keyValue.getType(), valueNode, ctxt));
 		}
 		return keyValue;
 	}
 
-	private Object value(DataType type, JsonNode node, DeserializationContext ctxt) throws IOException {
+	private Object value(String type, JsonNode node, DeserializationContext ctxt) throws IOException {
+		if (type == null) {
+			return null;
+		}
 		switch (type) {
-		case STREAM:
+		case KeyValue.TYPE_STREAM:
 			return streamMessages((ArrayNode) node, ctxt);
-		case ZSET:
+		case KeyValue.TYPE_ZSET:
 			return scoredValues((ArrayNode) node);
-		case TIMESERIES:
+		case KeyValue.TYPE_TIMESERIES:
 			return samples((ArrayNode) node);
-		case HASH:
+		case KeyValue.TYPE_HASH:
 			return ctxt.readTreeAsValue(node, Map.class);
-		case STRING:
-		case JSON:
+		case KeyValue.TYPE_STRING:
+		case KeyValue.TYPE_JSON:
 			return node.asText();
-		case LIST:
+		case KeyValue.TYPE_LIST:
 			return ctxt.readTreeAsValue(node, Collection.class);
-		case SET:
+		case KeyValue.TYPE_SET:
 			return ctxt.readTreeAsValue(node, Set.class);
 		default:
 			return null;

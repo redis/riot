@@ -10,18 +10,13 @@ public class RiotVersion {
 	private static final String RIOT_VERSION = BUNDLE.getString("riot_version");
 	private static final String SEPARATOR = "------------------------------------------------------------%n";
 	private static final String RIOT_FORMAT = "riot %s%n";
-	private static final String RIOT_VERSION_FORMAT = "RIOT%s";
 
 	private RiotVersion() {
 		// noop
 	}
 
-	public static String getPlainVersion() {
+	public static String getVersion() {
 		return RIOT_VERSION;
-	}
-
-	public static String riotVersion() {
-		return String.format(RIOT_VERSION_FORMAT, RIOT_VERSION);
 	}
 
 	public static void banner(PrintStream out) {

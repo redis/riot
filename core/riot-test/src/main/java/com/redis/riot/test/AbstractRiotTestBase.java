@@ -1,7 +1,7 @@
 package com.redis.riot.test;
 
 import java.io.InputStream;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
@@ -12,7 +12,6 @@ import org.slf4j.simple.SimpleLogger;
 import com.redis.riot.core.MainCommand;
 import com.redis.spring.batch.test.AbstractTargetTestBase;
 
-import io.micrometer.core.instrument.util.IOUtils;
 import picocli.CommandLine.IExecutionStrategy;
 import picocli.CommandLine.ParseResult;
 
@@ -53,7 +52,7 @@ public abstract class AbstractRiotTestBase extends AbstractTargetTestBase {
 
 	private String[] args(MainCommand mainCommand, String filename) throws Exception {
 		try (InputStream inputStream = mainCommand.getClass().getResourceAsStream("/" + filename)) {
-			String command = IOUtils.toString(inputStream, Charset.defaultCharset());
+			String command = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
 			String prefix = getMainCommandPrefix();
 			if (command.startsWith(prefix)) {
 				command = command.substring(prefix.length());

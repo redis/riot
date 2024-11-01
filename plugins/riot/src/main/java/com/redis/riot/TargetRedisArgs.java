@@ -2,17 +2,12 @@ package com.redis.riot;
 
 import java.time.Duration;
 
-import com.redis.lettucemod.RedisURIBuilder;
-import com.redis.riot.core.RiotUtils;
-import com.redis.riot.core.RiotVersion;
-import com.redis.spring.batch.item.redis.RedisItemWriter;
-
-import io.lettuce.core.RedisURI;
-import io.lettuce.core.SslVerifyMode;
 import io.lettuce.core.protocol.ProtocolVersion;
+import lombok.ToString;
 import picocli.CommandLine.Option;
 
-public class TargetRedisArgs {
+@ToString(exclude = "password")
+public class TargetRedisArgs implements RedisClientArgs {
 
 	@Option(names = "--target-user", description = "Target ACL style 'AUTH username pass'. Needs password.", paramLabel = "<name>")
 	private String username;
@@ -21,7 +16,7 @@ public class TargetRedisArgs {
 	private char[] password;
 
 	@Option(names = "--target-timeout", description = "Target Redis command timeout in seconds (default: ${DEFAULT-VALUE}).", paramLabel = "<sec>")
-	private long timeout = RedisURIBuilder.DEFAULT_TIMEOUT;
+	private long timeout = DEFAULT_TIMEOUT_SECONDS;
 
 	@Option(names = "--target-tls", description = "Establish a secure TLS connection to target.")
 	private boolean tls;
@@ -29,44 +24,22 @@ public class TargetRedisArgs {
 	@Option(names = "--target-insecure", description = "Allow insecure TLS connection to target by skipping cert validation.")
 	private boolean insecure;
 
-	@Option(names = "--target-client", description = "Client name used to connect to target Redis (default: ${DEFAULT-VALUE}).", paramLabel = "<name>")
-	private String clientName = RiotVersion.riotVersion();
+	@Option(names = "--target-client", description = "Client name used to connect to target Redis.", paramLabel = "<name>")
+	private String clientName;
 
 	@Option(names = "--target-cluster", description = "Enable target cluster mode.")
 	private boolean cluster;
 
 	@Option(names = "--target-resp", description = "Redis protocol version used to connect to target: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<ver>")
-	private ProtocolVersion protocolVersion = ProtocolVersion.RESP2;
+	private ProtocolVersion protocolVersion = DEFAULT_PROTOCOL_VERSION;
 
 	@Option(names = "--target-pool", description = "Max number of target Redis connections (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
-	private int poolSize = RedisItemWriter.DEFAULT_POOL_SIZE;
+	private int poolSize = DEFAULT_POOL_SIZE;
 
 	@Option(names = "--target-read-from", description = "Which target Redis cluster nodes to read from: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<n>")
-	private ReadFrom readFrom = ReadFrom.UPSTREAM;
+	private ReadFrom readFrom = DEFAULT_READ_FROM;
 
-	private RedisURIBuilder uriBuilder() {
-		RedisURIBuilder builder = new RedisURIBuilder();
-		builder.clientName(clientName);
-		builder.password(password);
-		builder.timeout(Duration.ofSeconds(timeout));
-		builder.tls(tls);
-		builder.username(username);
-		if (insecure) {
-			builder.verifyMode(SslVerifyMode.NONE);
-		}
-		return builder;
-	}
-
-	public RedisContext redisContext(RedisURI uri) {
-		RedisContext context = new RedisContext();
-		context.cluster(cluster);
-		context.poolSize(poolSize);
-		context.protocolVersion(protocolVersion);
-		context.readFrom(readFrom.getReadFrom());
-		context.uri(uriBuilder().uri(uri).build());
-		return context;
-	}
-
+	@Override
 	public String getUsername() {
 		return username;
 	}
@@ -75,6 +48,7 @@ public class TargetRedisArgs {
 		this.username = username;
 	}
 
+	@Override
 	public char[] getPassword() {
 		return password;
 	}
@@ -83,6 +57,7 @@ public class TargetRedisArgs {
 		this.password = password;
 	}
 
+	@Override
 	public boolean isInsecure() {
 		return insecure;
 	}
@@ -91,38 +66,16 @@ public class TargetRedisArgs {
 		this.insecure = insecure;
 	}
 
-	public boolean isCluster() {
-		return cluster;
-	}
-
-	public void setCluster(boolean cluster) {
-		this.cluster = cluster;
-	}
-
-	public ProtocolVersion getProtocolVersion() {
-		return protocolVersion;
-	}
-
-	public void setProtocolVersion(ProtocolVersion protocolVersion) {
-		this.protocolVersion = protocolVersion;
-	}
-
-	public int getPoolSize() {
-		return poolSize;
-	}
-
-	public void setPoolSize(int poolSize) {
-		this.poolSize = poolSize;
-	}
-
-	public long getTimeout() {
-		return timeout;
+	@Override
+	public Duration getTimeout() {
+		return Duration.ofSeconds(timeout);
 	}
 
 	public void setTimeout(long timeout) {
 		this.timeout = timeout;
 	}
 
+	@Override
 	public boolean isTls() {
 		return tls;
 	}
@@ -131,6 +84,7 @@ public class TargetRedisArgs {
 		this.tls = tls;
 	}
 
+	@Override
 	public String getClientName() {
 		return clientName;
 	}
@@ -139,20 +93,40 @@ public class TargetRedisArgs {
 		this.clientName = clientName;
 	}
 
+	@Override
+	public boolean isCluster() {
+		return cluster;
+	}
+
+	public void setCluster(boolean cluster) {
+		this.cluster = cluster;
+	}
+
+	@Override
+	public ProtocolVersion getProtocolVersion() {
+		return protocolVersion;
+	}
+
+	public void setProtocolVersion(ProtocolVersion protocolVersion) {
+		this.protocolVersion = protocolVersion;
+	}
+
+	@Override
+	public int getPoolSize() {
+		return poolSize;
+	}
+
+	public void setPoolSize(int poolSize) {
+		this.poolSize = poolSize;
+	}
+
+	@Override
 	public ReadFrom getReadFrom() {
 		return readFrom;
 	}
 
 	public void setReadFrom(ReadFrom readFrom) {
 		this.readFrom = readFrom;
-	}
-
-	@Override
-	public String toString() {
-		return "TargetRedisArgs [username=" + username + ", password=" + RiotUtils.mask(password) + ", timeout="
-				+ timeout + ", tls=" + tls + ", insecure=" + insecure + ", clientName=" + clientName + ", cluster="
-				+ cluster + ", protocolVersion=" + protocolVersion + ", poolSize=" + poolSize + ", readFrom=" + readFrom
-				+ "]";
 	}
 
 }

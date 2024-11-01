@@ -8,14 +8,14 @@ import picocli.CommandLine.ArgGroup;
 
 public abstract class AbstractRedisCommand extends AbstractJobCommand {
 
-	@ArgGroup(exclusive = false)
+	@ArgGroup(exclusive = false, heading = "Redis options%n")
 	private RedisArgs redisArgs = new RedisArgs();
 
 	private RedisContext redisContext;
 
 	@Override
 	protected void execute() throws Exception {
-		redisContext = redisArgs.redisContext();
+		redisContext = RedisContext.of(redisArgs.getUri(), redisArgs);
 		redisContext.afterPropertiesSet();
 		try {
 			super.execute();

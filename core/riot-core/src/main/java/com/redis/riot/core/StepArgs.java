@@ -2,9 +2,11 @@ package com.redis.riot.core;
 
 import org.springframework.retry.policy.MaxAttemptsRetryPolicy;
 
+import lombok.ToString;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
 
+@ToString
 public class StepArgs {
 
 	public static final int DEFAULT_CHUNK_SIZE = 50;
@@ -110,13 +112,6 @@ public class StepArgs {
 
 	public void setRetryPolicy(RetryPolicy retryPolicy) {
 		this.retryPolicy = retryPolicy;
-	}
-
-	@Override
-	public String toString() {
-		return "StepArgs [sleep=" + sleep + ", threads=" + threads + ", chunkSize=" + chunkSize + ", dryRun=" + dryRun
-				+ ", skipPolicy=" + skipPolicy + ", skipLimit=" + skipLimit + ", retryPolicy=" + retryPolicy
-				+ ", retryLimit=" + retryLimit + ", progressArgs=" + progressArgs + "]";
 	}
 
 }

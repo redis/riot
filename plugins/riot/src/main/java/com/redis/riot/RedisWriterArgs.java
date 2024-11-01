@@ -6,8 +6,10 @@ import com.redis.spring.batch.item.redis.RedisItemWriter;
 import com.redis.spring.batch.item.redis.writer.KeyValueWrite;
 import com.redis.spring.batch.item.redis.writer.KeyValueWrite.WriteMode;
 
+import lombok.ToString;
 import picocli.CommandLine.Option;
 
+@ToString
 public class RedisWriterArgs {
 
 	public static final Duration DEFAULT_WAIT_TIMEOUT = RedisItemWriter.DEFAULT_WAIT_TIMEOUT;
@@ -64,12 +66,6 @@ public class RedisWriterArgs {
 
 	public void setMerge(boolean merge) {
 		this.merge = merge;
-	}
-
-	@Override
-	public String toString() {
-		return "RedisWriterArgs [multiExec=" + multiExec + ", waitReplicas=" + waitReplicas + ", waitTimeout="
-				+ waitTimeout + ", merge=" + merge + "]";
 	}
 
 }

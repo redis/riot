@@ -3,18 +3,20 @@ package com.redis.riot;
 import java.time.Instant;
 import java.util.List;
 
-import com.redis.spring.batch.item.redis.common.DataType;
 import com.redis.spring.batch.item.redis.common.Range;
 import com.redis.spring.batch.item.redis.gen.CollectionOptions;
 import com.redis.spring.batch.item.redis.gen.GeneratorItemReader;
+import com.redis.spring.batch.item.redis.gen.ItemType;
 import com.redis.spring.batch.item.redis.gen.MapOptions;
 import com.redis.spring.batch.item.redis.gen.StreamOptions;
 import com.redis.spring.batch.item.redis.gen.StringOptions;
 import com.redis.spring.batch.item.redis.gen.TimeSeriesOptions;
 import com.redis.spring.batch.item.redis.gen.ZsetOptions;
 
+import lombok.ToString;
 import picocli.CommandLine.Option;
 
+@ToString
 public class GenerateArgs {
 
 	public static final int DEFAULT_COUNT = 1000;
@@ -32,7 +34,7 @@ public class GenerateArgs {
 	private Range keyRange = GeneratorItemReader.DEFAULT_KEY_RANGE;
 
 	@Option(arity = "1..*", names = "--type", description = "Types of data structures to generate: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<type>")
-	private List<DataType> types = GeneratorItemReader.defaultTypes();
+	private List<ItemType> types = GeneratorItemReader.defaultTypes();
 
 	@Option(names = "--index", description = "Name of index to create that matches JSON or hash type.", paramLabel = "<name>")
 	private String index;
@@ -191,11 +193,11 @@ public class GenerateArgs {
 		this.keyRange = keyRange;
 	}
 
-	public List<DataType> getTypes() {
+	public List<ItemType> getTypes() {
 		return types;
 	}
 
-	public void setTypes(List<DataType> types) {
+	public void setTypes(List<ItemType> types) {
 		this.types = types;
 	}
 
@@ -357,20 +359,6 @@ public class GenerateArgs {
 
 	public void setKeySepataror(String keySepataror) {
 		this.keySepataror = keySepataror;
-	}
-
-	@Override
-	public String toString() {
-		return "GenerateArgs [count=" + count + ", keySepataror=" + keySepataror + ", keyspace=" + keyspace
-				+ ", keyRange=" + keyRange + ", types=" + types + ", index=" + index + ", expiration=" + expiration
-				+ ", hashFieldCount=" + hashFieldCount + ", hashFieldLength=" + hashFieldLength + ", jsonFieldCount="
-				+ jsonFieldCount + ", jsonFieldLength=" + jsonFieldLength + ", listMemberCount=" + listMemberCount
-				+ ", listMemberRange=" + listMemberRange + ", setMemberCount=" + setMemberCount + ", setMemberLength="
-				+ setMemberLength + ", streamMessageCount=" + streamMessageCount + ", streamFieldCount="
-				+ streamFieldCount + ", streamFieldLength=" + streamFieldLength + ", stringLength=" + stringLength
-				+ ", timeseriesSampleCount=" + timeseriesSampleCount + ", timeseriesStartTime=" + timeseriesStartTime
-				+ ", zsetMemberCount=" + zsetMemberCount + ", zsetMemberLength=" + zsetMemberLength + ", zsetScore="
-				+ zsetScore + "]";
 	}
 
 }

@@ -10,9 +10,9 @@ import com.redis.lettucemod.search.CreateOptions;
 import com.redis.lettucemod.search.Field;
 import com.redis.riot.core.Step;
 import com.redis.spring.batch.item.redis.RedisItemWriter;
-import com.redis.spring.batch.item.redis.common.DataType;
 import com.redis.spring.batch.item.redis.common.KeyValue;
 import com.redis.spring.batch.item.redis.gen.GeneratorItemReader;
+import com.redis.spring.batch.item.redis.gen.ItemType;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
@@ -62,7 +62,7 @@ public class Generate extends AbstractRedisCommand {
 	}
 
 	private boolean isJson() {
-		return generateArgs.getTypes().contains(DataType.JSON);
+		return generateArgs.getTypes().contains(ItemType.JSON);
 	}
 
 	@SuppressWarnings("unchecked")

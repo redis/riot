@@ -2,8 +2,10 @@ package com.redis.riot;
 
 import org.springframework.batch.item.database.AbstractCursorItemReader;
 
+import lombok.ToString;
 import picocli.CommandLine.Option;
 
+@ToString
 public class DatabaseReaderArgs {
 
 	public static final int DEFAULT_FETCH_SIZE = AbstractCursorItemReader.VALUE_NOT_SET;
@@ -79,13 +81,6 @@ public class DatabaseReaderArgs {
 
 	public void setVerifyCursorPosition(boolean verifyCursorPosition) {
 		this.verifyCursorPosition = verifyCursorPosition;
-	}
-
-	@Override
-	public String toString() {
-		return "DatabaseReaderArgs [maxItemCount=" + maxItemCount + ", fetchSize=" + fetchSize + ", maxRows=" + maxRows
-				+ ", queryTimeout=" + queryTimeout + ", useSharedExtendedConnection=" + useSharedExtendedConnection
-				+ ", verifyCursorPosition=" + verifyCursorPosition + "]";
 	}
 
 }

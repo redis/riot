@@ -14,7 +14,6 @@ import org.junit.jupiter.api.Test;
 
 import com.redis.riot.core.processor.StringToMapFunction;
 import com.redis.riot.function.KeyValueMap;
-import com.redis.spring.batch.item.redis.common.DataType;
 import com.redis.spring.batch.item.redis.common.KeyValue;
 import com.redis.spring.batch.item.redis.common.Range;
 
@@ -79,14 +78,14 @@ class ProcessorTests {
 		KeyValueMap processor = new KeyValueMap();
 		KeyValue<String> string = new KeyValue<>();
 		string.setKey("beer:1");
-		string.setType(DataType.STRING.getString());
+		string.setType(KeyValue.TYPE_STRING);
 		String value = "sdfsdf";
 		string.setValue(value);
 		Map<String, ?> stringMap = processor.apply(string);
 		Assertions.assertEquals(value, stringMap.get(StringToMapFunction.DEFAULT_KEY));
 		KeyValue<String> hash = new KeyValue<>();
 		hash.setKey("beer:2");
-		hash.setType(DataType.HASH.getString());
+		hash.setType(KeyValue.TYPE_HASH);
 		Map<String, String> map = new HashMap<>();
 		map.put("field1", "value1");
 		hash.setValue(map);

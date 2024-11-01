@@ -48,9 +48,9 @@ import com.redis.riot.core.QuietMapAccessor;
 import com.redis.riot.file.xml.XmlItemReader;
 import com.redis.riot.file.xml.XmlItemReaderBuilder;
 import com.redis.riot.file.xml.XmlObjectReader;
-import com.redis.spring.batch.item.redis.common.DataType;
 import com.redis.spring.batch.item.redis.common.KeyValue;
 import com.redis.spring.batch.item.redis.gen.GeneratorItemReader;
+import com.redis.spring.batch.item.redis.gen.ItemType;
 import com.redis.spring.batch.item.redis.gen.MapOptions;
 import com.redis.spring.batch.item.redis.reader.DefaultKeyComparator;
 import com.redis.spring.batch.item.redis.reader.KeyComparison;
@@ -201,15 +201,14 @@ class StackRiotTests extends RiotTests {
 		List<? extends KeyValue<String>> records = readAll(info, reader);
 		Assertions.assertEquals(redisCommands.dbsize(), records.size());
 		for (KeyValue<String> record : records) {
-			DataType type = KeyValue.type(record);
-			if (type == null) {
+			if (record.getType() == null) {
 				continue;
 			}
-			switch (type) {
-			case HASH:
+			switch (record.getType()) {
+			case KeyValue.TYPE_HASH:
 				Assertions.assertEquals(record.getValue(), redisCommands.hgetall(record.getKey()));
 				break;
-			case STRING:
+			case KeyValue.TYPE_STRING:
 				Assertions.assertEquals(record.getValue(), redisCommands.get(record.getKey()));
 				break;
 			default:
@@ -552,10 +551,10 @@ class StackRiotTests extends RiotTests {
 	void replicateKeyExclude(TestInfo info) throws Throwable {
 		String filename = "replicate-key-exclude";
 		int goodCount = 200;
-		GeneratorItemReader gen = generator(goodCount, DataType.HASH);
+		GeneratorItemReader gen = generator(goodCount, ItemType.HASH);
 		generate(info, gen);
 		int badCount = 100;
-		GeneratorItemReader generator2 = generator(badCount, DataType.HASH);
+		GeneratorItemReader generator2 = generator(badCount, ItemType.HASH);
 		generator2.setKeyspace("bad");
 		generate(testInfo(info, "2"), generator2);
 		Assertions.assertEquals(badCount, keyCount("bad:*"));
@@ -569,8 +568,8 @@ class StackRiotTests extends RiotTests {
 		int goodCount = 200;
 		int badCount = 100;
 		enableKeyspaceNotifications();
-		generateAsync(testInfo(info, "gen-1"), generator(goodCount, DataType.HASH));
-		GeneratorItemReader generator2 = generator(badCount, DataType.HASH);
+		generateAsync(testInfo(info, "gen-1"), generator(goodCount, ItemType.HASH));
+		GeneratorItemReader generator2 = generator(badCount, ItemType.HASH);
 		generator2.setKeyspace("bad");
 		generateAsync(testInfo(info, "gen-2"), generator2);
 		execute(info, filename);
@@ -582,7 +581,7 @@ class StackRiotTests extends RiotTests {
 
 	@Test
 	void replicateLiveOnlyStruct(TestInfo info) throws Exception {
-		DataType[] types = new DataType[] { DataType.HASH, DataType.STRING };
+		ItemType[] types = new ItemType[] { ItemType.HASH, ItemType.STRING };
 		enableKeyspaceNotifications();
 		GeneratorItemReader generator = generator(3500, types);
 		generator.setCurrentItemCount(3001);
@@ -669,7 +668,7 @@ class StackRiotTests extends RiotTests {
 	@Test
 	void replicateKeyProcessor(TestInfo info) throws Throwable {
 		String filename = "replicate-key-processor";
-		GeneratorItemReader gen = generator(1, DataType.HASH);
+		GeneratorItemReader gen = generator(1, ItemType.HASH);
 		generate(info, gen);
 		Long sourceSize = redisCommands.dbsize();
 		Assertions.assertTrue(sourceSize > 0);
@@ -725,7 +724,7 @@ class StackRiotTests extends RiotTests {
 
 	@Test
 	void compareKeyProcessor(TestInfo info) throws Throwable {
-		GeneratorItemReader gen = generator(1, DataType.HASH);
+		GeneratorItemReader gen = generator(1, ItemType.HASH);
 		generate(info, gen);
 		Long sourceSize = redisCommands.dbsize();
 		Assertions.assertTrue(sourceSize > 0);

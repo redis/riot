@@ -19,10 +19,6 @@ import picocli.CommandLine.Option;
 @Command(name = "replicate", description = "Replicate a Redis database into another Redis database.")
 public class Replicate extends AbstractReplicateCommand {
 
-	public enum CompareMode {
-		FULL, QUICK, NONE
-	}
-
 	public static final CompareMode DEFAULT_COMPARE_MODE = CompareMode.QUICK;
 
 	private static final String COMPARE_STEP_NAME = "compare";
@@ -65,7 +61,7 @@ public class Replicate extends AbstractReplicateCommand {
 		targetRedisWriterArgs.configure(writer);
 	}
 
-	private Step<KeyValue<byte[]>, KeyValue<byte[]>> step() {
+	protected Step<KeyValue<byte[]>, KeyValue<byte[]>> step() {
 		RedisItemReader<byte[], byte[]> reader = reader();
 		configureSourceRedisReader(reader);
 		RedisItemWriter<byte[], byte[], KeyValue<byte[]>> writer = writer();
@@ -73,9 +69,6 @@ public class Replicate extends AbstractReplicateCommand {
 		Step<KeyValue<byte[]>, KeyValue<byte[]>> step = step(reader, writer);
 		step.processor(processor());
 		step.taskName(taskName(reader));
-		ReplicateReadWriteListener<byte[]> readWriteListener = new ReplicateReadWriteListener<>();
-		step.readListener(readWriteListener);
-		step.writeListener(readWriteListener);
 		if (logKeys) {
 			log.info("Adding key logger");
 			step.writeListener(new ReplicateWriteLogger<>(log, reader.getCodec()));

@@ -45,14 +45,14 @@ public abstract class AbstractRedisTargetExportCommand extends AbstractExportCom
 	@Override
 	protected RedisContext sourceRedisContext() {
 		log.info("Creating source Redis context with {} {} {}", sourceRedisUri, sourceRedisArgs, sslArgs);
-		RedisContext context = sourceRedisArgs.redisContext(sourceRedisUri);
+		RedisContext context = RedisContext.of(sourceRedisUri, sourceRedisArgs);
 		context.sslOptions(sslArgs.sslOptions());
 		return context;
 	}
 
-	private RedisContext targetRedisContext() {
+	protected RedisContext targetRedisContext() {
 		log.info("Creating target Redis context with {} {} {}", targetRedisUri, targetRedisArgs, sslArgs);
-		RedisContext context = targetRedisArgs.redisContext(targetRedisUri);
+		RedisContext context = RedisContext.of(targetRedisUri, targetRedisArgs);
 		context.sslOptions(sslArgs.sslOptions());
 		return context;
 	}

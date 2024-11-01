@@ -16,9 +16,11 @@ import com.redis.spring.batch.item.redis.common.KeyValue;
 import com.redis.spring.batch.item.redis.reader.KeyValueRead;
 
 import io.lettuce.core.codec.RedisCodec;
+import lombok.ToString;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
 
+@ToString
 public class RedisReaderArgs {
 
 	public static final int DEFAULT_QUEUE_CAPACITY = RedisItemReader.DEFAULT_QUEUE_CAPACITY;
@@ -30,7 +32,7 @@ public class RedisReaderArgs {
 	public static final Duration DEFAULT_FLUSH_INTERVAL = RedisItemReader.DEFAULT_FLUSH_INTERVAL;
 	public static final int DEFAULT_NOTIFICATION_QUEUE_CAPACITY = RedisItemReader.DEFAULT_NOTIFICATION_QUEUE_CAPACITY;
 
-	@Option(names = "--mode", description = "Source for keys: scan (key scan), live (scan + keyspace notifications), liveonly (keyspace notifications) (default: ${DEFAULT-VALUE})", paramLabel = "<name>")
+	@Option(names = "--mode", description = "Source for keys: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<name>")
 	private ReaderMode mode = RedisItemReader.DEFAULT_MODE;
 
 	@Option(names = "--key-pattern", description = "Pattern of keys to read (default: *).", paramLabel = "<glob>")
@@ -234,16 +236,6 @@ public class RedisReaderArgs {
 
 	public void setSkipLimit(int skipLimit) {
 		this.skipLimit = skipLimit;
-	}
-
-	@Override
-	public String toString() {
-		return "RedisReaderArgs [mode=" + mode + ", keyPattern=" + keyPattern + ", keyType=" + keyType + ", scanCount="
-				+ scanCount + ", queueCapacity=" + queueCapacity + ", threads=" + threads + ", chunkSize=" + chunkSize
-				+ ", memUsageLimit=" + memUsageLimit + ", memUsageSamples=" + memUsageSamples + ", flushInterval="
-				+ flushInterval + ", idleTimeout=" + idleTimeout + ", notificationQueueCapacity="
-				+ notificationQueueCapacity + ", retryLimit=" + retryLimit + ", skipLimit=" + skipLimit
-				+ ", keyFilterArgs=" + keyFilterArgs + ", pollTimeout=" + pollTimeout + "]";
 	}
 
 }

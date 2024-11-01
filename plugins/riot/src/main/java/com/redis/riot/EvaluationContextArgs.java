@@ -12,9 +12,11 @@ import com.redis.lettucemod.search.GeoLocation;
 import com.redis.riot.core.Expression;
 import com.redis.riot.core.RiotUtils;
 
+import lombok.ToString;
 import net.datafaker.Faker;
 import picocli.CommandLine.Option;
 
+@ToString
 public class EvaluationContextArgs {
 
 	public static final String DEFAULT_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
@@ -78,12 +80,6 @@ public class EvaluationContextArgs {
 
 	public void setNumberFormat(String numberFormat) {
 		this.numberFormat = numberFormat;
-	}
-
-	@Override
-	public String toString() {
-		return "EvaluationContextArgs [varExpressions=" + varExpressions + ", dateFormat=" + dateFormat
-				+ ", numberFormat=" + numberFormat + ", vars=" + vars + "]";
 	}
 
 }

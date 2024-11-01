@@ -11,9 +11,11 @@ import com.redis.riot.file.FileUtils;
 import com.redis.riot.file.FilenameInputStreamResource;
 import com.redis.riot.file.UncustomizedUrlResource;
 
+import lombok.ToString;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
 
+@ToString
 public class FileArgs {
 
 	public static final String DEFAULT_ENCODING = StandardCharsets.UTF_8.name();
@@ -110,13 +112,6 @@ public class FileArgs {
 
 	public void setHeader(boolean header) {
 		this.header = header;
-	}
-
-	@Override
-	public String toString() {
-		return "amazonS3Args=" + amazonS3Args + ", googleStorageArgs=" + googleStorageArgs + ", delimiter=" + delimiter
-				+ ", encoding=" + encoding + ", gzipped=" + gzipped + ", header=" + header + ", quoteCharacter="
-				+ quoteCharacter;
 	}
 
 }

@@ -1,7 +1,9 @@
 package com.redis.riot.operation;
 
+import lombok.ToString;
 import picocli.CommandLine.Option;
 
+@ToString
 public class ExpireTtlArgs {
 
 	@Option(names = "--ttl-field", required = true, description = "Expire timeout field.", paramLabel = "<field>")
@@ -24,11 +26,6 @@ public class ExpireTtlArgs {
 
 	public void setTtlValue(long ttlValue) {
 		this.ttlValue = ttlValue;
-	}
-
-	@Override
-	public String toString() {
-		return "ExpireTtlArgs [ttlField=" + ttlField + ", ttlValue=" + ttlValue + "]";
 	}
 
 }

@@ -16,10 +16,11 @@ import com.google.cloud.spring.core.GcpScope;
 import com.google.cloud.spring.core.UserAgentHeaderProvider;
 import com.google.cloud.spring.storage.GoogleStorageResource;
 import com.google.cloud.storage.StorageOptions;
-import com.redis.riot.core.RiotUtils;
 
+import lombok.ToString;
 import picocli.CommandLine.Option;
 
+@ToString(exclude = "encodedKey")
 public class GoogleStorageArgs {
 
 	public static final GcpScope DEFAULT_SCOPE = GcpScope.STORAGE_READ_ONLY;
@@ -83,12 +84,6 @@ public class GoogleStorageArgs {
 			builder.setProjectId(projectId);
 		}
 		return new GoogleStorageResource(builder.build().getService(), location);
-	}
-
-	@Override
-	public String toString() {
-		return "GoogleStorageArgs [keyFile=" + keyFile + ", projectId=" + projectId + ", encodedKey="
-				+ RiotUtils.mask(encodedKey) + ", scope=" + scope + "]";
 	}
 
 }

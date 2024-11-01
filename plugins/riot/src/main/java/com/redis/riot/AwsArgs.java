@@ -8,6 +8,7 @@ import org.springframework.util.StringUtils;
 import io.awspring.cloud.s3.InMemoryBufferingS3OutputStreamProvider;
 import io.awspring.cloud.s3.PropertiesS3ObjectContentTypeResolver;
 import io.awspring.cloud.s3.S3Resource;
+import lombok.ToString;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
 import software.amazon.awssdk.auth.credentials.AnonymousCredentialsProvider;
@@ -18,6 +19,7 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.S3ClientBuilder;
 
+@ToString
 public class AwsArgs {
 
 	@ArgGroup(exclusive = false)
@@ -76,11 +78,6 @@ public class AwsArgs {
 
 	public void setEndpoint(URI endpoint) {
 		this.endpoint = endpoint;
-	}
-
-	@Override
-	public String toString() {
-		return "AwsArgs [credentialsArgs=" + credentialsArgs + ", region=" + region + ", endpoint=" + endpoint + "]";
 	}
 
 }

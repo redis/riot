@@ -6,7 +6,6 @@ import java.util.stream.Collectors;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.util.CollectionUtils;
 
-import com.redis.spring.batch.item.redis.common.DataType;
 import com.redis.spring.batch.item.redis.common.KeyValue;
 
 import io.lettuce.core.StreamMessage;
@@ -19,7 +18,7 @@ public class StreamItemProcessor implements ItemProcessor<KeyValue<String>, KeyV
 	@SuppressWarnings("unchecked")
 	@Override
 	public KeyValue<String> process(KeyValue<String> t) {
-		if (KeyValue.hasValue(t) && KeyValue.type(t) == DataType.STREAM) {
+		if (KeyValue.hasValue(t) && KeyValue.TYPE_STREAM.equals(t.getType())) {
 			Collection<StreamMessage<?, ?>> messages = (Collection<StreamMessage<?, ?>>) t.getValue();
 			if (CollectionUtils.isEmpty(messages)) {
 				if (prune) {

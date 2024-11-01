@@ -15,7 +15,7 @@ class RedisArgsTests {
 		RedisURI baseUri = RedisURI.create("redis://localhost");
 		args.setUri(baseUri);
 		args.setClientName("ansdf");
-		RedisURI uri = args.uri();
+		RedisURI uri = RedisContext.of(args.getUri(), args).getUri();
 		Assertions.assertEquals(baseUri.getHost(), uri.getHost());
 		Assertions.assertEquals(baseUri.getPort(), uri.getPort());
 		Assertions.assertEquals(args.getClientName(), uri.getClientName());

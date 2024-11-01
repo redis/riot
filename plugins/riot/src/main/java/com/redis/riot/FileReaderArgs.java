@@ -11,9 +11,11 @@ import org.springframework.core.io.Resource;
 import com.redis.riot.file.FileUtils;
 import com.redis.riot.file.FilenameInputStreamResource;
 
+import lombok.ToString;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
 
+@ToString
 public class FileReaderArgs {
 
 	public static final String DEFAULT_CONTINUATION_STRING = "\\";
@@ -115,13 +117,6 @@ public class FileReaderArgs {
 
 	public void setFileArgs(FileArgs fileArgs) {
 		this.fileArgs = fileArgs;
-	}
-
-	@Override
-	public String toString() {
-		return "FileReaderArgs [columnRanges=" + columnRanges + ", continuationString=" + continuationString
-				+ ", fields=" + fields + ", headerLine=" + headerLine + ", includedFields=" + includedFields
-				+ ", linesToSkip=" + linesToSkip + ", maxItemCount=" + maxItemCount + ", fileArgs=" + fileArgs + "]";
 	}
 
 }

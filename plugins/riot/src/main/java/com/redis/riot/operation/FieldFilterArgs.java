@@ -10,8 +10,10 @@ import com.redis.riot.core.processor.MapFilteringFunction;
 import com.redis.riot.core.processor.MapFlatteningFunction;
 import com.redis.riot.core.processor.ObjectToStringFunction;
 
+import lombok.ToString;
 import picocli.CommandLine.Option;
 
+@ToString
 public class FieldFilterArgs {
 
 	@Option(arity = "1..*", names = "--include", description = "Fields to include.", paramLabel = "<field>")
@@ -50,11 +52,6 @@ public class FieldFilterArgs {
 
 	public void setIncludeFields(List<String> includes) {
 		this.includeFields = includes;
-	}
-
-	@Override
-	public String toString() {
-		return "FieldFilterArgs [includeFields=" + includeFields + ", excludeFields=" + excludeFields + "]";
 	}
 
 }

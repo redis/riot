@@ -17,6 +17,9 @@ import org.springframework.batch.item.ItemWriter;
 
 import com.redis.spring.batch.step.FlushingChunkProvider;
 
+import lombok.ToString;
+
+@ToString
 public class Step<I, O> {
 
 	private static final long NO_MAX_ITEM_COUNT = -1;
@@ -199,13 +202,6 @@ public class Step<I, O> {
 
 	public Collection<Class<? extends Throwable>> getSkip() {
 		return skip;
-	}
-
-	@Override
-	public String toString() {
-		return "Step [name=" + name + ", taskName=" + taskName + ", live=" + live + ", flushInterval=" + flushInterval
-				+ ", idleTimeout=" + idleTimeout + ", skip=" + skip + ", noSkip=" + noSkip + ", retry=" + retry
-				+ ", noRetry=" + noRetry + "]";
 	}
 
 }

@@ -22,8 +22,8 @@ import org.testcontainers.utility.DockerImageName;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
-import com.redis.spring.batch.item.redis.common.DataType;
 import com.redis.spring.batch.item.redis.gen.GeneratorItemReader;
+import com.redis.spring.batch.item.redis.gen.ItemType;
 
 @EnabledOnOs(value = OS.LINUX)
 class PostgresTests extends DbTests {
@@ -55,7 +55,7 @@ class PostgresTests extends DbTests {
 		try (Statement statement = dbConnection.createStatement()) {
 			statement.execute("CREATE TABLE mytable (id smallint NOT NULL, field1 bpchar, field2 bpchar)");
 			statement.execute("ALTER TABLE ONLY mytable ADD CONSTRAINT pk_mytable PRIMARY KEY (id)");
-			GeneratorItemReader generator = generator(73, DataType.HASH);
+			GeneratorItemReader generator = generator(73, ItemType.HASH);
 			generate(info, generator);
 			execute(info, filename, r -> executeDatabaseExport(r, info));
 			statement.execute("SELECT COUNT(*) AS count FROM mytable");
@@ -149,8 +149,7 @@ class PostgresTests extends DbTests {
 				Assertions.assertEquals(resultSet.getInt("employee_id"), orderMap.get("employee_id"));
 				Assertions.assertEquals(resultSet.getDate("order_date"), java.sql.Date.valueOf(
 						LocalDate.from(DateTimeFormatter.ISO_DATE.parse((String) orderMap.get("order_date")))));
-				Assertions.assertEquals(resultSet.getFloat("freight"),
-						((Double) orderMap.get("freight")).floatValue(),
+				Assertions.assertEquals(resultSet.getFloat("freight"), ((Double) orderMap.get("freight")).floatValue(),
 						0);
 				count++;
 			}

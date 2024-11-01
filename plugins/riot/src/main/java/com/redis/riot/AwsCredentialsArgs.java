@@ -1,9 +1,9 @@
 package com.redis.riot;
 
-import com.redis.riot.core.RiotUtils;
-
+import lombok.ToString;
 import picocli.CommandLine.Option;
 
+@ToString
 public class AwsCredentialsArgs {
 
 	@Option(names = "--s3-access", required = true, description = "AWS access key.", paramLabel = "<key>")
@@ -26,11 +26,6 @@ public class AwsCredentialsArgs {
 
 	public void setSecretKey(String secretKey) {
 		this.secretKey = secretKey;
-	}
-
-	@Override
-	public String toString() {
-		return "AwsCredentialsArgs [accessKey=" + accessKey + ", secretKey=" + RiotUtils.mask(secretKey) + "]";
 	}
 
 }

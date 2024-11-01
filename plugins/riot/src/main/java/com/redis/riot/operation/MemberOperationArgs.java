@@ -2,8 +2,10 @@ package com.redis.riot.operation;
 
 import java.util.List;
 
+import lombok.ToString;
 import picocli.CommandLine.Option;
 
+@ToString
 public class MemberOperationArgs {
 
 	@Option(names = "--member-space", description = "Keyspace prefix for member IDs.", paramLabel = "<str>")
@@ -26,11 +28,6 @@ public class MemberOperationArgs {
 
 	public void setMemberFields(List<String> fields) {
 		this.memberFields = fields;
-	}
-
-	@Override
-	public String toString() {
-		return "MemberOperationArgs [memberSpace=" + memberSpace + ", memberFields=" + memberFields + "]";
 	}
 
 }

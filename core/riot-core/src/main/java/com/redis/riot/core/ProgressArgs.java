@@ -1,7 +1,9 @@
 package com.redis.riot.core;
 
+import lombok.ToString;
 import picocli.CommandLine.Option;
 
+@ToString
 public class ProgressArgs {
 
 	public static final long DEFAULT_UPDATE_INTERVAL = 1000;
@@ -27,11 +29,6 @@ public class ProgressArgs {
 
 	public void setUpdateInterval(long interval) {
 		this.updateInterval = interval;
-	}
-
-	@Override
-	public String toString() {
-		return "ProgressArgs [style=" + style + ", updateInterval=" + updateInterval + "]";
 	}
 
 }

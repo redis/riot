@@ -39,7 +39,7 @@ public class CompareStepListener implements StepExecutionListener {
 	}
 
 	public static String toString(StatusCount count) {
-		return String.format(STATUS_FORMAT, count.getStatus().name().toLowerCase(), count.getCount());
+		return String.format(STATUS_FORMAT, count.getStatus(), count.getCount());
 	}
 
 }

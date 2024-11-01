@@ -15,8 +15,10 @@ import com.redis.riot.core.processor.ConsumerUnaryOperator;
 import com.redis.riot.function.StreamItemProcessor;
 import com.redis.spring.batch.item.redis.common.KeyValue;
 
+import lombok.ToString;
 import picocli.CommandLine.Option;
 
+@ToString
 public class KeyValueProcessorArgs {
 
 	@Option(names = "--key-proc", description = "SpEL template expression to transform key names, e.g. \"#{#source.database}:#{key}\" for 'abc' returns '0:abc'", paramLabel = "<exp>")
@@ -110,13 +112,6 @@ public class KeyValueProcessorArgs {
 
 	public void setPrune(boolean prune) {
 		this.prune = prune;
-	}
-
-	@Override
-	public String toString() {
-		return "KeyValueProcessorArgs [keyExpression=" + keyExpression + ", typeExpression=" + typeExpression
-				+ ", ttlExpression=" + ttlExpression + ", propagateTtl=" + propagateTtl + ", propagateIds="
-				+ propagateIds + ", prune=" + prune + "]";
 	}
 
 }

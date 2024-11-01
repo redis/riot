@@ -1,7 +1,9 @@
 package com.redis.riot.operation;
 
+import lombok.ToString;
 import picocli.CommandLine.Option;
 
+@ToString
 public class ScoreArgs {
 
 	public static final double DEFAULT_SCORE = 1;
@@ -26,11 +28,6 @@ public class ScoreArgs {
 
 	public void setDefaultValue(double defaultValue) {
 		this.defaultValue = defaultValue;
-	}
-
-	@Override
-	public String toString() {
-		return "ScoreArgs [field=" + field + ", defaultValue=" + defaultValue + "]";
 	}
 
 }

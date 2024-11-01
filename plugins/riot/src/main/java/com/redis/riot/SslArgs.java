@@ -2,12 +2,13 @@ package com.redis.riot;
 
 import java.io.File;
 
-import com.redis.riot.core.RiotUtils;
-
 import io.lettuce.core.SslOptions;
 import io.lettuce.core.SslOptions.Builder;
 import io.lettuce.core.SslOptions.Resource;
+import lombok.ToString;
 import picocli.CommandLine.Option;
+
+@ToString(exclude = { "keystorePassword", "truststorePassword", "keyPassword" })
 
 public class SslArgs {
 
@@ -114,14 +115,6 @@ public class SslArgs {
 
 	public void setTrustedCerts(File trustedCerts) {
 		this.trustedCerts = trustedCerts;
-	}
-
-	@Override
-	public String toString() {
-		return "SslArgs [keystore=" + keystore + ", keystorePassword=" + RiotUtils.mask(keystorePassword)
-				+ ", truststore=" + truststore + ", truststorePassword=" + RiotUtils.mask(truststorePassword)
-				+ ", keyCert=" + keyCert + ", key=" + key + ", keyPassword=" + RiotUtils.mask(keyPassword)
-				+ ", trustedCerts=" + trustedCerts + "]";
 	}
 
 }

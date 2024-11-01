@@ -32,9 +32,9 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.redis.lettucemod.timeseries.Sample;
 import com.redis.riot.file.xml.XmlResourceItemWriter;
 import com.redis.riot.file.xml.XmlResourceItemWriterBuilder;
-import com.redis.spring.batch.item.redis.common.DataType;
 import com.redis.spring.batch.item.redis.common.KeyValue;
 import com.redis.spring.batch.item.redis.gen.GeneratorItemReader;
+import com.redis.spring.batch.item.redis.gen.ItemType;
 
 @TestInstance(Lifecycle.PER_CLASS)
 class KeyValueSerdeTests {
@@ -67,7 +67,7 @@ class KeyValueSerdeTests {
 		ts.setKey(key);
 		ts.setMemoryUsage(memoryUsage);
 		ts.setTtl(ttl);
-		ts.setType(DataType.TIMESERIES.getString());
+		ts.setType(ItemType.TIMESERIES.getString());
 		Sample sample1 = Sample.of(Instant.now().toEpochMilli(), 123.456);
 		Sample sample2 = Sample.of(Instant.now().toEpochMilli() + 1000, 456.123);
 		ts.setValue(Arrays.asList(sample1, sample2));
@@ -118,13 +118,13 @@ class KeyValueSerdeTests {
 		KeyValue<String> item1 = new KeyValue<>();
 		item1.setKey("key1");
 		item1.setTtl(123l);
-		item1.setType(DataType.HASH.getString());
+		item1.setType(KeyValue.TYPE_HASH);
 		Map<String, String> hash1 = Map.of("field1", "value1", "field2", "value2");
 		item1.setValue(hash1);
 		KeyValue<String> item2 = new KeyValue<>();
 		item2.setKey("key2");
 		item2.setTtl(456l);
-		item2.setType(DataType.STREAM.getString());
+		item2.setType(KeyValue.TYPE_STREAM);
 		Map<String, String> hash2 = Map.of("field1", "value1", "field2", "value2");
 		item2.setValue(hash2);
 		writer.write(Chunk.of(item1, item2));

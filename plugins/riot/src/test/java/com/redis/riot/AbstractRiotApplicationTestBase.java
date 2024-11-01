@@ -3,7 +3,6 @@ package com.redis.riot;
 import org.junit.jupiter.api.TestInfo;
 import org.slf4j.simple.SimpleLogger;
 
-import com.redis.riot.Replicate.CompareMode;
 import com.redis.riot.core.AbstractJobCommand;
 import com.redis.riot.core.MainCommand;
 import com.redis.riot.core.ProgressStyle;

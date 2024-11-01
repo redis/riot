@@ -12,7 +12,6 @@ import java.util.function.UnaryOperator;
 import com.redis.lettucemod.timeseries.Sample;
 import com.redis.riot.core.processor.CollectionToMapFunction;
 import com.redis.riot.core.processor.StringToMapFunction;
-import com.redis.spring.batch.item.redis.common.DataType;
 import com.redis.spring.batch.item.redis.common.KeyValue;
 
 import io.lettuce.core.ScoredValue;
@@ -44,26 +43,25 @@ public class KeyValueMap implements Function<KeyValue<String>, Map<String, Objec
 		if (!KeyValue.hasType(item) || !KeyValue.hasValue(item)) {
 			return Collections.emptyMap();
 		}
-		DataType type = KeyValue.type(item);
-		if (type == null) {
+		if (item.getType() == null) {
 			return Collections.emptyMap();
 		}
-		switch (type) {
-		case HASH:
+		switch (item.getType()) {
+		case KeyValue.TYPE_HASH:
 			return hash.apply((Map<String, String>) item.getValue());
-		case LIST:
+		case KeyValue.TYPE_LIST:
 			return list.apply((Collection<String>) item.getValue());
-		case SET:
+		case KeyValue.TYPE_SET:
 			return set.apply((Set<String>) item.getValue());
-		case ZSET:
+		case KeyValue.TYPE_ZSET:
 			return zset.apply((Set<ScoredValue<String>>) item.getValue());
-		case STREAM:
+		case KeyValue.TYPE_STREAM:
 			return stream.apply((Collection<StreamMessage<String, String>>) item.getValue());
-		case JSON:
+		case KeyValue.TYPE_JSON:
 			return json.apply((String) item.getValue());
-		case STRING:
+		case KeyValue.TYPE_STRING:
 			return string.apply((String) item.getValue());
-		case TIMESERIES:
+		case KeyValue.TYPE_TIMESERIES:
 			return timeseries.apply((Collection<Sample>) item.getValue());
 		default:
 			return defaultFunction.apply(item.getValue());

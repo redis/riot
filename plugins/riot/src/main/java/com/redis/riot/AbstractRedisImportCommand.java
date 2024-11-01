@@ -4,12 +4,12 @@ import picocli.CommandLine.ArgGroup;
 
 public abstract class AbstractRedisImportCommand extends AbstractImportCommand {
 
-	@ArgGroup(exclusive = false)
+	@ArgGroup(exclusive = false, heading = "Redis options%n")
 	private RedisArgs redisArgs = new RedisArgs();
 
 	@Override
 	protected RedisContext targetRedisContext() {
-		return redisArgs.redisContext();
+		return RedisContext.of(redisArgs.getUri(), redisArgs);
 	}
 
 	public RedisArgs getRedisArgs() {

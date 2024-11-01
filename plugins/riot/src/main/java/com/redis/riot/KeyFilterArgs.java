@@ -9,13 +9,14 @@ import java.util.function.Predicate;
 import org.springframework.util.CollectionUtils;
 
 import com.redis.spring.batch.item.redis.common.BatchUtils;
-import com.redis.spring.batch.item.redis.common.GlobPredicate;
 import com.redis.spring.batch.item.redis.common.Range;
 
 import io.lettuce.core.cluster.SlotHash;
 import io.lettuce.core.codec.RedisCodec;
+import lombok.ToString;
 import picocli.CommandLine.Option;
 
+@ToString
 public class KeyFilterArgs {
 
 	@Option(names = "--key-include", arity = "1..*", description = "Glob pattern to match keys for inclusion. E.g. 'mykey:*' will only consider keys starting with 'mykey:'.", paramLabel = "<exp>")
@@ -65,11 +66,7 @@ public class KeyFilterArgs {
 		if (CollectionUtils.isEmpty(patterns)) {
 			return Optional.empty();
 		}
-		return Optional.of(patterns.stream().map(this::globPredicate).reduce(k -> false, Predicate::or));
-	}
-
-	private Predicate<String> globPredicate(String pattern) {
-		return new GlobPredicate(pattern);
+		return Optional.of(patterns.stream().map(BatchUtils::globPredicate).reduce(k -> false, Predicate::or));
 	}
 
 	private <K> Optional<Predicate<K>> slotsPredicate(RedisCodec<K, ?> codec) {
@@ -114,11 +111,6 @@ public class KeyFilterArgs {
 
 	public void setSlots(List<Range> slots) {
 		this.slots = slots;
-	}
-
-	@Override
-	public String toString() {
-		return "KeyFilterArgs [includes=" + includes + ", excludes=" + excludes + ", slots=" + slots + "]";
 	}
 
 }

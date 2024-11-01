@@ -15,17 +15,20 @@ import org.testcontainers.shaded.org.bouncycastle.util.encoders.Hex;
 
 import com.redis.lettucemod.RedisModulesUtils;
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
-import com.redis.riot.Replicate.CompareMode;
 import com.redis.riot.core.ProgressStyle;
 import com.redis.spring.batch.item.redis.RedisItemReader.ReaderMode;
-import com.redis.spring.batch.item.redis.common.DataType;
 import com.redis.spring.batch.item.redis.common.Range;
 import com.redis.spring.batch.item.redis.gen.GeneratorItemReader;
+import com.redis.spring.batch.item.redis.gen.ItemType;
 
 import io.lettuce.core.cluster.SlotHash;
 import io.lettuce.core.codec.ByteArrayCodec;
 
 abstract class RiotTests extends AbstractRiotApplicationTestBase {
+
+	public static final String BEERS_JSON_URL = "https://storage.googleapis.com/jrx/beers.json";
+	public static final int BEER_CSV_COUNT = 2410;
+	public static final int BEER_JSON_COUNT = 216;
 
 	@BeforeAll
 	void setDefaults() {
@@ -33,7 +36,7 @@ abstract class RiotTests extends AbstractRiotApplicationTestBase {
 	}
 
 	protected void runLiveReplication(TestInfo info, String filename) throws Exception {
-		DataType[] types = new DataType[] { DataType.HASH, DataType.STRING };
+		ItemType[] types = new ItemType[] { ItemType.HASH, ItemType.STRING };
 		enableKeyspaceNotifications();
 		generate(info, generator(3000, types));
 		GeneratorItemReader generator = generator(3500, types);
@@ -42,10 +45,6 @@ abstract class RiotTests extends AbstractRiotApplicationTestBase {
 		execute(info, filename);
 		assertCompare(info);
 	}
-
-	public static final String BEERS_JSON_URL = "https://storage.googleapis.com/jrx/beers.json";
-	public static final int BEER_CSV_COUNT = 2410;
-	public static final int BEER_JSON_COUNT = 216;
 
 	protected static String name(Map<String, String> beer) {
 		return beer.get("name");

@@ -4,6 +4,7 @@ import org.springframework.beans.factory.InitializingBean;
 
 import com.redis.lettucemod.RedisModulesClientBuilder;
 import com.redis.lettucemod.RedisModulesUtils;
+import com.redis.lettucemod.RedisURIBuilder;
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.spring.batch.item.redis.RedisItemReader;
 import com.redis.spring.batch.item.redis.RedisItemWriter;
@@ -13,10 +14,13 @@ import io.lettuce.core.ClientOptions;
 import io.lettuce.core.ReadFrom;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.SslOptions;
+import io.lettuce.core.SslVerifyMode;
 import io.lettuce.core.cluster.ClusterClientOptions;
 import io.lettuce.core.protocol.ProtocolVersion;
 import io.lettuce.core.resource.ClientResources;
+import lombok.ToString;
 
+@ToString
 public class RedisContext implements InitializingBean, AutoCloseable {
 
 	private RedisURI uri;
@@ -31,7 +35,7 @@ public class RedisContext implements InitializingBean, AutoCloseable {
 	private StatefulRedisModulesConnection<String, String> connection;
 
 	@Override
-	public void afterPropertiesSet() throws Exception {
+	public void afterPropertiesSet() {
 		RedisModulesClientBuilder clientBuilder = new RedisModulesClientBuilder();
 		clientBuilder.cluster(cluster);
 		clientBuilder.options(clientOptions());
@@ -69,6 +73,33 @@ public class RedisContext implements InitializingBean, AutoCloseable {
 			client.shutdown();
 			client.getResources().shutdown();
 		}
+	}
+
+	private static RedisURIBuilder uriBuilder(RedisClientArgs args) {
+		RedisURIBuilder builder = new RedisURIBuilder();
+		builder.clientName(args.getClientName());
+		builder.database(args.getDatabase());
+		builder.host(args.getHost());
+		builder.password(args.getPassword());
+		builder.port(args.getPort());
+		builder.timeout(args.getTimeout());
+		builder.socket(args.getSocket());
+		builder.tls(args.isTls());
+		builder.username(args.getUsername());
+		if (args.isInsecure()) {
+			builder.verifyMode(SslVerifyMode.NONE);
+		}
+		return builder;
+	}
+
+	public static RedisContext of(RedisURI uri, RedisClientArgs args) {
+		RedisContext context = new RedisContext();
+		context.cluster(args.isCluster());
+		context.poolSize(args.getPoolSize());
+		context.protocolVersion(args.getProtocolVersion());
+		context.readFrom(args.getReadFrom().getReadFrom());
+		context.uri(uriBuilder(args).uri(uri).build());
+		return context;
 	}
 
 	public AbstractRedisClient getClient() {
@@ -140,13 +171,6 @@ public class RedisContext implements InitializingBean, AutoCloseable {
 	public RedisContext clientResources(ClientResources clientResources) {
 		this.clientResources = clientResources;
 		return this;
-	}
-
-	@Override
-	public String toString() {
-		return "RedisContext [uri=" + uri + ", clientResources=" + clientResources + ", cluster=" + cluster
-				+ ", protocolVersion=" + protocolVersion + ", sslOptions=" + sslOptions + ", poolSize=" + poolSize
-				+ ", readFrom=" + readFrom + "]";
 	}
 
 }

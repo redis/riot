@@ -4,8 +4,10 @@ import java.util.Map;
 
 import com.redis.riot.core.Expression;
 
+import lombok.ToString;
 import picocli.CommandLine.Option;
 
+@ToString
 public class ImportProcessorArgs {
 
 	@Option(arity = "1..*", names = "--proc", description = "SpEL expressions in the form field1=\"exp\" field2=\"exp\" etc. For details see https://docs.spring.io/spring-framework/reference/core/expressions.html", paramLabel = "<f=exp>")
@@ -28,11 +30,6 @@ public class ImportProcessorArgs {
 
 	public void setFilter(Expression filter) {
 		this.filter = filter;
-	}
-
-	@Override
-	public String toString() {
-		return "ImportProcessorArgs [expressions=" + expressions + ", filter=" + filter + "]";
 	}
 
 }

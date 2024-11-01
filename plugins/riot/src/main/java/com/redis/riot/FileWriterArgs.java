@@ -13,9 +13,11 @@ import com.redis.riot.file.FileUtils;
 import com.redis.riot.file.OutputStreamResource;
 import com.redis.riot.file.SystemOutResource;
 
+import lombok.ToString;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
 
+@ToString
 public class FileWriterArgs {
 
 	public static final String DEFAULT_LINE_SEPARATOR = System.getProperty("line.separator");
@@ -154,14 +156,6 @@ public class FileWriterArgs {
 
 	public void setFileArgs(FileArgs fileArgs) {
 		this.fileArgs = fileArgs;
-	}
-
-	@Override
-	public String toString() {
-		return "FileWriterArgs [formatterString=" + formatterString + ", append=" + append + ", forceSync=" + forceSync
-				+ ", rootName=" + rootName + ", elementName=" + elementName + ", lineSeparator=" + lineSeparator
-				+ ", shouldDeleteIfEmpty=" + shouldDeleteIfEmpty + ", shouldDeleteIfExists=" + shouldDeleteIfExists
-				+ ", transactional=" + transactional + ", fileArgs=" + fileArgs + "]";
 	}
 
 }

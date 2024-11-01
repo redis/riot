@@ -15,7 +15,7 @@ import picocli.CommandLine.Option;
 
 public abstract class AbstractRedisExportCommand extends AbstractExportCommand {
 
-	@ArgGroup(exclusive = false)
+	@ArgGroup(exclusive = false, heading = "Redis options%n")
 	private RedisArgs redisArgs = new RedisArgs();
 
 	@Option(names = "--key-regex", description = "Regex for key-field extraction, e.g. '\\w+:(?<id>.+)' extracts an id field from the key", paramLabel = "<rex>")
@@ -23,7 +23,7 @@ public abstract class AbstractRedisExportCommand extends AbstractExportCommand {
 
 	@Override
 	protected RedisContext sourceRedisContext() {
-		return redisArgs.redisContext();
+		return RedisContext.of(redisArgs.getUri(), redisArgs);
 	}
 
 	protected ItemProcessor<KeyValue<String>, Map<String, Object>> mapProcessor() {
