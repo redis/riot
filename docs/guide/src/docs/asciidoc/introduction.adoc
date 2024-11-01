@@ -17,3 +17,17 @@
 * <<_replication,Replication>>: Redis -> Redis
 
 {project-title} is supported by Redis, Inc. on a good faith effort basis. To report bugs, request features, or receive assistance, please https://github.com/redis/riot/issues[file an issue] or contact your Redis account team.
+
+[discrete]
+== RIOT-X
+https://redis-field-engineering.github.io/riotx/[RIOT-X] is an extension to {project-title} which provides the following additional features for https://redis.io/cloud/[Redis Cloud] and https://redis.io/enterprise/[Redis Software]:
+
+* Observability
+* Memcached Replication
+* Stream Import/Export: Redis <-> Redis Stream
+
+Full documentation for RIOT-X is available here: https://redis-field-engineering.github.io/riotx/[redis-field-engineering.github.io/riotx]
+
+image::riotx-dashboard-replication.png[]
+
+image::riotx-dashboard-jvm.png[]
