@@ -92,7 +92,7 @@ $(addBlockSwitches);
 <h1>Redis Input/Output Tools (RIOT)</h1>
 <div class="details">
 <span id="author" class="author">Julien Ruaux</span><br>
-<span id="revnumber">version 4.1.5</span>
+<span id="revnumber">version 4.1.6</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -101,12 +101,11 @@ $(addBlockSwitches);
 <li><a href="#_install">Install</a></li>
 <li><a href="#_concepts">Concepts</a>
 <ul class="sectlevel2">
-<li><a href="#_concepts_redis_uri">Redis URI</a></li>
 <li><a href="#_concepts_batching">Batching</a></li>
 <li><a href="#_concepts_threads">Multi-threading</a></li>
 <li><a href="#_concepts_processing">Processing</a></li>
 <li><a href="#_concepts_filtering">Filtering</a></li>
-<li><a href="#_concepts_replication">Replication</a></li>
+<li><a href="#_concepts_redis_uri">Redis URI</a></li>
 </ul>
 </li>
 <li><a href="#_usage">Usage</a>
@@ -251,10 +250,10 @@ scoop install riot</code></pre>
 </td>
 <td class="content">
 <div class="paragraph">
-<p><code>riot-4.1.5.zip</code> requires Java 11 or greater to be installed.</p>
+<p><code>riot-4.1.6.zip</code> requires Java 11 or greater to be installed.</p>
 </div>
 <div class="paragraph">
-<p><code>riot-standalone-4.1.5-*.zip</code> includes its own Java runtime and does not require a Java installation.</p>
+<p><code>riot-standalone-4.1.6-*.zip</code> includes its own Java runtime and does not require a Java installation.</p>
 </div>
 </td>
 </tr>
@@ -280,127 +279,6 @@ scoop install riot</code></pre>
 <div class="imageblock">
 <div class="content">
 <img src="images/architecture.svg" alt="architecture">
-</div>
-</div>
-<div class="sect2">
-<h3 id="_concepts_redis_uri"><a class="anchor" href="#_concepts_redis_uri"></a>Redis URI</h3>
-<div class="paragraph">
-<p>RIOT follows the <a href="https://github.com/redis/redis-specifications/tree/master/uri">Redis URI</a> specification, which supports standalone, sentinel and cluster Redis deployments with plain, SSL, TLS and unix domain socket connections.</p>
-</div>
-<div class="admonitionblock tip">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-tip" title="Tip"></i>
-</td>
-<td class="content">
-You can use the <code>host:port</code> short hand for <code>redis://host:port</code>.
-</td>
-</tr>
-</table>
-</div>
-<div class="admonitionblock tip">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-tip" title="Tip"></i>
-</td>
-<td class="content">
-You can provide the database, password and timeouts within the Redis URI.
-</td>
-</tr>
-</table>
-</div>
-<div class="dlist">
-<dl>
-<dt class="hdlist1">Redis Standalone</dt>
-<dd>
-<p><code>redis :// [[username :] password@] host [:port][/database]
-        [?[timeout=timeout[d|h|m|s|ms|us|ns]] [&amp;clientName=clientName]
-        [&amp;libraryName=libraryName] [&amp;libraryVersion=libraryVersion] ]</code></p>
-</dd>
-<dt class="hdlist1">Redis Standalone (SSL)</dt>
-<dd>
-<p><code>rediss :// [[username :] password@] host [: port][/database]
-         [?[timeout=timeout[d|h|m|s|ms|us|ns]] [&amp;clientName=clientName]
-         [&amp;libraryName=libraryName] [&amp;libraryVersion=libraryVersion] ]</code></p>
-</dd>
-<dt class="hdlist1">Redis Standalone (Unix Domain Sockets)</dt>
-<dd>
-<p><code>redis-socket :// [[username :] password@]path
-               [?[timeout=timeout[d|h|m|s|ms|us|ns]] [&amp;database=database]
-               [&amp;clientName=clientName] [&amp;libraryName=libraryName]
-               [&amp;libraryVersion=libraryVersion] ]</code></p>
-</dd>
-<dt class="hdlist1">Redis Sentinel</dt>
-<dd>
-<p><code>redis-sentinel :// [[username :] password@] host1[:port1] [, host2[:port2]] [, hostN[:portN]] [/database]
-                 [?[timeout=timeout[d|h|m|s|ms|us|ns]] [&amp;sentinelMasterId=sentinelMasterId]
-                 [&amp;clientName=clientName] [&amp;libraryName=libraryName]
-                 [&amp;libraryVersion=libraryVersion] ]</code></p>
-</dd>
-</dl>
-</div>
-<div class="hdlist">
-<div class="title">Timeout Units</div>
-<table>
-<tr>
-<td class="hdlist1">
-<code>d</code>
-</td>
-<td class="hdlist2">
-<p>Days</p>
-</td>
-</tr>
-<tr>
-<td class="hdlist1">
-<code>h</code>
-</td>
-<td class="hdlist2">
-<p>Hours</p>
-</td>
-</tr>
-<tr>
-<td class="hdlist1">
-<code>m</code>
-</td>
-<td class="hdlist2">
-<p>Minutes</p>
-</td>
-</tr>
-<tr>
-<td class="hdlist1">
-<code>s</code>
-</td>
-<td class="hdlist2">
-<p>Seconds</p>
-</td>
-</tr>
-<tr>
-<td class="hdlist1">
-<code>ms</code>
-</td>
-<td class="hdlist2">
-<p>Milliseconds</p>
-</td>
-</tr>
-<tr>
-<td class="hdlist1">
-<code>us</code>
-</td>
-<td class="hdlist2">
-<p>Microseconds</p>
-</td>
-</tr>
-<tr>
-<td class="hdlist1">
-<code>ns</code>
-</td>
-<td class="hdlist2">
-<p>Nanoseconds</p>
-</td>
-</tr>
-</table>
 </div>
 </div>
 <div class="sect2">
@@ -527,36 +405,124 @@ The <code>replicate</code> command exposes 2 command objects named <code>source<
 </div>
 </div>
 <div class="sect2">
-<h3 id="_concepts_replication"><a class="anchor" href="#_concepts_replication"></a>Replication</h3>
+<h3 id="_concepts_redis_uri"><a class="anchor" href="#_concepts_redis_uri"></a>Redis URI</h3>
 <div class="paragraph">
-<p>Most Redis migration tools available today are offline in nature.
-Migrating data from AWS ElastiCache to Redis Enterprise Cloud for example means backing up your Elasticache data to an AWS S3 bucket and importing it into Redis Enterprise Cloud using its UI.
-Redis has a replication command called <a href="https://redis.io/commands/replicaof">REPLICAOF</a> but it is not always available (see <a href="https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/RestrictedCommands.html">ElastiCache restrictions</a>).</p>
+<p>RIOT follows the <a href="https://github.com/redis/redis-specifications/tree/master/uri">Redis URI</a> specification, which supports standalone, sentinel and cluster Redis deployments with plain, SSL, TLS and unix domain socket connections.</p>
 </div>
-<div class="paragraph">
-<p>Instead, RIOT implements using <strong>dump &amp; restore</strong> or <strong>type-based read &amp; write</strong>.
-Both snapshot and live replication modes are supported.</p>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+You can use the <code>host:port</code> short hand for <code>redis://host:port</code>.
+</td>
+</tr>
+</table>
 </div>
-<div class="imageblock">
-<div class="content">
-<img src="images/replication-architecture.svg" alt="replication architecture">
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+You can provide the database, password and timeouts within the Redis URI.
+</td>
+</tr>
+</table>
 </div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Redis Standalone</dt>
+<dd>
+<p><code>redis :// [[username :] password@] host [:port][/database]
+        [?[timeout=timeout[d|h|m|s|ms|us|ns]] [&amp;clientName=clientName]
+        [&amp;libraryName=libraryName] [&amp;libraryVersion=libraryVersion] ]</code></p>
+</dd>
+<dt class="hdlist1">Redis Standalone (SSL)</dt>
+<dd>
+<p><code>rediss :// [[username :] password@] host [: port][/database]
+         [?[timeout=timeout[d|h|m|s|ms|us|ns]] [&amp;clientName=clientName]
+         [&amp;libraryName=libraryName] [&amp;libraryVersion=libraryVersion] ]</code></p>
+</dd>
+<dt class="hdlist1">Redis Standalone (Unix Domain Sockets)</dt>
+<dd>
+<p><code>redis-socket :// [[username :] password@]path
+               [?[timeout=timeout[d|h|m|s|ms|us|ns]] [&amp;database=database]
+               [&amp;clientName=clientName] [&amp;libraryName=libraryName]
+               [&amp;libraryVersion=libraryVersion] ]</code></p>
+</dd>
+<dt class="hdlist1">Redis Sentinel</dt>
+<dd>
+<p><code>redis-sentinel :// [[username :] password@] host1[:port1] [, host2[:port2]] [, hostN[:portN]] [/database]
+                 [?[timeout=timeout[d|h|m|s|ms|us|ns]] [&amp;sentinelMasterId=sentinelMasterId]
+                 [&amp;clientName=clientName] [&amp;libraryName=libraryName]
+                 [&amp;libraryVersion=libraryVersion] ]</code></p>
+</dd>
+</dl>
 </div>
-<div class="paragraph">
-<p>The basic replication mechanism is as follows:</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Identify source keys to be replicated using scan and/or keyspace notifications depending on the <a href="#_replication_mode">replication mode</a>.</p>
-</li>
-<li>
-<p>Read data associated with each key using <a href="#_replication_type_dump">dump</a> or <a href="#_replication_type_struct">type-specific commands</a>.</p>
-</li>
-<li>
-<p>Write each key to the target using <a href="#_replication_type_dump">restore</a> or <a href="#_replication_type_struct">type-specific commands</a>.</p>
-</li>
-</ol>
+<div class="hdlist">
+<div class="title">Timeout Units</div>
+<table>
+<tr>
+<td class="hdlist1">
+<code>d</code>
+</td>
+<td class="hdlist2">
+<p>Days</p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+<code>h</code>
+</td>
+<td class="hdlist2">
+<p>Hours</p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+<code>m</code>
+</td>
+<td class="hdlist2">
+<p>Minutes</p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+<code>s</code>
+</td>
+<td class="hdlist2">
+<p>Seconds</p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+<code>ms</code>
+</td>
+<td class="hdlist2">
+<p>Milliseconds</p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+<code>us</code>
+</td>
+<td class="hdlist2">
+<p>Microseconds</p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+<code>ns</code>
+</td>
+<td class="hdlist2">
+<p>Nanoseconds</p>
+</td>
+</tr>
+</table>
 </div>
 </div>
 </div>
@@ -1456,6 +1422,27 @@ Otherwise specify the field names using the <code>--fields</code> option.</p>
 <div class="paragraph">
 <p>The <code>replicate</code> command reads data from a <strong>source</strong> Redis database and writes to a <strong>target</strong> Redis database.</p>
 </div>
+<div class="imageblock">
+<div class="content">
+<img src="images/replication-architecture.svg" alt="replication architecture">
+</div>
+</div>
+<div class="paragraph">
+<p>The replication mechanism is as follows:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Identify source keys to be replicated using scan and/or keyspace notifications depending on the <a href="#_replication_mode">replication mode</a>.</p>
+</li>
+<li>
+<p>Read data associated with each key using <a href="#_replication_type_dump">dump</a> or <a href="#_replication_type_struct">type-specific commands</a>.</p>
+</li>
+<li>
+<p>Write each key to the target using <a href="#_replication_type_dump">restore</a> or <a href="#_replication_type_struct">type-specific commands</a>.</p>
+</li>
+</ol>
+</div>
 <div class="paragraph">
 <p>The basic usage is:</p>
 </div>
@@ -1488,20 +1475,57 @@ For example <code>riot replicate redis://source:6379/1 redis://target:6379</code
 </tr>
 </table>
 </div>
-<div class="paragraph">
-<p>A status bar shows progress with a percentage of keys that have been replicated.
-The total number of keys is estimated when the process starts and it can change by the time it is finished, for example if keys are deleted or added during replication.</p>
-</div>
 <div class="sect3">
-<h4 id="_replication_mode"><a class="anchor" href="#_replication_mode"></a>Replication Modes</h4>
+<h4 id="_replication_mode"><a class="anchor" href="#_replication_mode"></a>Replication Mode</h4>
 <div class="paragraph">
-<p>The <code>--mode</code> option allows you to specify how RIOT identifies keys to be replicated.
-Possible values: <code>SCAN</code> (default), <code>LIVE</code>, <code>LIVEONLY</code>.</p>
+<p>Replication starts with identifying keys to be replicated from the source Redis database.
+The <code>--mode</code> option allows you to specify how RIOT identifies keys to be replicated:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>iterate over keys with a key scan (<code>--mode scan</code>)</p>
+</li>
+<li>
+<p>received by a keyspace notification subscriber (<code>--mode liveonly</code>)</p>
+</li>
+<li>
+<p>or both (<code>--mode live</code>)</p>
+</li>
+</ul>
 </div>
 <div class="sect4">
-<h5 id="_replication_mode_scan"><a class="anchor" href="#_replication_mode_scan"></a><code>SCAN</code></h5>
+<h5 id="_replication_mode_scan"><a class="anchor" href="#_replication_mode_scan"></a>Scan</h5>
 <div class="paragraph">
-<p>This mode uses the <code>SCAN</code> command to identify keys to propagate to the target Redis database.</p>
+<p>This key reader scans for keys using the Redis <a href="https://redis.io/docs/latest/commands/scan/"><code>SCAN</code> command</a>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>SCAN cursor [MATCH pattern] [COUNT count] [TYPE type]</code></pre>
+</div>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><code>MATCH pattern</code></dt>
+<dd>
+<p>configured with the <code>--key-pattern</code> option</p>
+</dd>
+<dt class="hdlist1"><code>TYPE type</code></dt>
+<dd>
+<p>configured with the <code>--key-type</code> option</p>
+</dd>
+<dt class="hdlist1"><code>COUNT count</code></dt>
+<dd>
+<p>configured with the <code>--scan-count</code> option</p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>INFO: In cluster mode keys are scanned in parallel across cluster nodes.</p>
+</div>
+<div class="paragraph">
+<p>The status bar shows progress with a percentage of keys that have been replicated.
+The total number of keys is estimated when the replication process starts and it can change by the time it is finished, for example if keys are deleted or added during replication.</p>
 </div>
 <div class="listingblock">
 <div class="title">Scan replication example</div>
@@ -1511,19 +1535,9 @@ Possible values: <code>SCAN</code> (default), <code>LIVE</code>, <code>LIVEONLY<
 </div>
 </div>
 <div class="sect4">
-<h5 id="_replication_mode_live"><a class="anchor" href="#_replication_mode_live"></a><code>LIVE</code></h5>
+<h5 id="_replication_mode_live"><a class="anchor" href="#_replication_mode_live"></a>Live</h5>
 <div class="paragraph">
-<p>This mode builds upon scan replication by also listening for changes on the source Redis database.
-Whenever a key is modified its corresponding value is read and propagated to the target Redis database.</p>
-</div>
-<div class="listingblock">
-<div class="title">Live replication example</div>
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="console">riot replicate --mode live redis://source redis://target</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Live replication relies on keyspace notifications for capturing these changes.</p>
+<p>The key notification reader listens for key changes using keyspace notifications.</p>
 </div>
 <div class="paragraph">
 <p><strong>Make sure the source database has keyspace notifications enabled</strong> using:</p>
@@ -1540,6 +1554,12 @@ Whenever a key is modified its corresponding value is read and propagated to the
 </div>
 <div class="paragraph">
 <p>For more details see <a href="https://redis.io/docs/manual/keyspace-notifications">Redis Keyspace Notifications</a>.</p>
+</div>
+<div class="listingblock">
+<div class="title">Live replication example</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="console">riot replicate --mode live redis://source redis://target</code></pre>
+</div>
 </div>
 <div class="admonitionblock warning">
 <table>
@@ -1565,12 +1585,6 @@ If you need assistance please contact your Redis account team.</p>
 </td>
 </tr>
 </table>
-</div>
-</div>
-<div class="sect4">
-<h5 id="_replication_mode_liveonly"><a class="anchor" href="#_replication_mode_liveonly"></a><code>LIVEONLY</code></h5>
-<div class="paragraph">
-<p>In this mode only keyspace notifications are used.</p>
 </div>
 </div>
 </div>
@@ -2114,8 +2128,8 @@ Either increase max JVM heap size (<code>export JAVA_OPTS="-Xmx8g"</code>) or re
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 4.1.5<br>
-Last updated 2024-11-01 15:54:50 UTC
+Version 4.1.6<br>
+Last updated 2024-11-04 06:47:36 UTC
 </div>
 </div>
 <link rel="stylesheet" href="./coderay-asciidoctor.css">

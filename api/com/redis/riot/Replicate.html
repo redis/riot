@@ -45,7 +45,7 @@ loadScripts(document, 'script');</script>
 <div>
 <ul class="sub-nav-list">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested-class-summary">Nested</a>&nbsp;|&nbsp;</li>
 <li><a href="#field-summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor-summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method-summary">Method</a></li>
@@ -98,6 +98,21 @@ loadScripts(document, 'script');</script>
 </section>
 <section class="summary">
 <ul class="summary-list">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<li>
+<section class="nested-class-summary" id="nested-class-summary">
+<h2>Nested Class Summary</h2>
+<div class="caption"><span>Nested Classes</span></div>
+<div class="summary-table three-column-summary">
+<div class="table-header col-first">Modifier and Type</div>
+<div class="table-header col-second">Class</div>
+<div class="table-header col-last">Description</div>
+<div class="col-first even-row-color"><code>static enum&nbsp;</code></div>
+<div class="col-second even-row-color"><code><a href="Replicate.Type.html" class="type-name-link" title="enum class in com.redis.riot">Replicate.Type</a></code></div>
+<div class="col-last even-row-color">&nbsp;</div>
+</div>
+</section>
+</li>
 <!-- =========== FIELD SUMMARY =========== -->
 <li>
 <section class="field-summary" id="field-summary">
@@ -110,6 +125,9 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color"><code>static final <a href="CompareMode.html" title="enum class in com.redis.riot">CompareMode</a></code></div>
 <div class="col-second even-row-color"><code><a href="#DEFAULT_COMPARE_MODE" class="member-name-link">DEFAULT_COMPARE_MODE</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
+<div class="col-first odd-row-color"><code>static final <a href="Replicate.Type.html" title="enum class in com.redis.riot">Replicate.Type</a></code></div>
+<div class="col-second odd-row-color"><code><a href="#DEFAULT_TYPE" class="member-name-link">DEFAULT_TYPE</a></code></div>
+<div class="col-last odd-row-color">&nbsp;</div>
 </div>
 <div class="inherited-list">
 <h3 id="fields-inherited-from-class-com.redis.riot.AbstractReplicateCommand">Fields inherited from class&nbsp;com.redis.riot.<a href="AbstractReplicateCommand.html" title="class in com.redis.riot">AbstractReplicateCommand</a></h3>
@@ -167,29 +185,35 @@ loadScripts(document, 'script');</script>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="RedisWriterArgs.html" title="class in com.redis.riot">RedisWriterArgs</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTargetRedisWriterArgs()" class="member-name-link">getTargetRedisWriterArgs</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isLogKeys()" class="member-name-link">isLogKeys</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Replicate.Type.html" title="enum class in com.redis.riot">Replicate.Type</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getType()" class="member-name-link">getType</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isLogKeys()" class="member-name-link">isLogKeys</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isQuickCompare()" class="member-name-link">isQuickCompare</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isQuickCompare()" class="member-name-link">isQuickCompare</a>()</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isStruct()" class="member-name-link">isStruct</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isStruct()" class="member-name-link">isStruct</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected org.springframework.batch.core.Job</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#job()" class="member-name-link">job</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setCompareMode(com.redis.riot.CompareMode)" class="member-name-link">setCompareMode</a><wbr>(<a href="CompareMode.html" title="enum class in com.redis.riot">CompareMode</a>&nbsp;compareMode)</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected org.springframework.batch.core.Job</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#job()" class="member-name-link">job</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setLogKeys(boolean)" class="member-name-link">setLogKeys</a><wbr>(boolean&nbsp;enable)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setCompareMode(com.redis.riot.CompareMode)" class="member-name-link">setCompareMode</a><wbr>(<a href="CompareMode.html" title="enum class in com.redis.riot">CompareMode</a>&nbsp;compareMode)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setStruct(boolean)" class="member-name-link">setStruct</a><wbr>(boolean&nbsp;type)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setLogKeys(boolean)" class="member-name-link">setLogKeys</a><wbr>(boolean&nbsp;enable)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setTargetRedisWriterArgs(com.redis.riot.RedisWriterArgs)" class="member-name-link">setTargetRedisWriterArgs</a><wbr>(<a href="RedisWriterArgs.html" title="class in com.redis.riot">RedisWriterArgs</a>&nbsp;redisWriterArgs)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setStruct(boolean)" class="member-name-link">setStruct</a><wbr>(boolean&nbsp;enable)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setTargetRedisWriterArgs(com.redis.riot.RedisWriterArgs)" class="member-name-link">setTargetRedisWriterArgs</a><wbr>(<a href="RedisWriterArgs.html" title="class in com.redis.riot">RedisWriterArgs</a>&nbsp;redisWriterArgs)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setType(com.redis.riot.Replicate.Type)" class="member-name-link">setType</a><wbr>(<a href="Replicate.Type.html" title="enum class in com.redis.riot">Replicate.Type</a>&nbsp;type)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected <a href="core/Step.html" title="class in com.redis.riot.core">Step</a>&lt;com.redis.spring.batch.item.redis.common.KeyValue&lt;byte[]&gt;,<wbr>com.redis.spring.batch.item.redis.common.KeyValue&lt;byte[]&gt;&gt;</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#step()" class="member-name-link">step</a>()</code></div>
@@ -227,6 +251,12 @@ loadScripts(document, 'script');</script>
 <h2>Field Details</h2>
 <ul class="member-list">
 <li>
+<section class="detail" id="DEFAULT_TYPE">
+<h3>DEFAULT_TYPE</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="Replicate.Type.html" title="enum class in com.redis.riot">Replicate.Type</a></span>&nbsp;<span class="element-name">DEFAULT_TYPE</span></div>
+</section>
+</li>
+<li>
 <section class="detail" id="DEFAULT_COMPARE_MODE">
 <h3>DEFAULT_COMPARE_MODE</h3>
 <div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="CompareMode.html" title="enum class in com.redis.riot">CompareMode</a></span>&nbsp;<span class="element-name">DEFAULT_COMPARE_MODE</span></div>
@@ -254,6 +284,12 @@ loadScripts(document, 'script');</script>
 <section class="method-details" id="method-detail">
 <h2>Method Details</h2>
 <ul class="member-list">
+<li>
+<section class="detail" id="setStruct(boolean)">
+<h3>setStruct</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setStruct</span><wbr><span class="parameters">(boolean&nbsp;enable)</span></div>
+</section>
+</li>
 <li>
 <section class="detail" id="isQuickCompare()">
 <h3>isQuickCompare</h3>
@@ -291,6 +327,16 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
+<section class="detail" id="isStruct()">
+<h3>isStruct</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isStruct</span>()</div>
+<dl class="notes">
+<dt>Specified by:</dt>
+<dd><code><a href="AbstractReplicateCommand.html#isStruct()">isStruct</a></code>&nbsp;in class&nbsp;<code><a href="AbstractReplicateCommand.html" title="class in com.redis.riot">AbstractReplicateCommand</a></code></dd>
+</dl>
+</section>
+</li>
+<li>
 <section class="detail" id="compareReader()">
 <h3>compareReader</h3>
 <div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">com.redis.spring.batch.item.redis.reader.KeyComparisonItemReader&lt;byte[],<wbr>byte[]&gt;</span>&nbsp;<span class="element-name">compareReader</span>()</div>
@@ -313,19 +359,15 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="isStruct()">
-<h3>isStruct</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isStruct</span>()</div>
-<dl class="notes">
-<dt>Specified by:</dt>
-<dd><code><a href="AbstractReplicateCommand.html#isStruct()">isStruct</a></code>&nbsp;in class&nbsp;<code><a href="AbstractReplicateCommand.html" title="class in com.redis.riot">AbstractReplicateCommand</a></code></dd>
-</dl>
+<section class="detail" id="getType()">
+<h3>getType</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="Replicate.Type.html" title="enum class in com.redis.riot">Replicate.Type</a></span>&nbsp;<span class="element-name">getType</span>()</div>
 </section>
 </li>
 <li>
-<section class="detail" id="setStruct(boolean)">
-<h3>setStruct</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setStruct</span><wbr><span class="parameters">(boolean&nbsp;type)</span></div>
+<section class="detail" id="setType(com.redis.riot.Replicate.Type)">
+<h3>setType</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setType</span><wbr><span class="parameters">(<a href="Replicate.Type.html" title="enum class in com.redis.riot">Replicate.Type</a>&nbsp;type)</span></div>
 </section>
 </li>
 <li>
