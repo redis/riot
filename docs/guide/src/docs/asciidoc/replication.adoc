@@ -3,6 +3,16 @@
 
 The `replicate` command reads data from a *source* Redis database and writes to a *target* Redis database.
 
+image::replication-architecture.svg[]
+
+The replication mechanism is as follows:
+
+1. Identify source keys to be replicated using scan and/or keyspace notifications depending on the <<_replication_mode,replication mode>>.
+
+2. Read data associated with each key using <<_replication_type_dump,dump>> or <<_replication_type_struct,type-specific commands>>.
+
+3. Write each key to the target using <<_replication_type_dump,restore>> or <<_replication_type_struct,type-specific commands>>.
+
 The basic usage is:
 
 [source,console]
@@ -21,18 +31,33 @@ riot replicate --help
 TIP: To replicate a Redis logical database other than the default (`0`), specify the database in the source Redis URI.
 For example `riot replicate redis://source:6379/1 redis://target:6379` replicates database `1`.
 
-A status bar shows progress with a percentage of keys that have been replicated.
-The total number of keys is estimated when the process starts and it can change by the time it is finished, for example if keys are deleted or added during replication.
-
 [[_replication_mode]]
-== Replication Modes
+== Replication Mode
 
-The `--mode` option allows you to specify how {project-title} identifies keys to be replicated.
-Possible values: `SCAN` (default), `LIVE`, `LIVEONLY`.
+Replication starts with identifying keys to be replicated from the source Redis database.
+The `--mode` option allows you to specify how {project-title} identifies keys to be replicated:
+
+* iterate over keys with a key scan (`--mode scan`)
+* received by a keyspace notification subscriber (`--mode liveonly`)
+* or both (`--mode live`)
 
 [[_replication_mode_scan]]
-=== `SCAN`
-This mode uses the `SCAN` command to identify keys to propagate to the target Redis database.
+=== Scan 
+
+This key reader scans for keys using the Redis https://redis.io/docs/latest/commands/scan/[`SCAN` command]:
+
+```
+SCAN cursor [MATCH pattern] [COUNT count] [TYPE type]
+```
+
+`MATCH pattern`:: configured with the `--key-pattern` option
+`TYPE type`:: configured with the `--key-type` option
+`COUNT count`:: configured with the `--scan-count` option
+
+INFO: In cluster mode keys are scanned in parallel across cluster nodes.
+
+The status bar shows progress with a percentage of keys that have been replicated.
+The total number of keys is estimated when the replication process starts and it can change by the time it is finished, for example if keys are deleted or added during replication.
 
 .Scan replication example
 [source,console]
@@ -41,17 +66,9 @@ include::{testdir}/replicate[]
 ----
 
 [[_replication_mode_live]]
-=== `LIVE`
-This mode builds upon scan replication by also listening for changes on the source Redis database.
-Whenever a key is modified its corresponding value is read and propagated to the target Redis database.
+=== Live
 
-.Live replication example
-[source,console]
-----
-include::{testdir}/replicate-live[]
-----
-
-Live replication relies on keyspace notifications for capturing these changes.
+The key notification reader listens for key changes using keyspace notifications.
 
 **Make sure the source database has keyspace notifications enabled** using:
 
@@ -59,6 +76,12 @@ Live replication relies on keyspace notifications for capturing these changes.
 * `CONFIG SET notify-keyspace-events KEA`
 
 For more details see {link_redis_notif}.
+
+.Live replication example
+[source,console]
+----
+include::{testdir}/replicate-live[]
+----
 
 [WARNING]
 ====
@@ -73,10 +96,6 @@ With a big-enough set, {project-title} could fall behind and the internal queue 
 For those potentially problematic migrations it is recommend to perform some preliminary sizing using Redis statistics and `bigkeys`/`memkeys` in tandem with `--mem-limit`.
 If you need assistance please contact your Redis account team.
 ====
-
-[[_replication_mode_liveonly]]
-=== `LIVEONLY`
-In this mode only keyspace notifications are used.
 
 == Replication Types
 
