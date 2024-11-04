@@ -247,15 +247,16 @@ public abstract class AbstractJobCommand extends AbstractCallableCommand {
 	}
 
 	private <I, O> ItemWriter<? super O> writer(Step<I, O> step) {
+		ItemWriter<O> writer = step.getWriter();
 		if (stepArgs.isDryRun()) {
 			log.info("Using no-op writer");
-			return new NoopItemWriter<>();
+			writer = new NoopItemWriter<>();
 		}
 		if (stepArgs.getSleep() > 0) {
-			log.info("Throttling writer with sleep {}", stepArgs.getSleep());
-			return new ThrottledItemWriter<>(step.getWriter(), stepArgs.getSleep());
+			log.info("Throttling writer with sleep={}ms", stepArgs.getSleep());
+			writer = new ThrottledItemWriter<>(writer, stepArgs.getSleep());
 		}
-		return step.getWriter();
+		return writer;
 	}
 
 	public String getJobName() {
