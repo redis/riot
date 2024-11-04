@@ -30,10 +30,11 @@ public class RedisReaderArgs {
 	public static final int DEFAULT_MEMORY_USAGE_SAMPLES = KeyValueRead.DEFAULT_MEM_USAGE_SAMPLES;
 	public static final long DEFAULT_SCAN_COUNT = 1000;
 	public static final Duration DEFAULT_FLUSH_INTERVAL = RedisItemReader.DEFAULT_FLUSH_INTERVAL;
-	public static final int DEFAULT_NOTIFICATION_QUEUE_CAPACITY = RedisItemReader.DEFAULT_NOTIFICATION_QUEUE_CAPACITY;
+	public static final int DEFAULT_EVENT_QUEUE_CAPACITY = RedisItemReader.DEFAULT_EVENT_QUEUE_CAPACITY;
+	public static final ReaderMode DEFAULT_MODE = RedisItemReader.DEFAULT_MODE;
 
 	@Option(names = "--mode", description = "Source for keys: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<name>")
-	private ReaderMode mode = RedisItemReader.DEFAULT_MODE;
+	private ReaderMode mode = DEFAULT_MODE;
 
 	@Option(names = "--key-pattern", description = "Pattern of keys to read (default: *).", paramLabel = "<glob>")
 	private String keyPattern;
@@ -65,8 +66,8 @@ public class RedisReaderArgs {
 	@Option(names = "--idle-timeout", description = "Min duration in seconds to consider reader complete in live mode (default: no timeout).", paramLabel = "<sec>")
 	private long idleTimeout;
 
-	@Option(names = "--event-queue", description = "Capacity of the keyspace notification event queue (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
-	private int notificationQueueCapacity = DEFAULT_NOTIFICATION_QUEUE_CAPACITY;
+	@Option(names = "--event-queue", description = "Capacity of the keyspace notification queue (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
+	private int eventQueueCapacity = DEFAULT_EVENT_QUEUE_CAPACITY;
 
 	@Option(names = "--read-retry", description = "Max number of times to try failed reads. 0 and 1 both mean no retry (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	private int retryLimit;
@@ -89,7 +90,7 @@ public class RedisReaderArgs {
 		reader.setKeyPattern(keyPattern);
 		reader.setKeyType(keyType);
 		reader.setMode(mode);
-		reader.setNotificationQueueCapacity(notificationQueueCapacity);
+		reader.setEventQueueCapacity(eventQueueCapacity);
 		reader.setPollTimeout(Duration.ofMillis(pollTimeout));
 		reader.setProcessor(keyProcessor(reader.getCodec(), keyFilterArgs));
 		reader.setQueueCapacity(queueCapacity);
@@ -198,12 +199,12 @@ public class RedisReaderArgs {
 		this.idleTimeout = idleTimeout;
 	}
 
-	public int getNotificationQueueCapacity() {
-		return notificationQueueCapacity;
+	public int getEventQueueCapacity() {
+		return eventQueueCapacity;
 	}
 
-	public void setNotificationQueueCapacity(int capacity) {
-		this.notificationQueueCapacity = capacity;
+	public void setEventQueueCapacity(int capacity) {
+		this.eventQueueCapacity = capacity;
 	}
 
 	public ReaderMode getMode() {

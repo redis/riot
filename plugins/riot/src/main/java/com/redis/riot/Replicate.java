@@ -16,9 +16,14 @@ import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-@Command(name = "replicate", description = "Replicate a Redis database into another Redis database.")
+@Command(name = "replicate", description = "Replicate a Redis database into another Redis database.", aliases = "sync")
 public class Replicate extends AbstractReplicateCommand {
 
+	public enum Type {
+		STRUCT, DUMP
+	}
+
+	public static final Type DEFAULT_TYPE = Type.DUMP;
 	public static final CompareMode DEFAULT_COMPARE_MODE = CompareMode.QUICK;
 
 	private static final String COMPARE_STEP_NAME = "compare";
@@ -26,8 +31,8 @@ public class Replicate extends AbstractReplicateCommand {
 	private static final String LIVEONLY_TASK_NAME = "Listening";
 	private static final String LIVE_TASK_NAME = "Scanning/Listening";
 
-	@Option(names = "--struct", description = "Enable data structure-specific replication")
-	private boolean struct;
+	@Option(names = "--type", description = "Replication type: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<name>")
+	private Type type = DEFAULT_TYPE;
 
 	@ArgGroup(exclusive = false)
 	private RedisWriterArgs targetRedisWriterArgs = new RedisWriterArgs();
@@ -37,6 +42,11 @@ public class Replicate extends AbstractReplicateCommand {
 
 	@Option(names = "--compare", description = "Compare mode: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<mode>")
 	private CompareMode compareMode = DEFAULT_COMPARE_MODE;
+
+	@Option(names = "--struct", description = "Enable data structure-specific replication")
+	public void setStruct(boolean enable) {
+		this.type = enable ? Type.STRUCT : Type.DUMP;
+	}
 
 	@Override
 	protected boolean isQuickCompare() {
@@ -85,7 +95,7 @@ public class Replicate extends AbstractReplicateCommand {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private RedisItemReader<byte[], byte[]> reader() {
-		if (struct) {
+		if (isStruct()) {
 			log.info("Creating Redis data-structure reader");
 			return RedisItemReader.struct(ByteArrayCodec.INSTANCE);
 		}
@@ -95,12 +105,17 @@ public class Replicate extends AbstractReplicateCommand {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private RedisItemWriter<byte[], byte[], KeyValue<byte[]>> writer() {
-		if (struct) {
+		if (isStruct()) {
 			log.info("Creating Redis data-structure writer");
 			return RedisItemWriter.struct(ByteArrayCodec.INSTANCE);
 		}
 		log.info("Creating Redis dump writer");
 		return (RedisItemWriter) RedisItemWriter.dump();
+	}
+
+	@Override
+	protected boolean isStruct() {
+		return type == Type.STRUCT;
 	}
 
 	private String taskName(RedisItemReader<?, ?> reader) {
@@ -129,13 +144,12 @@ public class Replicate extends AbstractReplicateCommand {
 		this.targetRedisWriterArgs = redisWriterArgs;
 	}
 
-	@Override
-	public boolean isStruct() {
-		return struct;
+	public Type getType() {
+		return type;
 	}
 
-	public void setStruct(boolean type) {
-		this.struct = type;
+	public void setType(Type type) {
+		this.type = type;
 	}
 
 	public boolean isLogKeys() {

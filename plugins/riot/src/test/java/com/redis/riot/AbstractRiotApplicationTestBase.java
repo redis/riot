@@ -47,7 +47,7 @@ abstract class AbstractRiotApplicationTestBase extends AbstractRiotTestBase {
 
 		private void configure(RedisReaderArgs redisReaderArgs) {
 			redisReaderArgs.setIdleTimeout(DEFAULT_IDLE_TIMEOUT_SECONDS);
-			redisReaderArgs.setNotificationQueueCapacity(DEFAULT_NOTIFICATION_QUEUE_CAPACITY);
+			redisReaderArgs.setEventQueueCapacity(DEFAULT_EVENT_QUEUE_CAPACITY);
 		}
 
 		@Override
