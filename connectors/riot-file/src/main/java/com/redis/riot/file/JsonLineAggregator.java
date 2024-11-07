@@ -22,7 +22,7 @@ public class JsonLineAggregator<T> implements LineAggregator<T> {
 		try {
 			return mapper.writeValueAsString(item);
 		} catch (JsonProcessingException e) {
-			log.error("Cpuld not serialize item", e);
+			log.error("Could not serialize item", e);
 			return null;
 		}
 	}

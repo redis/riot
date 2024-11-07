@@ -60,11 +60,11 @@ public class Riot extends MainCommand {
 		return new Generate();
 	}
 
-	protected FileImport fileImport() {
+	protected AbstractFileImport fileImport() {
 		return new FileImport();
 	}
 
-	protected FileExport fileExport() {
+	protected AbstractFileExport fileExport() {
 		return new FileExport();
 	}
 

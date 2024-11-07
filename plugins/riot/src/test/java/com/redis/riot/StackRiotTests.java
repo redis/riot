@@ -149,13 +149,13 @@ class StackRiotTests extends RiotTests {
 	}
 
 	private int executeFileDumpImport(ParseResult parseResult) {
-		FileImport command = command(parseResult);
+		AbstractFileImport command = command(parseResult);
 		command.setFiles(command.getFiles().stream().map(this::replace).collect(Collectors.toList()));
 		return ExitCode.OK;
 	}
 
 	private int executeFileDumpExport(ParseResult parseResult, TestInfo info) {
-		FileExport command = command(parseResult);
+		AbstractFileExport command = command(parseResult);
 		command.setJobName(name(info));
 		command.setFile(replace(command.getFile()));
 		return ExitCode.OK;
@@ -299,7 +299,7 @@ class StackRiotTests extends RiotTests {
 	}
 
 	private int executeImportGlob(ParseResult parseResult) {
-		FileImport command = command(parseResult);
+		AbstractFileImport command = command(parseResult);
 		try {
 			Path dir = Files.createTempDirectory("import-glob");
 			FileCopyUtils.copy(getClass().getClassLoader().getResourceAsStream("files/beers1.csv"),

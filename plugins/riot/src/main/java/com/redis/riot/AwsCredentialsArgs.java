@@ -1,5 +1,7 @@
 package com.redis.riot;
 
+import com.redis.riot.file.AwsCredentials;
+
 import lombok.ToString;
 import picocli.CommandLine.Option;
 
@@ -26,6 +28,13 @@ public class AwsCredentialsArgs {
 
 	public void setSecretKey(String secretKey) {
 		this.secretKey = secretKey;
+	}
+
+	public AwsCredentials credentials() {
+		AwsCredentials credentials = new AwsCredentials();
+		credentials.setAccessKey(accessKey);
+		credentials.setSecretKey(secretKey);
+		return credentials;
 	}
 
 }

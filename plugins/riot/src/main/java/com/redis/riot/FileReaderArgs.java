@@ -1,15 +1,9 @@
 package com.redis.riot;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 import java.util.Set;
-import java.util.zip.GZIPInputStream;
 
-import org.springframework.core.io.Resource;
-
-import com.redis.riot.file.FileUtils;
-import com.redis.riot.file.FilenameInputStreamResource;
+import com.redis.riot.file.FileReaderOptions;
 
 import lombok.ToString;
 import picocli.CommandLine.ArgGroup;
@@ -18,14 +12,11 @@ import picocli.CommandLine.Option;
 @ToString
 public class FileReaderArgs {
 
-	public static final String DEFAULT_CONTINUATION_STRING = "\\";
-	public static final int DEFAULT_MAX_ITEM_COUNT = Integer.MAX_VALUE;
-
 	@Option(names = "--ranges", arity = "1..*", description = "Column ranges for fixed-length files.", paramLabel = "<string>")
 	private List<String> columnRanges;
 
 	@Option(names = "--cont", description = "Line continuation string (default: ${DEFAULT-VALUE}).", paramLabel = "<string>")
-	private String continuationString = DEFAULT_CONTINUATION_STRING;
+	private String continuationString = FileReaderOptions.DEFAULT_CONTINUATION_STRING;
 
 	@Option(names = "--fields", arity = "1..*", description = "Delimited/FW field names.", paramLabel = "<names>")
 	private List<String> fields;
@@ -40,19 +31,22 @@ public class FileReaderArgs {
 	private Integer linesToSkip;
 
 	@Option(names = "--max", description = "Max number of lines to import.", paramLabel = "<count>")
-	private int maxItemCount = DEFAULT_MAX_ITEM_COUNT;
+	private int maxItemCount;
 
 	@ArgGroup(exclusive = false)
 	private FileArgs fileArgs = new FileArgs();
 
-	public Resource resource(String location) throws IOException {
-		Resource resource = fileArgs.resource(location);
-		InputStream inputStream = resource.getInputStream();
-		if (fileArgs.isGzipped() || FileUtils.isGzip(location)) {
-			return new FilenameInputStreamResource(new GZIPInputStream(inputStream), resource.getFilename(),
-					resource.getDescription());
-		}
-		return resource;
+	public FileReaderOptions fileReaderOptions() {
+		FileReaderOptions options = new FileReaderOptions();
+		options.setColumnRanges(columnRanges);
+		options.setContinuationString(continuationString);
+		options.setFields(fields);
+		options.setFileOptions(fileArgs.fileOptions());
+		options.setHeaderLine(headerLine);
+		options.setIncludedFields(includedFields);
+		options.setLinesToSkip(linesToSkip);
+		options.setMaxItemCount(maxItemCount);
+		return options;
 	}
 
 	public List<String> getColumnRanges() {

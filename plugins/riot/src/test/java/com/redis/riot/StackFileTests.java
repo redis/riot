@@ -5,11 +5,9 @@ import com.redis.testcontainers.RedisStackContainer;
 
 class StackFileTests extends FileTests {
 
-	private static final RedisStackContainer redis = new RedisStackContainer(
-			RedisStackContainer.DEFAULT_IMAGE_NAME.withTag(RedisStackContainer.DEFAULT_TAG));
+	private static final RedisStackContainer redis = RedisContainerFactory.stack();
 
-	private static final RedisStackContainer target = new RedisStackContainer(
-			RedisStackContainer.DEFAULT_IMAGE_NAME.withTag(RedisStackContainer.DEFAULT_TAG));
+	private static final RedisStackContainer target = RedisContainerFactory.stack();
 
 	@Override
 	protected RedisStackContainer getRedisServer() {

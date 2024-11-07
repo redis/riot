@@ -142,7 +142,7 @@ public abstract class AbstractJobCommand extends AbstractCallableCommand {
 		return stepArgs.getProgressArgs().getStyle() != ProgressStyle.NONE;
 	}
 
-	protected abstract Job job() throws Exception;
+	protected abstract Job job();
 
 	private <I, O> TaskletStep step(Step<I, O> step) {
 		log.info("Creating {}", step);

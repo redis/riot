@@ -16,14 +16,13 @@ import com.google.cloud.spring.core.GcpScope;
 import com.google.cloud.spring.core.UserAgentHeaderProvider;
 import com.google.cloud.spring.storage.GoogleStorageResource;
 import com.google.cloud.storage.StorageOptions;
+import com.redis.riot.file.GcpOptions;
 
 import lombok.ToString;
 import picocli.CommandLine.Option;
 
 @ToString(exclude = "encodedKey")
-public class GoogleStorageArgs {
-
-	public static final GcpScope DEFAULT_SCOPE = GcpScope.STORAGE_READ_ONLY;
+public class GcpArgs {
 
 	@Option(names = "--gcs-key-file", description = "Google Cloud Storage private key (e.g. /usr/local/key.json).", paramLabel = "<file>")
 	private File keyFile;
@@ -35,7 +34,7 @@ public class GoogleStorageArgs {
 	private String encodedKey;
 
 	@Option(names = "--gcs-scope", description = "Google Cloud Storage scope (default: ${DEFAULT-VALUE}).", paramLabel = "<scope>", hidden = true)
-	private GcpScope scope = DEFAULT_SCOPE;
+	private GcpScope scope = GcpOptions.DEFAULT_SCOPE;
 
 	public GcpScope getScope() {
 		return scope;
@@ -84,6 +83,15 @@ public class GoogleStorageArgs {
 			builder.setProjectId(projectId);
 		}
 		return new GoogleStorageResource(builder.build().getService(), location);
+	}
+
+	public GcpOptions gcpOptions() {
+		GcpOptions options = new GcpOptions();
+		options.setEncodedKey(encodedKey);
+		options.setKeyFile(keyFile);
+		options.setProjectId(projectId);
+		options.setScope(scope);
+		return options;
 	}
 
 }

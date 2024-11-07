@@ -5,6 +5,8 @@ import java.net.URI;
 import org.springframework.core.io.Resource;
 import org.springframework.util.StringUtils;
 
+import com.redis.riot.file.AwsOptions;
+
 import io.awspring.cloud.s3.InMemoryBufferingS3OutputStreamProvider;
 import io.awspring.cloud.s3.PropertiesS3ObjectContentTypeResolver;
 import io.awspring.cloud.s3.S3Resource;
@@ -78,6 +80,14 @@ public class AwsArgs {
 
 	public void setEndpoint(URI endpoint) {
 		this.endpoint = endpoint;
+	}
+
+	public AwsOptions awsOptions() {
+		AwsOptions options = new AwsOptions();
+		options.setCredentials(credentialsArgs.credentials());
+		options.setEndpoint(endpoint);
+		options.setRegion(region);
+		return options;
 	}
 
 }

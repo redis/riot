@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
@@ -12,8 +13,10 @@ import java.util.Map;
 
 import org.apache.commons.compress.utils.IOUtils;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
+import org.springframework.util.StreamUtils;
 
 import com.redis.riot.core.AbstractJobCommand;
 import com.redis.riot.core.ProgressStyle;
@@ -31,6 +34,22 @@ abstract class FileTests extends AbstractTargetTestBase {
 
 	private static final String ID = "id";
 	private static final String KEYSPACE = "beer";
+	
+	private static Path tempDir;
+
+	@BeforeAll
+	public void setupFiles() throws IOException {
+		tempDir = Files.createTempDirectory(getClass().getName());
+	}
+
+	protected Path tempFile(String filename) throws IOException {
+		Path path = tempDir.resolve(filename);
+		if (Files.exists(path)) {
+			Files.delete(path);
+		}
+		return path;
+	}
+
 
 	@Test
 	void fileImportJSON(TestInfo info) throws Exception {
@@ -125,7 +144,7 @@ abstract class FileTests extends AbstractTargetTestBase {
 
 	@Test
 	void fileImportCSVMultiThreaded(TestInfo info) throws Exception {
-		FileImport executable = new FileImport();
+		AbstractFileImport executable = new FileImport();
 		configure(info, executable);
 		executable.setFiles("https://storage.googleapis.com/jrx/beers.csv");
 		executable.getFileReaderArgs().getFileArgs().setHeader(true);
@@ -201,6 +220,18 @@ abstract class FileTests extends AbstractTargetTestBase {
 		KeyspaceComparison<String> comparison = compare(info);
 		Assertions.assertFalse(comparison.getAll().isEmpty());
 		Assertions.assertEquals(Collections.emptyList(), comparison.mismatches());
+	}
+
+	@Test
+	void fileImportRedisJson(TestInfo info) throws Exception {
+		File file = tempFile("fileImportRedisJson.json").toFile();
+		StreamUtils.copy(getClass().getClassLoader().getResourceAsStream("files/redis-export.json"),
+				new FileOutputStream(file));
+		FileImport fileImport = new FileImport();
+		fileImport.setFiles(file.toString());
+		fileImport.getRedisArgs().setUri(redisURI);
+		fileImport.call();
+		Assertions.assertEquals(100, redisCommands.dbsize());
 	}
 
 }
