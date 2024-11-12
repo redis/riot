@@ -52,7 +52,7 @@ loadScripts(document, 'script');</script>
 </ul>
 <ul class="sub-nav-list">
 <li>Detail:&nbsp;</li>
-<li><a href="#field-detail">Field</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor-detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method-detail">Method</a></li>
 </ul>
@@ -78,7 +78,9 @@ loadScripts(document, 'script');</script>
 <div class="inheritance"><a href="core/AbstractJobCommand.html" title="class in com.redis.riot.core">com.redis.riot.core.AbstractJobCommand</a>
 <div class="inheritance"><a href="AbstractExportCommand.html" title="class in com.redis.riot">com.redis.riot.AbstractExportCommand</a>
 <div class="inheritance"><a href="AbstractRedisExportCommand.html" title="class in com.redis.riot">com.redis.riot.AbstractRedisExportCommand</a>
+<div class="inheritance"><a href="AbstractFileExport.html" title="class in com.redis.riot">com.redis.riot.AbstractFileExport</a>
 <div class="inheritance">com.redis.riot.FileExport</div>
+</div>
 </div>
 </div>
 </div>
@@ -92,7 +94,7 @@ loadScripts(document, 'script');</script>
 </dl>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">FileExport</span>
-<span class="extends-implements">extends <a href="AbstractRedisExportCommand.html" title="class in com.redis.riot">AbstractRedisExportCommand</a></span></div>
+<span class="extends-implements">extends <a href="AbstractFileExport.html" title="class in com.redis.riot">AbstractFileExport</a></span></div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -100,15 +102,6 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="field-summary" id="field-summary">
 <h2>Field Summary</h2>
-<div class="caption"><span>Fields</span></div>
-<div class="summary-table three-column-summary">
-<div class="table-header col-first">Modifier and Type</div>
-<div class="table-header col-second">Field</div>
-<div class="table-header col-last">Description</div>
-<div class="col-first even-row-color"><code>static final <a href="file/FileType.html" title="enum class in com.redis.riot.file">FileType</a></code></div>
-<div class="col-second even-row-color"><code><a href="#DEFAULT_FILE_TYPE" class="member-name-link">DEFAULT_FILE_TYPE</a></code></div>
-<div class="col-last even-row-color">&nbsp;</div>
-</div>
 <div class="inherited-list">
 <h3 id="fields-inherited-from-class-com.redis.riot.AbstractExportCommand">Fields inherited from class&nbsp;com.redis.riot.<a href="AbstractExportCommand.html" title="class in com.redis.riot">AbstractExportCommand</a></h3>
 <code><a href="AbstractExportCommand.html#NOTIFY_CONFIG">NOTIFY_CONFIG</a>, <a href="AbstractExportCommand.html#NOTIFY_CONFIG_VALUE">NOTIFY_CONFIG_VALUE</a></code></div>
@@ -147,44 +140,18 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>&lt;T&gt;&nbsp;org.springframework.batch.item.ItemWriter&lt;T&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#create(org.springframework.core.io.WritableResource,com.redis.riot.file.FileType,java.util.function.Supplier)" class="member-name-link">create</a><wbr>(org.springframework.core.io.WritableResource&nbsp;resource,
- <a href="file/FileType.html" title="enum class in com.redis.riot.file">FileType</a>&nbsp;fileType,
- <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Supplier.html" title="class or interface in java.util.function" class="external-link">Supplier</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;&gt;&nbsp;headerSupplier)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="ContentType.html" title="enum class in com.redis.riot">ContentType</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getContentType()" class="member-name-link">getContentType</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getFile()" class="member-name-link">getFile</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="file/FileType.html" title="enum class in com.redis.riot.file">FileType</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getFileType()" class="member-name-link">getFileType</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="FileWriterArgs.html" title="class in com.redis.riot">FileWriterArgs</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getFileWriterArgs()" class="member-name-link">getFileWriterArgs</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected org.springframework.batch.core.Job</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#job()" class="member-name-link">job</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setContentType(com.redis.riot.ContentType)" class="member-name-link">setContentType</a><wbr>(<a href="ContentType.html" title="enum class in com.redis.riot">ContentType</a>&nbsp;contentType)</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="file/FileType.html" title="class in com.redis.riot.file">FileType</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getFileType()" class="member-name-link">getFileType</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setFile(java.lang.String)" class="member-name-link">setFile</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;file)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setFileType(com.redis.riot.FileTypeEnum)" class="member-name-link">setFileType</a><wbr>(<a href="FileTypeEnum.html" title="enum class in com.redis.riot">FileTypeEnum</a>&nbsp;fileType)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setFileType(com.redis.riot.file.FileType)" class="member-name-link">setFileType</a><wbr>(<a href="file/FileType.html" title="enum class in com.redis.riot.file">FileType</a>&nbsp;fileType)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setFileWriterArgs(com.redis.riot.FileWriterArgs)" class="member-name-link">setFileWriterArgs</a><wbr>(<a href="FileWriterArgs.html" title="class in com.redis.riot">FileWriterArgs</a>&nbsp;fileWriterArgs)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#shouldShowProgress()" class="member-name-link">shouldShowProgress</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
 </div>
+<div class="inherited-list">
+<h3 id="methods-inherited-from-class-com.redis.riot.AbstractFileExport">Methods inherited from class&nbsp;com.redis.riot.<a href="AbstractFileExport.html" title="class in com.redis.riot">AbstractFileExport</a></h3>
+<code><a href="AbstractFileExport.html#getContentType()">getContentType</a>, <a href="AbstractFileExport.html#getFile()">getFile</a>, <a href="AbstractFileExport.html#getFileWriterArgs()">getFileWriterArgs</a>, <a href="AbstractFileExport.html#job()">job</a>, <a href="AbstractFileExport.html#setContentType(com.redis.riot.ContentType)">setContentType</a>, <a href="AbstractFileExport.html#setFile(java.lang.String)">setFile</a>, <a href="AbstractFileExport.html#setFileWriterArgs(com.redis.riot.FileWriterArgs)">setFileWriterArgs</a>, <a href="AbstractFileExport.html#setWriterRegistry(com.redis.riot.file.FileWriterRegistry)">setWriterRegistry</a>, <a href="AbstractFileExport.html#shouldShowProgress()">shouldShowProgress</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-com.redis.riot.AbstractRedisExportCommand">Methods inherited from class&nbsp;com.redis.riot.<a href="AbstractRedisExportCommand.html" title="class in com.redis.riot">AbstractRedisExportCommand</a></h3>
 <code><a href="AbstractRedisExportCommand.html#getKeyRegex()">getKeyRegex</a>, <a href="AbstractRedisExportCommand.html#getRedisArgs()">getRedisArgs</a>, <a href="AbstractRedisExportCommand.html#mapProcessor()">mapProcessor</a>, <a href="AbstractRedisExportCommand.html#setKeyRegex(java.util.regex.Pattern)">setKeyRegex</a>, <a href="AbstractRedisExportCommand.html#setRedisArgs(com.redis.riot.RedisArgs)">setRedisArgs</a>, <a href="AbstractRedisExportCommand.html#sourceRedisContext()">sourceRedisContext</a></code></div>
@@ -206,20 +173,6 @@ loadScripts(document, 'script');</script>
 </section>
 <section class="details">
 <ul class="details-list">
-<!-- ============ FIELD DETAIL =========== -->
-<li>
-<section class="field-details" id="field-detail">
-<h2>Field Details</h2>
-<ul class="member-list">
-<li>
-<section class="detail" id="DEFAULT_FILE_TYPE">
-<h3>DEFAULT_FILE_TYPE</h3>
-<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="file/FileType.html" title="enum class in com.redis.riot.file">FileType</a></span>&nbsp;<span class="element-name">DEFAULT_FILE_TYPE</span></div>
-</section>
-</li>
-</ul>
-</section>
-</li>
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
 <li>
 <section class="constructor-details" id="constructor-detail">
@@ -240,83 +193,19 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="job()">
-<h3>job</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">org.springframework.batch.core.Job</span>&nbsp;<span class="element-name">job</span>()
-                                          throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/IOException.html" title="class or interface in java.io" class="external-link">IOException</a></span></div>
-<dl class="notes">
-<dt>Specified by:</dt>
-<dd><code><a href="core/AbstractJobCommand.html#job()">job</a></code>&nbsp;in class&nbsp;<code><a href="core/AbstractJobCommand.html" title="class in com.redis.riot.core">AbstractJobCommand</a></code></dd>
-<dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/IOException.html" title="class or interface in java.io" class="external-link">IOException</a></code></dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="shouldShowProgress()">
-<h3>shouldShowProgress</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">shouldShowProgress</span>()</div>
-<dl class="notes">
-<dt>Overrides:</dt>
-<dd><code><a href="core/AbstractJobCommand.html#shouldShowProgress()">shouldShowProgress</a></code>&nbsp;in class&nbsp;<code><a href="core/AbstractJobCommand.html" title="class in com.redis.riot.core">AbstractJobCommand</a></code></dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="create(org.springframework.core.io.WritableResource,com.redis.riot.file.FileType,java.util.function.Supplier)">
-<h3>create</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="type-parameters">&lt;T&gt;</span>
-<span class="return-type">org.springframework.batch.item.ItemWriter&lt;T&gt;</span>&nbsp;<span class="element-name">create</span><wbr><span class="parameters">(org.springframework.core.io.WritableResource&nbsp;resource,
- <a href="file/FileType.html" title="enum class in com.redis.riot.file">FileType</a>&nbsp;fileType,
- <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Supplier.html" title="class or interface in java.util.function" class="external-link">Supplier</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;&gt;&nbsp;headerSupplier)</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="getFile()">
-<h3>getFile</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">getFile</span>()</div>
-</section>
-</li>
-<li>
-<section class="detail" id="setFile(java.lang.String)">
-<h3>setFile</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setFile</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;file)</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="getFileWriterArgs()">
-<h3>getFileWriterArgs</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="FileWriterArgs.html" title="class in com.redis.riot">FileWriterArgs</a></span>&nbsp;<span class="element-name">getFileWriterArgs</span>()</div>
-</section>
-</li>
-<li>
-<section class="detail" id="setFileWriterArgs(com.redis.riot.FileWriterArgs)">
-<h3>setFileWriterArgs</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setFileWriterArgs</span><wbr><span class="parameters">(<a href="FileWriterArgs.html" title="class in com.redis.riot">FileWriterArgs</a>&nbsp;fileWriterArgs)</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="getContentType()">
-<h3>getContentType</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="ContentType.html" title="enum class in com.redis.riot">ContentType</a></span>&nbsp;<span class="element-name">getContentType</span>()</div>
-</section>
-</li>
-<li>
-<section class="detail" id="setContentType(com.redis.riot.ContentType)">
-<h3>setContentType</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setContentType</span><wbr><span class="parameters">(<a href="ContentType.html" title="enum class in com.redis.riot">ContentType</a>&nbsp;contentType)</span></div>
-</section>
-</li>
-<li>
 <section class="detail" id="getFileType()">
 <h3>getFileType</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="file/FileType.html" title="enum class in com.redis.riot.file">FileType</a></span>&nbsp;<span class="element-name">getFileType</span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="file/FileType.html" title="class in com.redis.riot.file">FileType</a></span>&nbsp;<span class="element-name">getFileType</span>()</div>
+<dl class="notes">
+<dt>Specified by:</dt>
+<dd><code><a href="AbstractFileExport.html#getFileType()">getFileType</a></code>&nbsp;in class&nbsp;<code><a href="AbstractFileExport.html" title="class in com.redis.riot">AbstractFileExport</a></code></dd>
+</dl>
 </section>
 </li>
 <li>
-<section class="detail" id="setFileType(com.redis.riot.file.FileType)">
+<section class="detail" id="setFileType(com.redis.riot.FileTypeEnum)">
 <h3>setFileType</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setFileType</span><wbr><span class="parameters">(<a href="file/FileType.html" title="enum class in com.redis.riot.file">FileType</a>&nbsp;fileType)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setFileType</span><wbr><span class="parameters">(<a href="FileTypeEnum.html" title="enum class in com.redis.riot">FileTypeEnum</a>&nbsp;fileType)</span></div>
 </section>
 </li>
 </ul>

@@ -52,7 +52,7 @@ loadScripts(document, 'script');</script>
 </ul>
 <ul class="sub-nav-list">
 <li>Detail:&nbsp;</li>
-<li><a href="#field-detail">Field</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor-detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method-detail">Method</a></li>
 </ul>
@@ -78,7 +78,9 @@ loadScripts(document, 'script');</script>
 <div class="inheritance"><a href="core/AbstractJobCommand.html" title="class in com.redis.riot.core">com.redis.riot.core.AbstractJobCommand</a>
 <div class="inheritance"><a href="AbstractImportCommand.html" title="class in com.redis.riot">com.redis.riot.AbstractImportCommand</a>
 <div class="inheritance"><a href="AbstractRedisImportCommand.html" title="class in com.redis.riot">com.redis.riot.AbstractRedisImportCommand</a>
+<div class="inheritance"><a href="AbstractFileImport.html" title="class in com.redis.riot">com.redis.riot.AbstractFileImport</a>
 <div class="inheritance">com.redis.riot.FileImport</div>
+</div>
 </div>
 </div>
 </div>
@@ -92,7 +94,7 @@ loadScripts(document, 'script');</script>
 </dl>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">FileImport</span>
-<span class="extends-implements">extends <a href="AbstractRedisImportCommand.html" title="class in com.redis.riot">AbstractRedisImportCommand</a></span></div>
+<span class="extends-implements">extends <a href="AbstractFileImport.html" title="class in com.redis.riot">AbstractFileImport</a></span></div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -100,15 +102,6 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="field-summary" id="field-summary">
 <h2>Field Summary</h2>
-<div class="caption"><span>Fields</span></div>
-<div class="summary-table three-column-summary">
-<div class="table-header col-first">Modifier and Type</div>
-<div class="table-header col-second">Field</div>
-<div class="table-header col-last">Description</div>
-<div class="col-first even-row-color"><code>static final <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second even-row-color"><code><a href="#PIPE_DELIMITER" class="member-name-link">PIPE_DELIMITER</a></code></div>
-<div class="col-last even-row-color">&nbsp;</div>
-</div>
 <div class="inherited-list">
 <h3 id="fields-inherited-from-class-com.redis.riot.AbstractImportCommand">Fields inherited from class&nbsp;com.redis.riot.<a href="AbstractImportCommand.html" title="class in com.redis.riot">AbstractImportCommand</a></h3>
 <code><a href="AbstractImportCommand.html#VAR_REDIS">VAR_REDIS</a></code></div>
@@ -147,53 +140,24 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>&lt;T&gt;&nbsp;org.springframework.batch.item.ItemReader&lt;T&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#createReader(org.springframework.core.io.Resource,com.redis.riot.file.FileType,java.lang.Class)" class="member-name-link">createReader</a><wbr>(org.springframework.core.io.Resource&nbsp;resource,
- <a href="file/FileType.html" title="enum class in com.redis.riot.file">FileType</a>&nbsp;fileType,
- <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;T&gt;&nbsp;itemType)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="FileReaderArgs.html" title="class in com.redis.riot">FileReaderArgs</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getFileReaderArgs()" class="member-name-link">getFileReaderArgs</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getFiles()" class="member-name-link">getFiles</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="file/FileType.html" title="enum class in com.redis.riot.file">FileType</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getFileType()" class="member-name-link">getFileType</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/regex/Pattern.html" title="class or interface in java.util.regex" class="external-link">Pattern</a>&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getRegexes()" class="member-name-link">getRegexes</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected org.springframework.batch.core.Job</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#job()" class="member-name-link">job</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected org.springframework.batch.item.ItemProcessor&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#processor()" class="member-name-link">processor</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="file/FileType.html" title="class in com.redis.riot.file">FileType</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getFileType()" class="member-name-link">getFileType</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setFileReaderArgs(com.redis.riot.FileReaderArgs)" class="member-name-link">setFileReaderArgs</a><wbr>(<a href="FileReaderArgs.html" title="class in com.redis.riot">FileReaderArgs</a>&nbsp;args)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setFiles(java.lang.String...)" class="member-name-link">setFiles</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>...&nbsp;files)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setFiles(java.util.List)" class="member-name-link">setFiles</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;files)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setFileType(com.redis.riot.file.FileType)" class="member-name-link">setFileType</a><wbr>(<a href="file/FileType.html" title="enum class in com.redis.riot.file">FileType</a>&nbsp;fileType)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setRegexes(java.util.Map)" class="member-name-link">setRegexes</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/regex/Pattern.html" title="class or interface in java.util.regex" class="external-link">Pattern</a>&gt;&nbsp;regexes)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setFileType(com.redis.riot.FileTypeEnum)" class="member-name-link">setFileType</a><wbr>(<a href="FileTypeEnum.html" title="enum class in com.redis.riot">FileTypeEnum</a>&nbsp;fileType)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
 </div>
+<div class="inherited-list">
+<h3 id="methods-inherited-from-class-com.redis.riot.AbstractFileImport">Methods inherited from class&nbsp;com.redis.riot.<a href="AbstractFileImport.html" title="class in com.redis.riot">AbstractFileImport</a></h3>
+<code><a href="AbstractFileImport.html#getFileReaderArgs()">getFileReaderArgs</a>, <a href="AbstractFileImport.html#getFiles()">getFiles</a>, <a href="AbstractFileImport.html#getRegexes()">getRegexes</a>, <a href="AbstractFileImport.html#job()">job</a>, <a href="AbstractFileImport.html#setFileReaderArgs(com.redis.riot.FileReaderArgs)">setFileReaderArgs</a>, <a href="AbstractFileImport.html#setFiles(java.lang.String...)">setFiles</a>, <a href="AbstractFileImport.html#setFiles(java.util.List)">setFiles</a>, <a href="AbstractFileImport.html#setReaderRegistry(com.redis.riot.file.FileReaderRegistry)">setReaderRegistry</a>, <a href="AbstractFileImport.html#setRegexes(java.util.Map)">setRegexes</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-com.redis.riot.AbstractRedisImportCommand">Methods inherited from class&nbsp;com.redis.riot.<a href="AbstractRedisImportCommand.html" title="class in com.redis.riot">AbstractRedisImportCommand</a></h3>
 <code><a href="AbstractRedisImportCommand.html#getRedisArgs()">getRedisArgs</a>, <a href="AbstractRedisImportCommand.html#setRedisArgs(com.redis.riot.RedisArgs)">setRedisArgs</a>, <a href="AbstractRedisImportCommand.html#targetRedisContext()">targetRedisContext</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-com.redis.riot.AbstractImportCommand">Methods inherited from class&nbsp;com.redis.riot.<a href="AbstractImportCommand.html" title="class in com.redis.riot">AbstractImportCommand</a></h3>
-<code><a href="AbstractImportCommand.html#configureTargetRedisWriter(com.redis.spring.batch.item.redis.RedisItemWriter)">configureTargetRedisWriter</a>, <a href="AbstractImportCommand.html#execute()">execute</a>, <a href="AbstractImportCommand.html#getEvaluationContextArgs()">getEvaluationContextArgs</a>, <a href="AbstractImportCommand.html#getImportOperationCommands()">getImportOperationCommands</a>, <a href="AbstractImportCommand.html#getProcessorArgs()">getProcessorArgs</a>, <a href="AbstractImportCommand.html#getTargetRedisWriterArgs()">getTargetRedisWriterArgs</a>, <a href="AbstractImportCommand.html#hasOperations()">hasOperations</a>, <a href="AbstractImportCommand.html#operations()">operations</a>, <a href="AbstractImportCommand.html#operationWriter()">operationWriter</a>, <a href="AbstractImportCommand.html#processor(org.springframework.expression.EvaluationContext,com.redis.riot.ImportProcessorArgs)">processor</a>, <a href="AbstractImportCommand.html#setEvaluationContextArgs(com.redis.riot.EvaluationContextArgs)">setEvaluationContextArgs</a>, <a href="AbstractImportCommand.html#setImportOperationCommands(com.redis.riot.operation.OperationCommand...)">setImportOperationCommands</a>, <a href="AbstractImportCommand.html#setImportOperationCommands(java.util.List)">setImportOperationCommands</a>, <a href="AbstractImportCommand.html#setProcessorArgs(com.redis.riot.ImportProcessorArgs)">setProcessorArgs</a>, <a href="AbstractImportCommand.html#setTargetRedisWriterArgs(com.redis.riot.RedisWriterArgs)">setTargetRedisWriterArgs</a>, <a href="AbstractImportCommand.html#step(org.springframework.batch.item.ItemReader)">step</a></code></div>
+<code><a href="AbstractImportCommand.html#configureTargetRedisWriter(com.redis.spring.batch.item.redis.RedisItemWriter)">configureTargetRedisWriter</a>, <a href="AbstractImportCommand.html#execute()">execute</a>, <a href="AbstractImportCommand.html#getEvaluationContextArgs()">getEvaluationContextArgs</a>, <a href="AbstractImportCommand.html#getImportOperationCommands()">getImportOperationCommands</a>, <a href="AbstractImportCommand.html#getProcessorArgs()">getProcessorArgs</a>, <a href="AbstractImportCommand.html#getTargetRedisWriterArgs()">getTargetRedisWriterArgs</a>, <a href="AbstractImportCommand.html#hasOperations()">hasOperations</a>, <a href="AbstractImportCommand.html#operations()">operations</a>, <a href="AbstractImportCommand.html#operationWriter()">operationWriter</a>, <a href="AbstractImportCommand.html#processor()">processor</a>, <a href="AbstractImportCommand.html#processor(org.springframework.expression.EvaluationContext,com.redis.riot.ImportProcessorArgs)">processor</a>, <a href="AbstractImportCommand.html#setEvaluationContextArgs(com.redis.riot.EvaluationContextArgs)">setEvaluationContextArgs</a>, <a href="AbstractImportCommand.html#setImportOperationCommands(com.redis.riot.operation.OperationCommand...)">setImportOperationCommands</a>, <a href="AbstractImportCommand.html#setImportOperationCommands(java.util.List)">setImportOperationCommands</a>, <a href="AbstractImportCommand.html#setProcessorArgs(com.redis.riot.ImportProcessorArgs)">setProcessorArgs</a>, <a href="AbstractImportCommand.html#setTargetRedisWriterArgs(com.redis.riot.RedisWriterArgs)">setTargetRedisWriterArgs</a>, <a href="AbstractImportCommand.html#step(org.springframework.batch.item.ItemReader)">step</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-com.redis.riot.core.AbstractJobCommand">Methods inherited from class&nbsp;com.redis.riot.core.<a href="core/AbstractJobCommand.html" title="class in com.redis.riot.core">AbstractJobCommand</a></h3>
 <code><a href="core/AbstractJobCommand.html#configureAsyncReader(com.redis.spring.batch.item.AbstractAsyncItemReader)">configureAsyncReader</a>, <a href="core/AbstractJobCommand.html#getJobArgs()">getJobArgs</a>, <a href="core/AbstractJobCommand.html#getJobLauncher()">getJobLauncher</a>, <a href="core/AbstractJobCommand.html#getJobName()">getJobName</a>, <a href="core/AbstractJobCommand.html#getJobRepository()">getJobRepository</a>, <a href="core/AbstractJobCommand.html#getJobRepositoryName()">getJobRepositoryName</a>, <a href="core/AbstractJobCommand.html#getTransactionManager()">getTransactionManager</a>, <a href="core/AbstractJobCommand.html#job(com.redis.riot.core.Step...)">job</a>, <a href="core/AbstractJobCommand.html#job(java.util.Collection)">job</a>, <a href="core/AbstractJobCommand.html#setJobArgs(com.redis.riot.core.StepArgs)">setJobArgs</a>, <a href="core/AbstractJobCommand.html#setJobLauncher(org.springframework.batch.core.launch.JobLauncher)">setJobLauncher</a>, <a href="core/AbstractJobCommand.html#setJobName(java.lang.String)">setJobName</a>, <a href="core/AbstractJobCommand.html#setJobRepository(org.springframework.batch.core.repository.JobRepository)">setJobRepository</a>, <a href="core/AbstractJobCommand.html#setJobRepositoryName(java.lang.String)">setJobRepositoryName</a>, <a href="core/AbstractJobCommand.html#setTransactionManager(org.springframework.transaction.PlatformTransactionManager)">setTransactionManager</a>, <a href="core/AbstractJobCommand.html#shouldShowProgress()">shouldShowProgress</a></code></div>
@@ -209,28 +173,6 @@ loadScripts(document, 'script');</script>
 </section>
 <section class="details">
 <ul class="details-list">
-<!-- ============ FIELD DETAIL =========== -->
-<li>
-<section class="field-details" id="field-detail">
-<h2>Field Details</h2>
-<ul class="member-list">
-<li>
-<section class="detail" id="PIPE_DELIMITER">
-<h3>PIPE_DELIMITER</h3>
-<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">PIPE_DELIMITER</span></div>
-<dl class="notes">
-<dt>See Also:</dt>
-<dd>
-<ul class="see-list">
-<li><a href="../../../constant-values.html#com.redis.riot.FileImport.PIPE_DELIMITER">Constant Field Values</a></li>
-</ul>
-</dd>
-</dl>
-</section>
-</li>
-</ul>
-</section>
-</li>
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
 <li>
 <section class="constructor-details" id="constructor-detail">
@@ -251,89 +193,19 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="job()">
-<h3>job</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">org.springframework.batch.core.Job</span>&nbsp;<span class="element-name">job</span>()
-                                          throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/IOException.html" title="class or interface in java.io" class="external-link">IOException</a></span></div>
-<dl class="notes">
-<dt>Specified by:</dt>
-<dd><code><a href="core/AbstractJobCommand.html#job()">job</a></code>&nbsp;in class&nbsp;<code><a href="core/AbstractJobCommand.html" title="class in com.redis.riot.core">AbstractJobCommand</a></code></dd>
-<dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/IOException.html" title="class or interface in java.io" class="external-link">IOException</a></code></dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="processor()">
-<h3>processor</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">org.springframework.batch.item.ItemProcessor&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;&gt;</span>&nbsp;<span class="element-name">processor</span>()</div>
-<dl class="notes">
-<dt>Overrides:</dt>
-<dd><code><a href="AbstractImportCommand.html#processor()">processor</a></code>&nbsp;in class&nbsp;<code><a href="AbstractImportCommand.html" title="class in com.redis.riot">AbstractImportCommand</a></code></dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="createReader(org.springframework.core.io.Resource,com.redis.riot.file.FileType,java.lang.Class)">
-<h3>createReader</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="type-parameters">&lt;T&gt;</span>
-<span class="return-type">org.springframework.batch.item.ItemReader&lt;T&gt;</span>&nbsp;<span class="element-name">createReader</span><wbr><span class="parameters">(org.springframework.core.io.Resource&nbsp;resource,
- <a href="file/FileType.html" title="enum class in com.redis.riot.file">FileType</a>&nbsp;fileType,
- <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;T&gt;&nbsp;itemType)</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="getFiles()">
-<h3>getFiles</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</span>&nbsp;<span class="element-name">getFiles</span>()</div>
-</section>
-</li>
-<li>
-<section class="detail" id="setFiles(java.lang.String...)">
-<h3>setFiles</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setFiles</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>...&nbsp;files)</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="setFiles(java.util.List)">
-<h3>setFiles</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setFiles</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;files)</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="getFileReaderArgs()">
-<h3>getFileReaderArgs</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="FileReaderArgs.html" title="class in com.redis.riot">FileReaderArgs</a></span>&nbsp;<span class="element-name">getFileReaderArgs</span>()</div>
-</section>
-</li>
-<li>
-<section class="detail" id="setFileReaderArgs(com.redis.riot.FileReaderArgs)">
-<h3>setFileReaderArgs</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setFileReaderArgs</span><wbr><span class="parameters">(<a href="FileReaderArgs.html" title="class in com.redis.riot">FileReaderArgs</a>&nbsp;args)</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="getRegexes()">
-<h3>getRegexes</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/regex/Pattern.html" title="class or interface in java.util.regex" class="external-link">Pattern</a>&gt;</span>&nbsp;<span class="element-name">getRegexes</span>()</div>
-</section>
-</li>
-<li>
-<section class="detail" id="setRegexes(java.util.Map)">
-<h3>setRegexes</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setRegexes</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/regex/Pattern.html" title="class or interface in java.util.regex" class="external-link">Pattern</a>&gt;&nbsp;regexes)</span></div>
-</section>
-</li>
-<li>
 <section class="detail" id="getFileType()">
 <h3>getFileType</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="file/FileType.html" title="enum class in com.redis.riot.file">FileType</a></span>&nbsp;<span class="element-name">getFileType</span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="file/FileType.html" title="class in com.redis.riot.file">FileType</a></span>&nbsp;<span class="element-name">getFileType</span>()</div>
+<dl class="notes">
+<dt>Specified by:</dt>
+<dd><code><a href="AbstractFileImport.html#getFileType()">getFileType</a></code>&nbsp;in class&nbsp;<code><a href="AbstractFileImport.html" title="class in com.redis.riot">AbstractFileImport</a></code></dd>
+</dl>
 </section>
 </li>
 <li>
-<section class="detail" id="setFileType(com.redis.riot.file.FileType)">
+<section class="detail" id="setFileType(com.redis.riot.FileTypeEnum)">
 <h3>setFileType</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setFileType</span><wbr><span class="parameters">(<a href="file/FileType.html" title="enum class in com.redis.riot.file">FileType</a>&nbsp;fileType)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setFileType</span><wbr><span class="parameters">(<a href="FileTypeEnum.html" title="enum class in com.redis.riot">FileTypeEnum</a>&nbsp;fileType)</span></div>
 </section>
 </li>
 </ul>

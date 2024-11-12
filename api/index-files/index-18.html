@@ -62,6 +62,10 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/core/QuietMapAccessor.html#read(org.springframework.expression.EvaluationContext,java.lang.Object,java.lang.String)" class="member-name-link">read(EvaluationContext, Object, String)</a> - Method in class com.redis.riot.core.<a href="../com/redis/riot/core/QuietMapAccessor.html" title="class in com.redis.riot.core">QuietMapAccessor</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="../com/redis/riot/file/FileReaderRegistry.html#reader(java.lang.String,com.redis.riot.file.FileReaderOptions)" class="member-name-link">reader(String, FileReaderOptions)</a> - Method in class com.redis.riot.file.<a href="../com/redis/riot/file/FileReaderRegistry.html" title="class in com.redis.riot.file">FileReaderRegistry</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="../com/redis/riot/file/Files.html#readerRegistry" class="member-name-link">readerRegistry</a> - Static variable in class com.redis.riot.file.<a href="../com/redis/riot/file/Files.html" title="class in com.redis.riot.file">Files</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/RedisContext.html#readFrom(io.lettuce.core.ReadFrom)" class="member-name-link">readFrom(ReadFrom)</a> - Method in class com.redis.riot.<a href="../com/redis/riot/RedisContext.html" title="class in com.redis.riot">RedisContext</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/ReadFrom.html" class="type-name-link" title="enum class in com.redis.riot">ReadFrom</a> - Enum Class in <a href="../com/redis/riot/package-summary.html">com.redis.riot</a></dt>
@@ -94,6 +98,8 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/core/processor/RegexNamedGroupFunction.html#%3Cinit%3E(java.util.regex.Pattern)" class="member-name-link">RegexNamedGroupFunction(Pattern)</a> - Constructor for class com.redis.riot.core.processor.<a href="../com/redis/riot/core/processor/RegexNamedGroupFunction.html" title="class in com.redis.riot.core.processor">RegexNamedGroupFunction</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="../com/redis/riot/file/AbstractRegistry.html#register(com.redis.riot.file.FileType,T)" class="member-name-link">register(FileType, T)</a> - Method in class com.redis.riot.file.<a href="../com/redis/riot/file/AbstractRegistry.html" title="class in com.redis.riot.file">AbstractRegistry</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/core/RiotUtils.html#registerFunction(org.springframework.expression.spel.support.StandardEvaluationContext,java.lang.String,java.lang.Class,java.lang.String,java.lang.Class...)" class="member-name-link">registerFunction(StandardEvaluationContext, String, Class&lt;?&gt;, String, Class&lt;?&gt;...)</a> - Static method in class com.redis.riot.core.<a href="../com/redis/riot/core/RiotUtils.html" title="class in com.redis.riot.core">RiotUtils</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/core/processor/FieldExtractorFactory.FieldExtractorFactoryBuilder.html#remove(boolean)" class="member-name-link">remove(boolean)</a> - Method in class com.redis.riot.core.processor.<a href="../com/redis/riot/core/processor/FieldExtractorFactory.FieldExtractorFactoryBuilder.html" title="class in com.redis.riot.core.processor">FieldExtractorFactory.FieldExtractorFactoryBuilder</a></dt>
@@ -124,13 +130,9 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/AwsArgs.html#resource(java.lang.String)" class="member-name-link">resource(String)</a> - Method in class com.redis.riot.<a href="../com/redis/riot/AwsArgs.html" title="class in com.redis.riot">AwsArgs</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/FileArgs.html#resource(java.lang.String)" class="member-name-link">resource(String)</a> - Method in class com.redis.riot.<a href="../com/redis/riot/FileArgs.html" title="class in com.redis.riot">FileArgs</a></dt>
+<dt><a href="../com/redis/riot/GcpArgs.html#resource(java.lang.String)" class="member-name-link">resource(String)</a> - Method in class com.redis.riot.<a href="../com/redis/riot/GcpArgs.html" title="class in com.redis.riot">GcpArgs</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/FileReaderArgs.html#resource(java.lang.String)" class="member-name-link">resource(String)</a> - Method in class com.redis.riot.<a href="../com/redis/riot/FileReaderArgs.html" title="class in com.redis.riot">FileReaderArgs</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/FileWriterArgs.html#resource(java.lang.String)" class="member-name-link">resource(String)</a> - Method in class com.redis.riot.<a href="../com/redis/riot/FileWriterArgs.html" title="class in com.redis.riot">FileWriterArgs</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/GoogleStorageArgs.html#resource(java.lang.String)" class="member-name-link">resource(String)</a> - Method in class com.redis.riot.<a href="../com/redis/riot/GoogleStorageArgs.html" title="class in com.redis.riot">GoogleStorageArgs</a></dt>
+<dt><a href="../com/redis/riot/file/Files.html#resource(java.lang.String,com.redis.riot.file.ResourceOptions)" class="member-name-link">resource(String, ResourceOptions)</a> - Static method in class com.redis.riot.file.<a href="../com/redis/riot/file/Files.html" title="class in com.redis.riot.file">Files</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/file/xml/XmlItemReaderBuilder.html#resource(org.springframework.core.io.Resource)" class="member-name-link">resource(Resource)</a> - Method in class com.redis.riot.file.xml.<a href="../com/redis/riot/file/xml/XmlItemReaderBuilder.html" title="class in com.redis.riot.file.xml">XmlItemReaderBuilder</a></dt>
 <dd>
@@ -140,6 +142,16 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">The <code>Resource</code> to be used as output.</div>
 </dd>
+<dt><a href="../com/redis/riot/ResourceArgs.html" class="type-name-link" title="class in com.redis.riot">ResourceArgs</a> - Class in <a href="../com/redis/riot/package-summary.html">com.redis.riot</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="../com/redis/riot/ResourceArgs.html#%3Cinit%3E()" class="member-name-link">ResourceArgs()</a> - Constructor for class com.redis.riot.<a href="../com/redis/riot/ResourceArgs.html" title="class in com.redis.riot">ResourceArgs</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="../com/redis/riot/ResourceArgs.html#resourceOptions()" class="member-name-link">resourceOptions()</a> - Method in class com.redis.riot.<a href="../com/redis/riot/ResourceArgs.html" title="class in com.redis.riot">ResourceArgs</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="../com/redis/riot/file/ResourceOptions.html" class="type-name-link" title="class in com.redis.riot.file">ResourceOptions</a> - Class in <a href="../com/redis/riot/file/package-summary.html">com.redis.riot.file</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="../com/redis/riot/file/ResourceOptions.html#%3Cinit%3E()" class="member-name-link">ResourceOptions()</a> - Constructor for class com.redis.riot.file.<a href="../com/redis/riot/file/ResourceOptions.html" title="class in com.redis.riot.file">ResourceOptions</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/core/Step.html#retry(java.lang.Class)" class="member-name-link">retry(Class&lt;? extends Throwable&gt;)</a> - Method in class com.redis.riot.core.<a href="../com/redis/riot/core/Step.html" title="class in com.redis.riot.core">Step</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/core/RetryPolicy.html" class="type-name-link" title="enum class in com.redis.riot.core">RetryPolicy</a> - Enum Class in <a href="../com/redis/riot/core/package-summary.html">com.redis.riot.core</a></dt>

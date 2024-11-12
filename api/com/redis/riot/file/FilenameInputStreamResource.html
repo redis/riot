@@ -84,6 +84,10 @@ loadScripts(document, 'script');</script>
 <dt>All Implemented Interfaces:</dt>
 <dd><code>org.springframework.core.io.InputStreamSource</code>, <code>org.springframework.core.io.Resource</code></dd>
 </dl>
+<dl class="notes">
+<dt>Direct Known Subclasses:</dt>
+<dd><code><a href="SystemInResource.html" title="class in com.redis.riot.file">SystemInResource</a></code></dd>
+</dl>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">FilenameInputStreamResource</span>
 <span class="extends-implements">extends org.springframework.core.io.InputStreamResource</span></div>
@@ -116,21 +120,15 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#equals(java.lang.Object)" class="member-name-link">equals</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;obj)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getFilename()" class="member-name-link">getFilename</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#hashCode()" class="member-name-link">hashCode</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getFilename()" class="member-name-link">getFilename</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
 </div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-org.springframework.core.io.InputStreamResource">Methods inherited from class&nbsp;org.springframework.core.io.InputStreamResource</h3>
-<code>exists, getDescription, getInputStream, isOpen</code></div>
+<code>equals, exists, getDescription, getInputStream, hashCode, isOpen</code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-org.springframework.core.io.AbstractResource">Methods inherited from class&nbsp;org.springframework.core.io.AbstractResource</h3>
 <code>contentLength, createRelative, getFile, getFileForLastModifiedCheck, getURI, getURL, isFile, isReadable, lastModified, readableChannel, toString</code></div>
@@ -176,26 +174,6 @@ loadScripts(document, 'script');</script>
 <dd><code>getFilename</code>&nbsp;in interface&nbsp;<code>org.springframework.core.io.Resource</code></dd>
 <dt>Overrides:</dt>
 <dd><code>getFilename</code>&nbsp;in class&nbsp;<code>org.springframework.core.io.AbstractResource</code></dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="hashCode()">
-<h3>hashCode</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">hashCode</span>()</div>
-<dl class="notes">
-<dt>Overrides:</dt>
-<dd><code>hashCode</code>&nbsp;in class&nbsp;<code>org.springframework.core.io.InputStreamResource</code></dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="equals(java.lang.Object)">
-<h3>equals</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">equals</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;obj)</span></div>
-<dl class="notes">
-<dt>Overrides:</dt>
-<dd><code>equals</code>&nbsp;in class&nbsp;<code>org.springframework.core.io.InputStreamResource</code></dd>
 </dl>
 </section>
 </li>
