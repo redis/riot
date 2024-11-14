@@ -3,20 +3,19 @@ package com.redis.riot;
 import java.util.List;
 import java.util.Set;
 
-import com.redis.riot.file.FileReaderOptions;
+import com.redis.riot.file.ReadOptions;
 
 import lombok.ToString;
-import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
 
 @ToString
-public class FileReaderArgs {
+public class FileReaderArgs extends FileArgs {
 
 	@Option(names = "--ranges", arity = "1..*", description = "Column ranges for fixed-length files.", paramLabel = "<string>")
 	private List<String> columnRanges;
 
 	@Option(names = "--cont", description = "Line continuation string (default: ${DEFAULT-VALUE}).", paramLabel = "<string>")
-	private String continuationString = FileReaderOptions.DEFAULT_CONTINUATION_STRING;
+	private String continuationString = ReadOptions.DEFAULT_CONTINUATION_STRING;
 
 	@Option(names = "--fields", arity = "1..*", description = "Delimited/FW field names.", paramLabel = "<names>")
 	private List<String> fields;
@@ -33,15 +32,12 @@ public class FileReaderArgs {
 	@Option(names = "--max", description = "Max number of lines to import.", paramLabel = "<count>")
 	private int maxItemCount;
 
-	@ArgGroup(exclusive = false)
-	private FileArgs fileArgs = new FileArgs();
-
-	public FileReaderOptions fileReaderOptions() {
-		FileReaderOptions options = new FileReaderOptions();
+	public ReadOptions readOptions() {
+		ReadOptions options = new ReadOptions();
+		apply(options);
 		options.setColumnRanges(columnRanges);
 		options.setContinuationString(continuationString);
 		options.setFields(fields);
-		options.setFileOptions(fileArgs.fileOptions());
 		options.setHeaderLine(headerLine);
 		options.setIncludedFields(includedFields);
 		options.setLinesToSkip(linesToSkip);
@@ -103,14 +99,6 @@ public class FileReaderArgs {
 
 	public void setMaxItemCount(int maxItemCount) {
 		this.maxItemCount = maxItemCount;
-	}
-
-	public FileArgs getFileArgs() {
-		return fileArgs;
-	}
-
-	public void setFileArgs(FileArgs fileArgs) {
-		this.fileArgs = fileArgs;
 	}
 
 }

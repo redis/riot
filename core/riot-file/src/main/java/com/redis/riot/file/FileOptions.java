@@ -1,7 +1,8 @@
 package com.redis.riot.file;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Optional;
+
+import org.springframework.util.MimeType;
 
 import lombok.ToString;
 
@@ -11,35 +12,45 @@ public class FileOptions {
 	public static final String DEFAULT_ENCODING = StandardCharsets.UTF_8.name();
 	public static final char DEFAULT_QUOTE_CHARACTER = '"';
 
-	private ResourceOptions resourceOptions = new ResourceOptions();
-	private FileType fileType;
+	private MimeType type;
+	private S3Options s3Options = new S3Options();
+	private GoogleStorageOptions googleStorageOptions = new GoogleStorageOptions();
+	private boolean gzipped;
 	private String encoding = DEFAULT_ENCODING;
 	private boolean header;
-	private Optional<String> delimiter = Optional.empty();
+	private String delimiter;
 	private char quoteCharacter = DEFAULT_QUOTE_CHARACTER;
 
-	public ResourceOptions getResourceOptions() {
-		return resourceOptions;
+	public S3Options getS3Options() {
+		return s3Options;
 	}
 
-	public void setResourceOptions(ResourceOptions resourceOptions) {
-		this.resourceOptions = resourceOptions;
+	public void setS3Options(S3Options s3Options) {
+		this.s3Options = s3Options;
 	}
 
-	public FileType getFileType() {
-		return fileType;
+	public GoogleStorageOptions getGoogleStorageOptions() {
+		return googleStorageOptions;
 	}
 
-	public void setFileType(FileType type) {
-		this.fileType = type;
+	public void setGoogleStorageOptions(GoogleStorageOptions googleStorageOptions) {
+		this.googleStorageOptions = googleStorageOptions;
 	}
 
-	public Optional<String> getDelimiter() {
+	public MimeType getType() {
+		return type;
+	}
+
+	public void setType(MimeType type) {
+		this.type = type;
+	}
+
+	public String getDelimiter() {
 		return delimiter;
 	}
 
 	public void setDelimiter(String delimiter) {
-		this.delimiter = Optional.ofNullable(delimiter);
+		this.delimiter = delimiter;
 	}
 
 	public char getQuoteCharacter() {
@@ -64,6 +75,14 @@ public class FileOptions {
 
 	public void setEncoding(String encoding) {
 		this.encoding = encoding;
+	}
+
+	public boolean isGzipped() {
+		return gzipped;
+	}
+
+	public void setGzipped(boolean gzipped) {
+		this.gzipped = gzipped;
 	}
 
 }

@@ -1,12 +1,18 @@
 package com.redis.riot.file;
 
-public class SystemInResource extends FilenameInputStreamResource {
+import java.io.InputStream;
 
-	private static final String FILENAME = "stdin";
-	private static final String DESCRIPTION = "Standard Input";
+public class SystemInResource extends NamedInputStreamResource {
+
+	public static final String FILENAME = "stdin";
+	public static final String DESCRIPTION = "Standard Input";
 
 	public SystemInResource() {
-		super(System.in, FILENAME, DESCRIPTION);
+		this(System.in);
+	}
+
+	public SystemInResource(InputStream inputStream) {
+		super(inputStream, FILENAME, DESCRIPTION);
 	}
 
 }

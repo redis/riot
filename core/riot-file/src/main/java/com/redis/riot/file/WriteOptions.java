@@ -3,12 +3,10 @@ package com.redis.riot.file;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import com.google.cloud.spring.core.GcpScope;
-
 import lombok.ToString;
 
 @ToString
-public class FileWriterOptions {
+public class WriteOptions extends FileOptions {
 
 	public static final String DEFAULT_LINE_SEPARATOR = System.getProperty("line.separator");
 	public static final boolean DEFAULT_SHOULD_DELETE_IF_EXISTS = true;
@@ -16,7 +14,6 @@ public class FileWriterOptions {
 	public static final String DEFAULT_ELEMENT_NAME = "record";
 	public static final String DEFAULT_ROOT_NAME = "root";
 
-	private FileOptions fileOptions = new FileOptions();
 	private String formatterString;
 	private boolean append;
 	private boolean forceSync;
@@ -27,14 +24,6 @@ public class FileWriterOptions {
 	private String rootName = DEFAULT_ROOT_NAME;
 	private String elementName = DEFAULT_ELEMENT_NAME;
 	private Supplier<Map<String, Object>> headerSupplier = () -> null;
-
-	public FileOptions getFileOptions() {
-		return fileOptions;
-	}
-
-	public void setFileOptions(FileOptions fileOptions) {
-		this.fileOptions = fileOptions;
-	}
 
 	public Supplier<Map<String, Object>> getHeaderSupplier() {
 		return headerSupplier;
@@ -58,10 +47,6 @@ public class FileWriterOptions {
 
 	public void setElementName(String name) {
 		this.elementName = name;
-	}
-
-	public FileWriterOptions() {
-		fileOptions.getResourceOptions().getGcpOptions().setScope(GcpScope.STORAGE_READ_WRITE);
 	}
 
 	public boolean isAppend() {

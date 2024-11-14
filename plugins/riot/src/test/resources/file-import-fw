@@ -1,1 +1,1 @@
-riot file-import http://storage.googleapis.com/jrx/accounts.fw --ranges 1 9 25 41 53 67 83 --header hset --keyspace account --key Account
+riot file-import http://storage.googleapis.com/jrx/accounts.fw --type fw --ranges 1 9 25 41 53 67 83 --header hset --keyspace account --key Account

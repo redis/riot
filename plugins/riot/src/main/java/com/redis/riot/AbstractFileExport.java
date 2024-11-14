@@ -1,8 +1,11 @@
 package com.redis.riot;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.step.builder.StepBuilderException;
@@ -10,12 +13,13 @@ import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemStreamException;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.util.MimeType;
 
 import com.redis.riot.core.Step;
-import com.redis.riot.file.FileType;
-import com.redis.riot.file.Files;
-import com.redis.riot.file.FileWriterOptions;
+import com.redis.riot.file.FileUtils;
 import com.redis.riot.file.FileWriterRegistry;
+import com.redis.riot.file.StdOutProtocolResolver;
+import com.redis.riot.file.WriteOptions;
 import com.redis.spring.batch.item.redis.RedisItemReader;
 import com.redis.spring.batch.item.redis.common.KeyValue;
 
@@ -27,10 +31,13 @@ import picocli.CommandLine.Parameters;
 @Command(name = "file-export", description = "Export Redis data to files.")
 public abstract class AbstractFileExport extends AbstractRedisExportCommand {
 
-	private FileWriterRegistry writerRegistry = Files.writerRegistry;
+	private FileWriterRegistry writerRegistry = FileWriterRegistry.defaultWriterRegistry();
+
+	private Set<MimeType> flatFileTypes = new HashSet<>(
+			Arrays.asList(FileUtils.CSV, FileUtils.PSV, FileUtils.TSV, FileUtils.TEXT));
 
 	@Parameters(arity = "0..1", description = "File path or URL. If omitted, export is written to stdout.", paramLabel = "FILE")
-	private String file;
+	private String file = StdOutProtocolResolver.DEFAULT_FILENAME;
 
 	@ArgGroup(exclusive = false)
 	private FileWriterArgs fileWriterArgs = new FileWriterArgs();
@@ -43,16 +50,20 @@ public abstract class AbstractFileExport extends AbstractRedisExportCommand {
 		return job(step());
 	}
 
-	protected abstract FileType getFileType();
+	public void setFlatFileTypes(MimeType... types) {
+		this.flatFileTypes = new HashSet<>(Arrays.asList(types));
+	}
+
+	protected abstract MimeType getFileType();
 
 	@SuppressWarnings("unchecked")
 	private Step<?, ?> step() {
-		FileWriterOptions writerOptions = fileWriterArgs.fileWriterOptions();
-		writerOptions.getFileOptions().setFileType(getFileType());
+		WriteOptions writerOptions = fileWriterArgs.fileWriterOptions();
+		writerOptions.setType(getFileType());
 		writerOptions.setHeaderSupplier(this::headerRecord);
 		ItemWriter<?> writer;
 		try {
-			writer = writerRegistry.writer(file, writerOptions);
+			writer = writerRegistry.get(file, writerOptions);
 		} catch (IOException e) {
 			throw new StepBuilderException(e);
 		}
@@ -65,11 +76,12 @@ public abstract class AbstractFileExport extends AbstractRedisExportCommand {
 	}
 
 	private ContentType contentType() {
-		String extension = Files.extension(file);
-		if (FileType.DELIMITED.supportsExtension(extension) || FileType.FIXED_WIDTH.supportsExtension(extension)) {
-			return ContentType.MAP;
-		}
-		return contentType;
+		MimeType type = writerRegistry.getType(file, getFileType());
+		return isFlatFile(type) ? ContentType.MAP : contentType;
+	}
+
+	private boolean isFlatFile(MimeType type) {
+		return flatFileTypes.contains(type);
 	}
 
 	@SuppressWarnings("rawtypes")

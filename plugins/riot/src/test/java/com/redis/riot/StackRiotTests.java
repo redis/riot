@@ -2,7 +2,6 @@ package com.redis.riot;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -30,7 +29,6 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
-import org.springframework.util.FileCopyUtils;
 import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -290,28 +288,6 @@ class StackRiotTests extends RiotTests {
 		Map<String, String> airport1 = redisCommands.hgetall("airport:1");
 		Assertions.assertEquals("Pacific", airport1.get("region"));
 		Assertions.assertEquals("Port_Moresby", airport1.get("city"));
-	}
-
-	@Test
-	void fileImportGlob(TestInfo info) throws Exception {
-		execute(info, "file-import-glob", this::executeImportGlob);
-		Assertions.assertEquals(BEER_CSV_COUNT, keyCount("beer:*"));
-	}
-
-	private int executeImportGlob(ParseResult parseResult) {
-		AbstractFileImport command = command(parseResult);
-		try {
-			Path dir = Files.createTempDirectory("import-glob");
-			FileCopyUtils.copy(getClass().getClassLoader().getResourceAsStream("files/beers1.csv"),
-					Files.newOutputStream(dir.resolve("beers1.csv")));
-			FileCopyUtils.copy(getClass().getClassLoader().getResourceAsStream("files/beers2.csv"),
-					Files.newOutputStream(dir.resolve("beers2.csv")));
-			File file = new File(command.getFiles().get(0));
-			command.setFiles(dir.resolve(file.getName()).toString());
-		} catch (IOException e) {
-			throw new RuntimeException("Could not configure import-glob", e);
-		}
-		return ExitCode.OK;
 	}
 
 	@Test

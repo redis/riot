@@ -1,36 +1,25 @@
 package com.redis.riot;
 
-import com.redis.riot.file.FileType;
+import org.springframework.util.MimeType;
 
-import picocli.CommandLine.Option;
+import picocli.CommandLine.ArgGroup;
 
 public class FileExport extends AbstractFileExport {
 
-	@Option(names = { "-t", "--filetype" }, description = "File type: ${COMPLETION-CANDIDATES}.", paramLabel = "<type>")
-	private FileTypeEnum fileType;
+	@ArgGroup(exclusive = false)
+	private FileTypeArgs fileTypeArgs = new FileTypeArgs();
 
 	@Override
-	public FileType getFileType() {
-		if (fileType == null) {
-			return null;
-		}
-		switch (fileType) {
-		case CSV:
-			return FileType.DELIMITED;
-		case FW:
-			return FileType.FIXED_WIDTH;
-		case JSON:
-			return FileType.JSON;
-		case JSONL:
-			return FileType.JSONL;
-		case XML:
-			return FileType.XML;
-		}
-		return null;
+	public MimeType getFileType() {
+		return fileTypeArgs.getType();
 	}
 
-	public void setFileType(FileTypeEnum fileType) {
-		this.fileType = fileType;
+	public FileTypeArgs getFileTypeArgs() {
+		return fileTypeArgs;
+	}
+
+	public void setFileTypeArgs(FileTypeArgs fileTypeArgs) {
+		this.fileTypeArgs = fileTypeArgs;
 	}
 
 }

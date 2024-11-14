@@ -3,17 +3,18 @@ package com.redis.riot.file;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.OptionalInt;
 import java.util.Set;
 
 import com.fasterxml.jackson.databind.JsonDeserializer;
 
-public class FileReaderOptions {
+import lombok.ToString;
+
+@ToString
+public class ReadOptions extends FileOptions {
 
 	public static final String DEFAULT_CONTINUATION_STRING = "\\";
 
-	private FileOptions fileOptions = new FileOptions();
-	private OptionalInt maxItemCount = OptionalInt.empty();
+	private int maxItemCount;
 	private Set<Integer> includedFields;
 	private String continuationString = DEFAULT_CONTINUATION_STRING;
 	private List<String> fields;
@@ -23,14 +24,6 @@ public class FileReaderOptions {
 	@SuppressWarnings("rawtypes")
 	private final Map<Class, JsonDeserializer> deserializers = new LinkedHashMap<>();
 	private Class<?> itemType = Map.class;
-
-	public FileOptions getFileOptions() {
-		return fileOptions;
-	}
-
-	public void setFileOptions(FileOptions fileOptions) {
-		this.fileOptions = fileOptions;
-	}
 
 	public <T> void addDeserializer(Class<T> type, JsonDeserializer<? extends T> deserializer) {
 		deserializers.put(type, deserializer);
@@ -49,12 +42,12 @@ public class FileReaderOptions {
 		this.itemType = type;
 	}
 
-	public OptionalInt getMaxItemCount() {
+	public int getMaxItemCount() {
 		return maxItemCount;
 	}
 
 	public void setMaxItemCount(int count) {
-		this.maxItemCount = count > 0 ? OptionalInt.of(count) : OptionalInt.empty();
+		this.maxItemCount = count;
 	}
 
 	public Set<Integer> getIncludedFields() {

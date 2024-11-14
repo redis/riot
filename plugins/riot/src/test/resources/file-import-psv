@@ -1,1 +1,1 @@
-riot file-import http://storage.googleapis.com/jrx/sample.psv --header hset --keyspace sample --key id
+riot file-import http://storage.googleapis.com/jrx/sample.psv --type psv --header hset --keyspace sample --key id

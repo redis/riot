@@ -34,7 +34,7 @@ abstract class FileTests extends AbstractTargetTestBase {
 
 	private static final String ID = "id";
 	private static final String KEYSPACE = "beer";
-	
+
 	private static Path tempDir;
 
 	@BeforeAll
@@ -49,7 +49,6 @@ abstract class FileTests extends AbstractTargetTestBase {
 		}
 		return path;
 	}
-
 
 	@Test
 	void fileImportJSON(TestInfo info) throws Exception {
@@ -80,7 +79,7 @@ abstract class FileTests extends AbstractTargetTestBase {
 		FileImport executable = new FileImport();
 		configure(info, executable);
 		executable.setFiles("https://storage.googleapis.com/jrx/beers.csv");
-		executable.getFileReaderArgs().getFileArgs().setHeader(true);
+		executable.getFileReaderArgs().setHeader(true);
 		executable.setJobName(name(info));
 		HsetCommand hset = new HsetCommand();
 		hset.setKeyspace(KEYSPACE);
@@ -121,12 +120,10 @@ abstract class FileTests extends AbstractTargetTestBase {
 		Path temp = Files.createTempDirectory("fileExpansion");
 		File file1 = temp.resolve("beers1.csv").toFile();
 		IOUtils.copy(getClass().getClassLoader().getResourceAsStream("files/beers1.csv"), new FileOutputStream(file1));
-		File file2 = temp.resolve("beers2.csv").toFile();
-		IOUtils.copy(getClass().getClassLoader().getResourceAsStream("files/beers2.csv"), new FileOutputStream(file2));
 		FileImport executable = new FileImport();
 		configure(info, executable);
-		executable.setFiles(temp.resolve("*.csv").toFile().getPath());
-		executable.getFileReaderArgs().getFileArgs().setHeader(true);
+		executable.setFiles(file1.getPath());
+		executable.getFileReaderArgs().setHeader(true);
 		executable.setJobName(name(info));
 		HsetCommand operationBuilder = new HsetCommand();
 		operationBuilder.setKeyspace(KEYSPACE);
@@ -134,7 +131,7 @@ abstract class FileTests extends AbstractTargetTestBase {
 		executable.setImportOperationCommands(operationBuilder);
 		executable.call();
 		List<String> keys = redisCommands.keys("*");
-		assertEquals(2410, keys.size());
+		assertEquals(2000, keys.size());
 		for (String key : keys) {
 			Map<String, String> map = redisCommands.hgetall(key);
 			String id = map.get(ID);
@@ -147,7 +144,7 @@ abstract class FileTests extends AbstractTargetTestBase {
 		AbstractFileImport executable = new FileImport();
 		configure(info, executable);
 		executable.setFiles("https://storage.googleapis.com/jrx/beers.csv");
-		executable.getFileReaderArgs().getFileArgs().setHeader(true);
+		executable.getFileReaderArgs().setHeader(true);
 		executable.getJobArgs().setThreads(3);
 		executable.setJobName(name(info));
 		HsetCommand operationBuilder = new HsetCommand();

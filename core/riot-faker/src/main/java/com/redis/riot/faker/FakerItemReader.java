@@ -62,7 +62,13 @@ public class FakerItemReader extends AbstractItemCountingItemStreamItemReader<Ma
 	@Override
 	protected Map<String, Object> doRead() throws Exception {
 		Map<String, Object> map = new HashMap<>();
-		fields.forEach((k, v) -> map.put(k, faker.expression(v)));
+		for (Entry<String, String> field : fields.entrySet()) {
+			String value;
+			synchronized (faker) {
+				value = faker.expression(field.getValue());
+			}
+			map.put(field.getKey(), value);
+		}
 		return map;
 	}
 

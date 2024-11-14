@@ -21,6 +21,8 @@ dependencies {
     api 'org.springframework:spring-oxm'
     api group: 'io.awspring.cloud', name: 'spring-cloud-aws-starter-s3', version: awsVersion
     api group: 'com.google.cloud', name: 'spring-cloud-gcp-starter-storage', version: gcpVersion
+    api group: 'com.redis', name: 'spring-batch-resource', version: springBatchRedisVersion
+    testImplementation 'org.slf4j:slf4j-simple'
 }
 
 compileJava {

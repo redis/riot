@@ -1,13 +1,12 @@
 package com.redis.riot;
 
-import com.redis.riot.file.FileWriterOptions;
+import com.redis.riot.file.WriteOptions;
 
 import lombok.ToString;
-import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
 
 @ToString
-public class FileWriterArgs {
+public class FileWriterArgs extends FileArgs {
 
 	@Option(names = "--format", description = "Format string used to aggregate items.", hidden = true)
 	private String formatterString;
@@ -19,31 +18,28 @@ public class FileWriterArgs {
 	private boolean forceSync;
 
 	@Option(names = "--root", description = "XML root element tag name (default: ${DEFAULT-VALUE}).", paramLabel = "<string>")
-	private String rootName = FileWriterOptions.DEFAULT_ROOT_NAME;
+	private String rootName = WriteOptions.DEFAULT_ROOT_NAME;
 
 	@Option(names = "--element", description = "XML element tag name (default: ${DEFAULT-VALUE}).", paramLabel = "<string>")
-	private String elementName = FileWriterOptions.DEFAULT_ELEMENT_NAME;
+	private String elementName = WriteOptions.DEFAULT_ELEMENT_NAME;
 
 	@Option(names = "--line-sep", description = "String to separate lines (default: system default).", paramLabel = "<string>")
-	private String lineSeparator = FileWriterOptions.DEFAULT_LINE_SEPARATOR;
+	private String lineSeparator = WriteOptions.DEFAULT_LINE_SEPARATOR;
 
 	@Option(names = "--delete-empty", description = "Delete file if still empty after export.")
 	private boolean shouldDeleteIfEmpty;
 
 	@Option(names = "--delete-exists", description = "Delete file if it already exists. True by default.", negatable = true, defaultValue = "true", fallbackValue = "true")
-	private boolean shouldDeleteIfExists = FileWriterOptions.DEFAULT_SHOULD_DELETE_IF_EXISTS;
+	private boolean shouldDeleteIfExists = WriteOptions.DEFAULT_SHOULD_DELETE_IF_EXISTS;
 
 	@Option(names = "--transactional", description = "Delay writing to the buffer if a transaction is active. True by default.", negatable = true, defaultValue = "true", fallbackValue = "true")
-	private boolean transactional = FileWriterOptions.DEFAULT_TRANSACTIONAL;
+	private boolean transactional = WriteOptions.DEFAULT_TRANSACTIONAL;
 
-	@ArgGroup(exclusive = false)
-	private FileArgs fileArgs = new FileArgs();
-
-	public FileWriterOptions fileWriterOptions() {
-		FileWriterOptions options = new FileWriterOptions();
+	public WriteOptions fileWriterOptions() {
+		WriteOptions options = new WriteOptions();
+		apply(options);
 		options.setAppend(append);
 		options.setElementName(elementName);
-		options.setFileOptions(fileArgs.fileOptions());
 		options.setForceSync(forceSync);
 		options.setFormatterString(formatterString);
 		options.setLineSeparator(lineSeparator);
@@ -124,14 +120,6 @@ public class FileWriterArgs {
 
 	public void setTransactional(boolean transactional) {
 		this.transactional = transactional;
-	}
-
-	public FileArgs getFileArgs() {
-		return fileArgs;
-	}
-
-	public void setFileArgs(FileArgs fileArgs) {
-		this.fileArgs = fileArgs;
 	}
 
 }

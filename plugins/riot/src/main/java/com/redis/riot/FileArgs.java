@@ -9,8 +9,8 @@ import picocli.CommandLine.Option;
 @ToString
 public class FileArgs {
 
-	@ArgGroup(exclusive = false)
-	private ResourceArgs resourceArgs = new ResourceArgs();
+	@Option(names = { "-z", "--gzip" }, description = "File is gzip compressed.")
+	private boolean gzipped;
 
 	@Option(names = "--delimiter", description = "Delimiter character.", paramLabel = "<string>")
 	private String delimiter;
@@ -24,12 +24,34 @@ public class FileArgs {
 	@Option(names = "--quote", description = "Escape character for CSV files (default: ${DEFAULT-VALUE}).", paramLabel = "<char>")
 	private char quoteCharacter = FileOptions.DEFAULT_QUOTE_CHARACTER;
 
-	public ResourceArgs getResourceArgs() {
-		return resourceArgs;
+	@ArgGroup(exclusive = false)
+	private S3Args s3Args = new S3Args();
+
+	@ArgGroup(exclusive = false)
+	private GoogleStorageArgs googleStorageArgs = new GoogleStorageArgs();
+
+	public S3Args getS3Args() {
+		return s3Args;
 	}
 
-	public void setResourceArgs(ResourceArgs resourceArgs) {
-		this.resourceArgs = resourceArgs;
+	public void setS3Args(S3Args args) {
+		this.s3Args = args;
+	}
+
+	public GoogleStorageArgs getGoogleStorageArgs() {
+		return googleStorageArgs;
+	}
+
+	public void setGoogleStorageArgs(GoogleStorageArgs gcpArgs) {
+		this.googleStorageArgs = gcpArgs;
+	}
+
+	public boolean isGzipped() {
+		return gzipped;
+	}
+
+	public void setGzipped(boolean gzipped) {
+		this.gzipped = gzipped;
 	}
 
 	public String getEncoding() {
@@ -64,14 +86,14 @@ public class FileArgs {
 		this.header = header;
 	}
 
-	public FileOptions fileOptions() {
-		FileOptions options = new FileOptions();
-		options.setResourceOptions(resourceArgs.resourceOptions());
+	public void apply(FileOptions options) {
+		options.setGzipped(gzipped);
 		options.setDelimiter(delimiter);
 		options.setEncoding(encoding);
 		options.setHeader(header);
 		options.setQuoteCharacter(quoteCharacter);
-		return options;
+		options.setS3Options(s3Args.s3Options());
+		options.setGoogleStorageOptions(googleStorageArgs.googleStorageOptions());
 	}
 
 }

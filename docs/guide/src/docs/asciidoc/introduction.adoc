@@ -24,7 +24,7 @@ https://redis-field-engineering.github.io/riotx/[RIOT-X] is an extension to {pro
 
 * Observability
 * Memcached Replication
-* Stream Import/Export: Redis <-> Redis Stream
+* Stream Import/Export
 
 Full documentation for RIOT-X is available here: https://redis-field-engineering.github.io/riotx/[redis-field-engineering.github.io/riotx]
 

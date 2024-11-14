@@ -1,4 +1,4 @@
-package com.redis.riot.file;
+package com.redis.riot.function;
 
 import java.util.Map;
 import java.util.function.Function;
