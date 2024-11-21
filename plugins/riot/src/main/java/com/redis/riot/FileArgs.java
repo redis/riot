@@ -12,6 +12,12 @@ public class FileArgs {
 	@Option(names = { "-z", "--gzip" }, description = "File is gzip compressed.")
 	private boolean gzipped;
 
+	@ArgGroup(exclusive = false)
+	private S3Args s3Args = new S3Args();
+
+	@ArgGroup(exclusive = false)
+	private GoogleStorageArgs googleStorageArgs = new GoogleStorageArgs();
+
 	@Option(names = "--delimiter", description = "Delimiter character.", paramLabel = "<string>")
 	private String delimiter;
 
@@ -23,12 +29,6 @@ public class FileArgs {
 
 	@Option(names = "--quote", description = "Escape character for CSV files (default: ${DEFAULT-VALUE}).", paramLabel = "<char>")
 	private char quoteCharacter = FileOptions.DEFAULT_QUOTE_CHARACTER;
-
-	@ArgGroup(exclusive = false)
-	private S3Args s3Args = new S3Args();
-
-	@ArgGroup(exclusive = false)
-	private GoogleStorageArgs googleStorageArgs = new GoogleStorageArgs();
 
 	public S3Args getS3Args() {
 		return s3Args;
@@ -87,7 +87,6 @@ public class FileArgs {
 	}
 
 	public void apply(FileOptions options) {
-		options.setGzipped(gzipped);
 		options.setDelimiter(delimiter);
 		options.setEncoding(encoding);
 		options.setHeader(header);

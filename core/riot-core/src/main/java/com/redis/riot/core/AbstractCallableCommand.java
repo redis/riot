@@ -18,14 +18,26 @@ public abstract class AbstractCallableCommand extends BaseCommand implements Cal
 
 	@Override
 	public Integer call() throws Exception {
-		if (log == null) {
-			log = LoggerFactory.getLogger(getClass());
+		initialize();
+		try {
+			execute();
+		} finally {
+			teardown();
 		}
-		execute();
 		return 0;
 	}
 
-	protected abstract void execute() throws Exception;
+	protected void initialize() throws RiotInitializationException {
+		if (log == null) {
+			log = LoggerFactory.getLogger(getClass());
+		}
+	}
+
+	protected abstract void execute() throws RiotExecutionException;
+
+	protected void teardown() {
+		// do nothing
+	}
 
 	public Logger getLog() {
 		return log;

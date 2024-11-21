@@ -2,44 +2,27 @@ package com.redis.riot.file;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.FileUrlResource;
 import org.springframework.core.io.ProtocolResolver;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
-import org.springframework.core.io.UrlResource;
-import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ResourceUtils;
 
-/**
- * Implementation of the {@link ResourceLoader} interface.
- *
- *
- * <p>
- * Will return a {@link UrlResource} if the location value is a URL, and a
- * {@link ClassPathResource} if it is a non-URL path or a "classpath:"
- * pseudo-URL.
- *
- */
-public class DefaultResourceLoader implements ResourceLoader {
+public class RiotResourceLoader implements ResourceLoader {
 
-	private final Set<ProtocolResolver> protocolResolvers = new LinkedHashSet<>(4);
-	private final Map<Class<?>, Map<Resource, ?>> resourceCaches = new ConcurrentHashMap<>(4);
+	private GoogleStorageProtocolResolver googleStorageProtocolResolver = new GoogleStorageProtocolResolver();
+	private S3ProtocolResolver s3ProtocolResolver = new S3ProtocolResolver();
 
-	@Override
-	@Nullable
-	public ClassLoader getClassLoader() {
-		return ClassUtils.getDefaultClassLoader();
-	}
+	private Set<ProtocolResolver> protocolResolvers = new LinkedHashSet<>(4);
 
 	/**
 	 * Register the given resolver with this resource loader, allowing for
@@ -55,6 +38,22 @@ public class DefaultResourceLoader implements ResourceLoader {
 		this.protocolResolvers.add(resolver);
 	}
 
+	public GoogleStorageProtocolResolver getGoogleStorageProtocolResolver() {
+		return googleStorageProtocolResolver;
+	}
+
+	public void setGoogleStorageProtocolResolver(GoogleStorageProtocolResolver resolver) {
+		this.googleStorageProtocolResolver = resolver;
+	}
+
+	public S3ProtocolResolver getS3ProtocolResolver() {
+		return s3ProtocolResolver;
+	}
+
+	public void setS3ProtocolResolver(S3ProtocolResolver resolver) {
+		this.s3ProtocolResolver = resolver;
+	}
+
 	/**
 	 * Return the collection of currently registered protocol resolvers, allowing
 	 * for introspection as well as modification.
@@ -65,31 +64,15 @@ public class DefaultResourceLoader implements ResourceLoader {
 		return this.protocolResolvers;
 	}
 
-	/**
-	 * Obtain a cache for the given value type, keyed by {@link Resource}.
-	 * 
-	 * @param valueType the value type, e.g. an ASM {@code MetadataReader}
-	 * @return the cache {@link Map}, shared at the {@code ResourceLoader} level
-	 */
-	@SuppressWarnings("unchecked")
-	public <T> Map<Resource, T> getResourceCache(Class<T> valueType) {
-		return (Map<Resource, T>) this.resourceCaches.computeIfAbsent(valueType, key -> new ConcurrentHashMap<>());
-	}
-
-	/**
-	 * Clear all resource caches in this resource loader.
-	 * 
-	 * @since 5.0
-	 * @see #getResourceCache
-	 */
-	public void clearResourceCaches() {
-		this.resourceCaches.clear();
+	@Override
+	public ClassLoader getClassLoader() {
+		return ClassUtils.getDefaultClassLoader();
 	}
 
 	@Override
 	public Resource getResource(String location) {
 		Assert.notNull(location, "Location must not be null");
-		for (ProtocolResolver protocolResolver : getProtocolResolvers()) {
+		for (ProtocolResolver protocolResolver : allProtocolResolvers()) {
 			Resource resource = protocolResolver.resolve(location, this);
 			if (resource != null) {
 				return resource;
@@ -103,6 +86,14 @@ public class DefaultResourceLoader implements ResourceLoader {
 			// No URL -> resolve as resource path.
 			return new FileSystemResource(location);
 		}
+	}
+
+	private Iterable<ProtocolResolver> allProtocolResolvers() {
+		List<ProtocolResolver> resolvers = new ArrayList<>();
+		resolvers.add(s3ProtocolResolver);
+		resolvers.add(googleStorageProtocolResolver);
+		resolvers.addAll(protocolResolvers);
+		return resolvers;
 	}
 
 }

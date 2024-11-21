@@ -1,1 +1,1 @@
-riot file-import gs://riot-bucket-jrx/beers.json hset --keyspace beer --key id
+riot file-import gs://riotx/beers.json hset --keyspace beer --key id

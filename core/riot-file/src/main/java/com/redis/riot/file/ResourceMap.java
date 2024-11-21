@@ -2,8 +2,8 @@ package com.redis.riot.file;
 
 import org.springframework.core.io.Resource;
 
-public interface Factory<T, O> {
+public interface ResourceMap {
 
-	T create(Resource resource, O options);
+	String getContentTypeFor(Resource resource);
 
 }

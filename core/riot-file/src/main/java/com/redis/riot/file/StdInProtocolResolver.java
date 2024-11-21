@@ -8,7 +8,15 @@ public class StdInProtocolResolver implements ProtocolResolver {
 
 	public static final String DEFAULT_FILENAME = SystemInResource.FILENAME;
 
-	private String filename = DEFAULT_FILENAME;
+	private String filename;
+
+	public StdInProtocolResolver() {
+		setFilename(DEFAULT_FILENAME);
+	}
+
+	public String getFilename() {
+		return filename;
+	}
 
 	public void setFilename(String filename) {
 		this.filename = filename;

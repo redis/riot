@@ -14,6 +14,7 @@ import io.lettuce.core.ClientOptions;
 import io.lettuce.core.ReadFrom;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.SslOptions;
+import io.lettuce.core.SslOptions.Resource;
 import io.lettuce.core.SslVerifyMode;
 import io.lettuce.core.cluster.ClusterClientOptions;
 import io.lettuce.core.protocol.ProtocolVersion;
@@ -99,7 +100,29 @@ public class RedisContext implements InitializingBean, AutoCloseable {
 		context.protocolVersion(args.getProtocolVersion());
 		context.readFrom(args.getReadFrom().getReadFrom());
 		context.uri(uriBuilder(args).uri(uri).build());
+		context.sslOptions(sslOptions(args));
 		return context;
+	}
+
+	public static RedisContext of(RedisArgs args) {
+		return of(args.getUri(), args);
+	}
+
+	private static SslOptions sslOptions(RedisClientArgs args) {
+		SslOptions.Builder ssl = SslOptions.builder();
+		if (args.getKey() != null) {
+			ssl.keyManager(args.getKeyCert(), args.getKey(), args.getKeyPassword());
+		}
+		if (args.getKeystore() != null) {
+			ssl.keystore(args.getKeystore(), args.getKeystorePassword());
+		}
+		if (args.getTruststore() != null) {
+			ssl.truststore(Resource.from(args.getTruststore()), args.getTruststorePassword());
+		}
+		if (args.getTrustedCerts() != null) {
+			ssl.trustManager(args.getTrustedCerts());
+		}
+		return ssl.build();
 	}
 
 	public AbstractRedisClient getClient() {
@@ -171,12 +194,6 @@ public class RedisContext implements InitializingBean, AutoCloseable {
 	public RedisContext clientResources(ClientResources clientResources) {
 		this.clientResources = clientResources;
 		return this;
-	}
-
-	public static RedisContext of(RedisArgs args) {
-		RedisContext context = of(args.getUri(), args);
-		context.sslOptions(args.getSslArgs().sslOptions());
-		return context;
 	}
 
 }

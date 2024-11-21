@@ -23,15 +23,6 @@ public class S3Args {
 	@Option(names = "--s3-endpoint", description = "Service endpoint with which the AWS client should communicate (e.g. https://sns.us-west-1.amazonaws.com).", paramLabel = "<url>")
 	private URI endpoint;
 
-	public S3Options s3Options() {
-		S3Options options = new S3Options();
-		options.setAccessKey(accessKey);
-		options.setSecretKey(secretKey);
-		options.setEndpoint(endpoint);
-		options.setRegion(region);
-		return options;
-	}
-
 	public Region getRegion() {
 		return region;
 	}
@@ -62,6 +53,15 @@ public class S3Args {
 
 	public void setSecretKey(String secretKey) {
 		this.secretKey = secretKey;
+	}
+
+	public S3Options s3Options() {
+		S3Options options = new S3Options();
+		options.setAccessKey(accessKey);
+		options.setSecretKey(secretKey);
+		options.setEndpoint(endpoint);
+		options.setRegion(region);
+		return options;
 	}
 
 }

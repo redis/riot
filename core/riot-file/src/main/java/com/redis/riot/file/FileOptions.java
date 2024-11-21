@@ -2,6 +2,7 @@ package com.redis.riot.file;
 
 import java.nio.charset.StandardCharsets;
 
+import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.util.MimeType;
 
 import lombok.ToString;
@@ -9,17 +10,32 @@ import lombok.ToString;
 @ToString
 public class FileOptions {
 
+	public static final String DELIMITER_PIPE = "|";
+	public static final String DELIMITER_COMMA = DelimitedLineTokenizer.DELIMITER_COMMA;
+	public static final String DELIMITER_TAB = DelimitedLineTokenizer.DELIMITER_TAB;
 	public static final String DEFAULT_ENCODING = StandardCharsets.UTF_8.name();
 	public static final char DEFAULT_QUOTE_CHARACTER = '"';
 
-	private MimeType type;
+	private boolean gzip;
 	private S3Options s3Options = new S3Options();
 	private GoogleStorageOptions googleStorageOptions = new GoogleStorageOptions();
-	private boolean gzipped;
+	private MimeType contentType;
 	private String encoding = DEFAULT_ENCODING;
 	private boolean header;
 	private String delimiter;
 	private char quoteCharacter = DEFAULT_QUOTE_CHARACTER;
+
+	public boolean isGzip() {
+		return gzip;
+	}
+
+	public void setGzip(boolean gzip) {
+		this.gzip = gzip;
+	}
+
+	public GoogleStorageOptions getGoogleStorageOptions() {
+		return googleStorageOptions;
+	}
 
 	public S3Options getS3Options() {
 		return s3Options;
@@ -29,20 +45,16 @@ public class FileOptions {
 		this.s3Options = s3Options;
 	}
 
-	public GoogleStorageOptions getGoogleStorageOptions() {
-		return googleStorageOptions;
-	}
-
 	public void setGoogleStorageOptions(GoogleStorageOptions googleStorageOptions) {
 		this.googleStorageOptions = googleStorageOptions;
 	}
 
-	public MimeType getType() {
-		return type;
+	public MimeType getContentType() {
+		return contentType;
 	}
 
-	public void setType(MimeType type) {
-		this.type = type;
+	public void setContentType(MimeType type) {
+		this.contentType = type;
 	}
 
 	public String getDelimiter() {
@@ -75,14 +87,6 @@ public class FileOptions {
 
 	public void setEncoding(String encoding) {
 		this.encoding = encoding;
-	}
-
-	public boolean isGzipped() {
-		return gzipped;
-	}
-
-	public void setGzipped(boolean gzipped) {
-		this.gzipped = gzipped;
 	}
 
 }

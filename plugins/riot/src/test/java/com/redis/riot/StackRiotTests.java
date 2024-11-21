@@ -383,14 +383,14 @@ class StackRiotTests extends RiotTests {
 
 	@Test
 	void fileImportGCS(TestInfo info) throws Exception {
-		testImport(info, "file-import-gcs", "beer:*", 4432);
+		testImport(info, "file-import-gcs", "beer:*", 216);
 		Map<String, String> beer1 = redisCommands.hgetall("beer:1");
 		Assertions.assertEquals("Hocus Pocus", name(beer1));
 	}
 
 	@Test
 	void fileImportS3(TestInfo info) throws Exception {
-		testImport(info, "file-import-s3", "beer:*", 4432);
+		testImport(info, "file-import-s3", "beer:*", 216);
 		Map<String, String> beer1 = redisCommands.hgetall("beer:1");
 		Assertions.assertEquals("Hocus Pocus", name(beer1));
 	}

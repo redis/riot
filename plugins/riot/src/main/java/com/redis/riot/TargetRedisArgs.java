@@ -1,12 +1,13 @@
 package com.redis.riot;
 
+import java.io.File;
 import java.time.Duration;
 
 import io.lettuce.core.protocol.ProtocolVersion;
 import lombok.ToString;
 import picocli.CommandLine.Option;
 
-@ToString(exclude = "password")
+@ToString(exclude = { "password", "keystorePassword", "truststorePassword", "keyPassword" })
 public class TargetRedisArgs implements RedisClientArgs {
 
 	@Option(names = "--target-user", description = "Target ACL style 'AUTH username pass'. Needs password.", paramLabel = "<name>")
@@ -38,6 +39,30 @@ public class TargetRedisArgs implements RedisClientArgs {
 
 	@Option(names = "--target-read-from", description = "Which target Redis cluster nodes to read from: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<n>")
 	private ReadFrom readFrom = DEFAULT_READ_FROM;
+
+	@Option(names = "--target-keystore", description = "Path to keystore.", paramLabel = "<file>", hidden = true)
+	private File keystore;
+
+	@Option(names = "--target-keystore-pass", arity = "0..1", interactive = true, description = "Keystore password.", paramLabel = "<password>", hidden = true)
+	private char[] keystorePassword;
+
+	@Option(names = "--target-trust", description = "Path to truststore.", paramLabel = "<file>", hidden = true)
+	private File truststore;
+
+	@Option(names = "--target-trust-pass", arity = "0..1", interactive = true, description = "Truststore password.", paramLabel = "<password>", hidden = true)
+	private char[] truststorePassword;
+
+	@Option(names = "--target-cert", description = "Client certificate to authenticate with (X.509 PEM).", paramLabel = "<file>")
+	private File keyCert;
+
+	@Option(names = "--target-key", description = "Private key file to authenticate with (PKCS#8 PEM).", paramLabel = "<file>")
+	private File key;
+
+	@Option(names = "--target-key-pass", arity = "0..1", interactive = true, description = "Private key password.", paramLabel = "<pwd>")
+	private char[] keyPassword;
+
+	@Option(names = "--target-cacert", description = "CA Certificate file to verify with (X.509).", paramLabel = "<file>")
+	private File trustedCerts;
 
 	@Override
 	public String getUsername() {
@@ -127,6 +152,78 @@ public class TargetRedisArgs implements RedisClientArgs {
 
 	public void setReadFrom(ReadFrom readFrom) {
 		this.readFrom = readFrom;
+	}
+
+	@Override
+	public File getKeystore() {
+		return keystore;
+	}
+
+	public void setKeystore(File keystore) {
+		this.keystore = keystore;
+	}
+
+	@Override
+	public char[] getKeystorePassword() {
+		return keystorePassword;
+	}
+
+	public void setKeystorePassword(char[] keystorePassword) {
+		this.keystorePassword = keystorePassword;
+	}
+
+	@Override
+	public File getTruststore() {
+		return truststore;
+	}
+
+	public void setTruststore(File truststore) {
+		this.truststore = truststore;
+	}
+
+	@Override
+	public char[] getTruststorePassword() {
+		return truststorePassword;
+	}
+
+	public void setTruststorePassword(char[] truststorePassword) {
+		this.truststorePassword = truststorePassword;
+	}
+
+	@Override
+	public File getKeyCert() {
+		return keyCert;
+	}
+
+	public void setKeyCert(File keyCert) {
+		this.keyCert = keyCert;
+	}
+
+	@Override
+	public File getKey() {
+		return key;
+	}
+
+	public void setKey(File key) {
+		this.key = key;
+	}
+
+	@Override
+	public char[] getKeyPassword() {
+		return keyPassword;
+	}
+
+	public void setKeyPassword(char[] keyPassword) {
+		this.keyPassword = keyPassword;
+	}
+
+	@Override
+	public File getTrustedCerts() {
+		return trustedCerts;
+	}
+
+	public void setTrustedCerts(File trustedCerts) {
+		this.trustedCerts = trustedCerts;
 	}
 
 }

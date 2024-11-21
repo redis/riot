@@ -22,7 +22,7 @@ public abstract class FileUtils {
 		return filename.endsWith(GZ_SUFFIX);
 	}
 
-	public static String normalize(String filename) {
+	public static String stripGzipSuffix(String filename) {
 		if (isGzip(filename)) {
 			return filename.substring(0, filename.length() - GZ_SUFFIX.length());
 		}

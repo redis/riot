@@ -1,5 +1,6 @@
 package com.redis.riot;
 
+import java.io.File;
 import java.time.Duration;
 
 import com.redis.lettucemod.RedisURIBuilder;
@@ -71,6 +72,38 @@ public interface RedisClientArgs {
 
 	default ReadFrom getReadFrom() {
 		return DEFAULT_READ_FROM;
+	}
+
+	default File getKeystore() {
+		return null;
+	}
+
+	default char[] getKeystorePassword() {
+		return null;
+	}
+
+	default File getTruststore() {
+		return null;
+	}
+
+	default char[] getTruststorePassword() {
+		return null;
+	}
+
+	default File getKeyCert() {
+		return null;
+	}
+
+	default File getKey() {
+		return null;
+	}
+
+	default char[] getKeyPassword() {
+		return null;
+	}
+
+	default File getTrustedCerts() {
+		return null;
 	}
 
 }

@@ -1,6 +1,5 @@
 package com.redis.riot;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -8,16 +7,16 @@ import java.util.Map;
 import java.util.Set;
 
 import org.springframework.batch.core.Job;
-import org.springframework.batch.core.step.builder.StepBuilderException;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemStreamException;
-import org.springframework.batch.item.ItemWriter;
 import org.springframework.util.MimeType;
 
+import com.redis.riot.core.RiotInitializationException;
 import com.redis.riot.core.Step;
 import com.redis.riot.file.FileUtils;
 import com.redis.riot.file.FileWriterRegistry;
+import com.redis.riot.file.FileWriterResult;
 import com.redis.riot.file.StdOutProtocolResolver;
 import com.redis.riot.file.WriteOptions;
 import com.redis.spring.batch.item.redis.RedisItemReader;
@@ -31,8 +30,6 @@ import picocli.CommandLine.Parameters;
 @Command(name = "file-export", description = "Export Redis data to files.")
 public abstract class AbstractFileExport extends AbstractRedisExportCommand {
 
-	private FileWriterRegistry writerRegistry = FileWriterRegistry.defaultWriterRegistry();
-
 	private Set<MimeType> flatFileTypes = new HashSet<>(
 			Arrays.asList(FileUtils.CSV, FileUtils.PSV, FileUtils.TSV, FileUtils.TEXT));
 
@@ -44,6 +41,23 @@ public abstract class AbstractFileExport extends AbstractRedisExportCommand {
 
 	@Option(names = "--content-type", description = "Type of exported content: ${COMPLETION-CANDIDATES}.", paramLabel = "<type>")
 	private ContentType contentType = ContentType.STRUCT;
+
+	private FileWriterRegistry writerRegistry;
+	private WriteOptions writeOptions;
+
+	@Override
+	protected void initialize() throws RiotInitializationException {
+		super.initialize();
+		writerRegistry = FileWriterRegistry.defaultWriterRegistry();
+		writeOptions = writeOptions();
+	}
+
+	private WriteOptions writeOptions() {
+		WriteOptions writeOptions = fileWriterArgs.fileWriterOptions();
+		writeOptions.setContentType(getFileType());
+		writeOptions.setHeaderSupplier(this::headerRecord);
+		return writeOptions;
+	}
 
 	@Override
 	protected Job job() {
@@ -58,16 +72,8 @@ public abstract class AbstractFileExport extends AbstractRedisExportCommand {
 
 	@SuppressWarnings("unchecked")
 	private Step<?, ?> step() {
-		WriteOptions writerOptions = fileWriterArgs.fileWriterOptions();
-		writerOptions.setType(getFileType());
-		writerOptions.setHeaderSupplier(this::headerRecord);
-		ItemWriter<?> writer;
-		try {
-			writer = writerRegistry.get(file, writerOptions);
-		} catch (IOException e) {
-			throw new StepBuilderException(e);
-		}
-		return step(writer).processor(processor());
+		FileWriterResult writer = writerRegistry.find(file, writeOptions);
+		return step(writer.getWriter()).processor(processor(writer.getType()));
 	}
 
 	@Override
@@ -75,24 +81,18 @@ public abstract class AbstractFileExport extends AbstractRedisExportCommand {
 		return super.shouldShowProgress() && file != null;
 	}
 
-	private ContentType contentType() {
-		MimeType type = writerRegistry.getType(file, getFileType());
-		return isFlatFile(type) ? ContentType.MAP : contentType;
-	}
-
 	private boolean isFlatFile(MimeType type) {
 		return flatFileTypes.contains(type);
 	}
 
 	@SuppressWarnings("rawtypes")
-	private ItemProcessor processor() {
-		if (contentType() == ContentType.MAP) {
+	private ItemProcessor processor(MimeType type) {
+		if (isFlatFile(type) || contentType == ContentType.MAP) {
 			return mapProcessor();
 		}
 		return null;
 	}
 
-	@SuppressWarnings("unchecked")
 	private Map<String, Object> headerRecord() {
 		RedisItemReader<String, String> reader = RedisItemReader.struct();
 		configureSourceRedisReader(reader);
@@ -103,7 +103,7 @@ public abstract class AbstractFileExport extends AbstractRedisExportCommand {
 				if (keyValue == null) {
 					return Collections.emptyMap();
 				}
-				return ((ItemProcessor<KeyValue<String>, Map<String, Object>>) processor()).process(keyValue);
+				return ((ItemProcessor<KeyValue<String>, Map<String, Object>>) mapProcessor()).process(keyValue);
 			} catch (Exception e) {
 				throw new ItemStreamException("Could not read header record", e);
 			}

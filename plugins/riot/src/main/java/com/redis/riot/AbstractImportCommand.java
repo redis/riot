@@ -16,6 +16,7 @@ import org.springframework.util.CollectionUtils;
 
 import com.redis.riot.core.AbstractJobCommand;
 import com.redis.riot.core.QuietMapAccessor;
+import com.redis.riot.core.RiotInitializationException;
 import com.redis.riot.core.RiotUtils;
 import com.redis.riot.core.Step;
 import com.redis.riot.core.processor.PredicateOperator;
@@ -65,6 +66,21 @@ public abstract class AbstractImportCommand extends AbstractJobCommand {
 	 */
 	private List<OperationCommand> importOperationCommands = new ArrayList<>();
 
+	@Override
+	protected void initialize() throws RiotInitializationException {
+		super.initialize();
+		targetRedisContext = targetRedisContext();
+		targetRedisContext.afterPropertiesSet();
+	}
+
+	@Override
+	protected void teardown() {
+		if (targetRedisContext != null) {
+			targetRedisContext.close();
+		}
+		super.teardown();
+	}
+
 	protected List<Operation<String, String, Map<String, Object>, Object>> operations() {
 		return importOperationCommands.stream().map(OperationCommand::operation).collect(Collectors.toList());
 	}
@@ -81,17 +97,6 @@ public abstract class AbstractImportCommand extends AbstractJobCommand {
 		step.processor(processor());
 		step.taskName(TASK_NAME);
 		return step;
-	}
-
-	@Override
-	protected void execute() throws Exception {
-		targetRedisContext = targetRedisContext();
-		targetRedisContext.afterPropertiesSet();
-		try {
-			super.execute();
-		} finally {
-			targetRedisContext.close();
-		}
 	}
 
 	protected ItemProcessor<Map<String, Object>, Map<String, Object>> processor() {

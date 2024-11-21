@@ -14,14 +14,6 @@ public class GoogleStorageProtocolResolver implements ProtocolResolver {
 	private Supplier<Storage> storageSupplier;
 	private Storage storage;
 
-	public void setStorageSupplier(Supplier<Storage> supplier) {
-		this.storageSupplier = supplier;
-	}
-
-	public void setStorage(Storage storage) {
-		this.storage = storage;
-	}
-
 	@Override
 	public Resource resolve(String location, ResourceLoader resourceLoader) {
 		if (location.startsWith(com.google.cloud.spring.storage.GoogleStorageProtocolResolver.PROTOCOL)) {
@@ -36,4 +28,13 @@ public class GoogleStorageProtocolResolver implements ProtocolResolver {
 		}
 		return storage;
 	}
+
+	public void setStorage(Storage storage) {
+		this.storage = storage;
+	}
+
+	public void setStorageSupplier(Supplier<Storage> storageSupplier) {
+		this.storageSupplier = storageSupplier;
+	}
+
 }

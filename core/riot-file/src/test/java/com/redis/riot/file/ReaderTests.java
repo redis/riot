@@ -32,7 +32,8 @@ public class ReaderTests {
 	public static final String JSONL_URL = BUCKET_URL + JSONL_FILE;
 	public static final String CSV_FILE = "beers.csv";
 	public static final String CSV_URL = BUCKET_URL + CSV_FILE;
-	public static final String JSON_S3_URL = "s3://riot-bucket-jrx/beers.json";
+	public static final String S3_BUCKET_URL = "s3://riot-bucket-jrx";
+	public static final String JSON_S3_URL = S3_BUCKET_URL + "/beers.json";
 	public static final String JSON_GOOGLE_STORAGE_URL = "gs://riot-bucket-jrx/beers.json";
 	public static final String JSON_GZ_URL = "http://storage.googleapis.com/jrx/beers.json.gz";
 
@@ -40,12 +41,12 @@ public class ReaderTests {
 
 	@Test
 	void readJsonUrl() throws Exception {
-		assertRead(JSON_URL, new ReadOptions(), JsonItemReader.class, 216);
+		assertRead(JSON_URL, JsonItemReader.class, 216);
 	}
 
 	@Test
 	void readJsonGzUrl() throws Exception {
-		assertRead(JSON_GZ_URL, new ReadOptions(), JsonItemReader.class, 216);
+		assertRead(JSON_GZ_URL, JsonItemReader.class, 216);
 	}
 
 	@Test
@@ -57,7 +58,7 @@ public class ReaderTests {
 
 	@Test
 	void readJsonGoogleStorageUrl() throws Exception {
-		assertRead(JSON_GOOGLE_STORAGE_URL, new ReadOptions(), JsonItemReader.class, 4432);
+		assertRead(JSON_GOOGLE_STORAGE_URL, JsonItemReader.class, 4432);
 	}
 
 	@Test
@@ -66,7 +67,7 @@ public class ReaderTests {
 		try (FileOutputStream outputStream = new FileOutputStream(file.toFile())) {
 			StreamUtils.copy(urlInputStream(JSON_URL), outputStream);
 		}
-		assertRead(file.toFile().getAbsolutePath(), new ReadOptions(), JsonItemReader.class, 216);
+		assertRead(file.toFile().getAbsolutePath(), JsonItemReader.class, 216);
 	}
 
 	private InputStream urlInputStream(String url) throws MalformedURLException, IOException, URISyntaxException {
@@ -75,7 +76,7 @@ public class ReaderTests {
 
 	@Test
 	void readJsonLinesUrl() throws Exception {
-		assertRead(JSONL_URL, new ReadOptions(), FlatFileItemReader.class, 6);
+		assertRead(JSONL_URL, FlatFileItemReader.class, 6);
 	}
 
 	@Test
@@ -87,15 +88,19 @@ public class ReaderTests {
 
 	@Test
 	void readStdIn() throws Exception {
-		DefaultResourceLoader resourceLoader = new DefaultResourceLoader();
+		RiotResourceLoader resourceLoader = new RiotResourceLoader();
 		resourceLoader.addProtocolResolver(new StdInProtocolResolver());
 		Resource resource = resourceLoader.getResource(SystemInResource.FILENAME);
 		Assertions.assertInstanceOf(SystemInResource.class, resource);
 	}
 
+	private void assertRead(String location, Class<?> expectedType, int expectedCount) throws Exception {
+		assertRead(location, new ReadOptions(), expectedType, expectedCount);
+	}
+
 	private void assertRead(String location, ReadOptions options, Class<?> expectedType, int expectedCount)
 			throws Exception {
-		ItemReader<?> reader = registry.get(location, options);
+		ItemReader<?> reader = registry.find(location, options).getReader();
 		Assertions.assertNotNull(reader);
 		List<?> items = readAll(reader);
 		Assertions.assertEquals(expectedCount, items.size());

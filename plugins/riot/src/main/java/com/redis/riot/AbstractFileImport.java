@@ -1,6 +1,5 @@
 package com.redis.riot;
 
-import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,19 +11,20 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.springframework.batch.core.Job;
-import org.springframework.batch.core.step.builder.StepBuilderException;
 import org.springframework.batch.item.ItemProcessor;
-import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.function.FunctionItemProcessor;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MimeType;
 
+import com.redis.riot.core.RiotInitializationException;
 import com.redis.riot.core.RiotUtils;
 import com.redis.riot.core.Step;
 import com.redis.riot.core.processor.RegexNamedGroupFunction;
-import com.redis.riot.file.ReadOptions;
 import com.redis.riot.file.FileReaderRegistry;
+import com.redis.riot.file.FileReaderResult;
+import com.redis.riot.file.ReadOptions;
+import com.redis.riot.file.StdInProtocolResolver;
 import com.redis.riot.function.MapToFieldFunction;
 import com.redis.spring.batch.item.redis.RedisItemWriter;
 import com.redis.spring.batch.item.redis.common.KeyValue;
@@ -37,7 +37,7 @@ import picocli.CommandLine.Parameters;
 @Command(name = "file-import", description = "Import data from files.")
 public abstract class AbstractFileImport extends AbstractRedisImportCommand {
 
-	private FileReaderRegistry readerRegistry = FileReaderRegistry.defaultReaderRegistry();
+	public static final String STDIN_FILENAME = "-";
 
 	@Parameters(arity = "1..*", description = "Files or URLs to import. Use '-' to read from stdin.", paramLabel = "FILE")
 	private List<String> files;
@@ -48,23 +48,37 @@ public abstract class AbstractFileImport extends AbstractRedisImportCommand {
 	@Option(arity = "1..*", names = "--regex", description = "Regular expressions used to extract values from fields in the form field1=\"regex\" field2=\"regex\"...", paramLabel = "<f=rex>")
 	private Map<String, Pattern> regexes = new LinkedHashMap<>();
 
+	private FileReaderRegistry readerRegistry;
+	private ReadOptions readOptions;
+
 	@Override
-	protected Job job() {
+	protected void initialize() throws RiotInitializationException {
+		super.initialize();
 		Assert.notEmpty(files, "No file specified");
-		ReadOptions options = readOptions();
-		return job(files.stream().map(f -> step(f, options)).collect(Collectors.toList()));
+		readerRegistry = readerRegistry();
+		readOptions = readOptions();
 	}
 
-	private Step<?, ?> step(String location, ReadOptions options) {
-		ItemReader<?> reader;
-		try {
-			reader = readerRegistry.get(location, options);
-		} catch (IOException e) {
-			throw new StepBuilderException(e);
-		}
+	private FileReaderRegistry readerRegistry() {
+		FileReaderRegistry registry = FileReaderRegistry.defaultReaderRegistry();
+		StdInProtocolResolver stdInProtocolResolver = new StdInProtocolResolver();
+		stdInProtocolResolver.setFilename(STDIN_FILENAME);
+		registry.addProtocolResolver(stdInProtocolResolver);
+		return registry;
+	}
+
+	@Override
+	protected Job job() {
+		return job(files.stream().map(this::step).collect(Collectors.toList()));
+	}
+
+	private Step<?, ?> step(String location) {
+		FileReaderResult reader = readerRegistry.find(location, readOptions);
+		Assert.notNull(reader.getReader(),
+				() -> String.format("No reader found for type %s and file %s", reader.getType(), location));
 		RedisItemWriter<?, ?, ?> writer = writer();
 		configureTargetRedisWriter(writer);
-		Step<?, ?> step = new Step<>(reader, writer);
+		Step<?, ?> step = new Step<>(reader.getReader(), writer);
 		step.name(location);
 		if (hasOperations()) {
 			step.processor(RiotUtils.processor(processor(), regexProcessor()));
@@ -73,24 +87,30 @@ public abstract class AbstractFileImport extends AbstractRedisImportCommand {
 		step.skip(org.springframework.batch.item.ParseException.class);
 		step.noRetry(ParseException.class);
 		step.noRetry(org.springframework.batch.item.ParseException.class);
-		step.taskName(String.format("Importing %s", location));
+		step.taskName(String.format("Importing %s", reader.getResource().getFilename()));
 		return step;
 	}
 
 	private ReadOptions readOptions() {
 		ReadOptions options = fileReaderArgs.readOptions();
-		options.setType(getFileType());
+		options.setContentType(getFileType());
 		options.setItemType(itemType());
 		options.addDeserializer(KeyValue.class, new KeyValueDeserializer());
 		return options;
 	}
 
 	private Class<?> itemType() {
-		return hasOperations() ? Map.class : KeyValue.class;
+		if (hasOperations()) {
+			return Map.class;
+		}
+		return KeyValue.class;
 	}
 
 	private RedisItemWriter<?, ?, ?> writer() {
-		return hasOperations() ? operationWriter() : RedisItemWriter.struct();
+		if (hasOperations()) {
+			return operationWriter();
+		}
+		return RedisItemWriter.struct();
 	}
 
 	protected abstract MimeType getFileType();
@@ -136,6 +156,10 @@ public abstract class AbstractFileImport extends AbstractRedisImportCommand {
 
 	public void setRegexes(Map<String, Pattern> regexes) {
 		this.regexes = regexes;
+	}
+
+	public FileReaderRegistry getReaderRegistry() {
+		return readerRegistry;
 	}
 
 	public void setReaderRegistry(FileReaderRegistry registry) {

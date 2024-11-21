@@ -50,5 +50,4 @@ public class GoogleStorageArgs {
 		options.setProjectId(projectId);
 		return options;
 	}
-
 }

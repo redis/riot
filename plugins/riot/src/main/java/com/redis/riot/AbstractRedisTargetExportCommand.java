@@ -2,6 +2,7 @@ package com.redis.riot;
 
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
+import com.redis.riot.core.RiotInitializationException;
 import com.redis.spring.batch.item.redis.RedisItemReader;
 import com.redis.spring.batch.item.redis.RedisItemWriter;
 
@@ -13,9 +14,6 @@ public abstract class AbstractRedisTargetExportCommand extends AbstractExportCom
 
 	public static final int DEFAULT_TARGET_POOL_SIZE = RedisItemReader.DEFAULT_POOL_SIZE;
 	private static final String VAR_TARGET = "target";
-
-	@ArgGroup(exclusive = false, heading = "TLS options%n")
-	private SslArgs sslArgs = new SslArgs();
 
 	@Parameters(arity = "1", index = "0", description = "Source server URI or endpoint in the form host:port.", paramLabel = "SOURCE")
 	private RedisURI sourceRedisUri;
@@ -32,29 +30,29 @@ public abstract class AbstractRedisTargetExportCommand extends AbstractExportCom
 	private RedisContext targetRedisContext;
 
 	@Override
-	protected void execute() throws Exception {
+	protected void initialize() throws RiotInitializationException {
+		super.initialize();
 		targetRedisContext = targetRedisContext();
 		targetRedisContext.afterPropertiesSet();
-		try {
-			super.execute();
-		} finally {
+	}
+
+	@Override
+	protected void teardown() {
+		if (targetRedisContext != null) {
 			targetRedisContext.close();
 		}
+		super.teardown();
 	}
 
 	@Override
 	protected RedisContext sourceRedisContext() {
-		log.info("Creating source Redis context with {} {} {}", sourceRedisUri, sourceRedisArgs, sslArgs);
-		RedisContext context = RedisContext.of(sourceRedisUri, sourceRedisArgs);
-		context.sslOptions(sslArgs.sslOptions());
-		return context;
+		log.info("Creating source Redis context with {} {} {}", sourceRedisUri, sourceRedisArgs);
+		return RedisContext.of(sourceRedisUri, sourceRedisArgs);
 	}
 
 	protected RedisContext targetRedisContext() {
-		log.info("Creating target Redis context with {} {} {}", targetRedisUri, targetRedisArgs, sslArgs);
-		RedisContext context = RedisContext.of(targetRedisUri, targetRedisArgs);
-		context.sslOptions(sslArgs.sslOptions());
-		return context;
+		log.info("Creating target Redis context with {} {} {}", targetRedisUri, targetRedisArgs);
+		return RedisContext.of(targetRedisUri, targetRedisArgs);
 	}
 
 	@Override
@@ -102,14 +100,6 @@ public abstract class AbstractRedisTargetExportCommand extends AbstractExportCom
 
 	public void setTargetRedisArgs(TargetRedisArgs targetRedisArgs) {
 		this.targetRedisArgs = targetRedisArgs;
-	}
-
-	public SslArgs getSslArgs() {
-		return sslArgs;
-	}
-
-	public void setSslArgs(SslArgs sslArgs) {
-		this.sslArgs = sslArgs;
 	}
 
 }
