@@ -3,6 +3,7 @@ package com.redis.riot;
 import java.time.Duration;
 import java.util.Collection;
 
+import com.redis.riot.meesho.MCacheProcessor;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.function.FunctionItemProcessor;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
@@ -22,6 +23,7 @@ import com.redis.spring.batch.item.redis.reader.KeyComparisonItemReader;
 import com.redis.spring.batch.item.redis.reader.RedisScanSizeEstimator;
 
 import io.lettuce.core.codec.ByteArrayCodec;
+import picocli.CommandLine;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Option;
 
@@ -39,6 +41,19 @@ public abstract class AbstractReplicateCommand extends AbstractRedisTargetExport
 	@Option(names = "--ttl-tolerance", description = "Max TTL offset in millis to consider keys equal (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>")
 	private long ttlToleranceMillis = DEFAULT_TTL_TOLERANCE.toMillis();
 
+	@CommandLine.Option(names = "--mCacheId", description = "mCacheId", paramLabel = "<field>", required = true)
+	private String mCacheId = "";
+
+	@CommandLine.Option(names = "--isKeyPrefixNeeded", description = "isKeyPrefixNeeded", paramLabel = "<field>", required = true)
+	private boolean isKeyPrefixNeeded = false;
+
+	@CommandLine.Option(names = "--isByteOverHeadNeeded", description = "isByteOverHeadNeeded", paramLabel = "<field>", required = true)
+	private boolean isByteOverHeadNeeded = false;
+
+	@CommandLine.Option(names = "--byteOverHead", description = "byteOverHead", paramLabel = "<field>", required = true)
+	private int byteOverHead = 0;
+
+
 	@ArgGroup(exclusive = false)
 	private EvaluationContextArgs evaluationContextArgs = new EvaluationContextArgs();
 
@@ -46,12 +61,15 @@ public abstract class AbstractReplicateCommand extends AbstractRedisTargetExport
 	private KeyValueProcessorArgs processorArgs = new KeyValueProcessorArgs();
 
 	protected ItemProcessor<KeyValue<byte[]>, KeyValue<byte[]>> processor() {
-		return RiotUtils.processor(keyValueFilter(), keyValueProcessor());
+		return RiotUtils.processor(keyValueFilter(),
+				new MCacheProcessor<>(ByteArrayCodec.INSTANCE, log, mCacheId, isKeyPrefixNeeded, isByteOverHeadNeeded, byteOverHead),
+				keyValueProcessor());
 	}
 
 	private KeyValueFilter<byte[], KeyValue<byte[]>> keyValueFilter() {
 		return new KeyValueFilter<>(ByteArrayCodec.INSTANCE, log);
 	}
+
 
 	protected abstract boolean isStruct();
 
