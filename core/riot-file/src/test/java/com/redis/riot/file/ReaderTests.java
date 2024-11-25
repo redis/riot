@@ -19,6 +19,7 @@ import org.springframework.batch.item.ItemStream;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.json.JsonItemReader;
 import org.springframework.core.io.Resource;
+import org.springframework.util.MimeType;
 import org.springframework.util.StreamUtils;
 
 import software.amazon.awssdk.regions.Region;
@@ -37,6 +38,7 @@ public class ReaderTests {
 	public static final String JSON_GOOGLE_STORAGE_URL = "gs://riot-bucket-jrx/beers.json";
 	public static final String JSON_GZ_URL = "http://storage.googleapis.com/jrx/beers.json.gz";
 
+	private final ResourceFactory resourceFactory = new ResourceFactory();
 	private final FileReaderRegistry registry = FileReaderRegistry.defaultReaderRegistry();
 
 	@Test
@@ -100,7 +102,9 @@ public class ReaderTests {
 
 	private void assertRead(String location, ReadOptions options, Class<?> expectedType, int expectedCount)
 			throws Exception {
-		ItemReader<?> reader = registry.find(location, options).getReader();
+		Resource resource = resourceFactory.resource(location, options);
+		MimeType type = resourceFactory.type(resource);
+		ItemReader<?> reader = registry.getReaderFactory(type).create(resource, options);
 		Assertions.assertNotNull(reader);
 		List<?> items = readAll(reader);
 		Assertions.assertEquals(expectedCount, items.size());

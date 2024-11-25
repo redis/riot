@@ -11,16 +11,10 @@ import org.springframework.core.io.Resource;
 
 public class RiotResourceMap implements ResourceMap {
 
-	private final Set<FileNameMap> fileNameMaps = defaultFileNameMaps();
+	private final Set<FileNameMap> fileNameMaps = new LinkedHashSet<>();
 
 	public void addFileNameMap(FileNameMap map) {
 		fileNameMaps.add(map);
-	}
-
-	public static Set<FileNameMap> defaultFileNameMaps() {
-		Set<FileNameMap> maps = new LinkedHashSet<>();
-		maps.add(new JsonLinesFileNameMap());
-		return maps;
 	}
 
 	@Override
@@ -40,7 +34,7 @@ public class RiotResourceMap implements ResourceMap {
 	}
 
 	public String getContentTypeFor(String filename) {
-		String normalizedFilename = FileUtils.stripGzipSuffix(filename);
+		String normalizedFilename = ResourceFactory.stripGzipSuffix(filename);
 		String type = URLConnection.guessContentTypeFromName(normalizedFilename);
 		if (type != null) {
 			return type;
@@ -52,23 +46,6 @@ public class RiotResourceMap implements ResourceMap {
 			}
 		}
 		throw new IllegalArgumentException("Could not determine type of " + filename);
-	}
-
-	private static class JsonLinesFileNameMap implements FileNameMap {
-
-		public static final String JSONL_SUFFIX = ".jsonl";
-
-		@Override
-		public String getContentTypeFor(String fileName) {
-			if (fileName == null) {
-				return null;
-			}
-			if (fileName.endsWith(JSONL_SUFFIX)) {
-				return FileUtils.JSON_LINES.toString();
-			}
-			return null;
-		}
-
 	}
 
 }

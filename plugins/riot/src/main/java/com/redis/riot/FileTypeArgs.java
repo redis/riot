@@ -6,7 +6,7 @@ import java.util.Map;
 
 import org.springframework.util.MimeType;
 
-import com.redis.riot.file.FileUtils;
+import com.redis.riot.file.ResourceFactory;
 
 import picocli.CommandLine.ITypeConverter;
 import picocli.CommandLine.Option;
@@ -29,13 +29,13 @@ public class FileTypeArgs {
 
 	public static Map<String, MimeType> typeMap() {
 		Map<String, MimeType> map = new HashMap<>();
-		map.put("csv", FileUtils.CSV);
-		map.put("psv", FileUtils.PSV);
-		map.put("tsv", FileUtils.TSV);
-		map.put("fw", FileUtils.TEXT);
-		map.put("json", FileUtils.JSON);
-		map.put("jsonl", FileUtils.JSON_LINES);
-		map.put("xml", FileUtils.XML);
+		map.put("csv", ResourceFactory.CSV);
+		map.put("psv", ResourceFactory.PSV);
+		map.put("tsv", ResourceFactory.TSV);
+		map.put("fw", ResourceFactory.TEXT);
+		map.put("json", ResourceFactory.JSON);
+		map.put("jsonl", ResourceFactory.JSON_LINES);
+		map.put("xml", ResourceFactory.XML);
 		return map;
 	}
 
