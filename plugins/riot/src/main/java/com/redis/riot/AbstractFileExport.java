@@ -20,6 +20,8 @@ import com.redis.riot.core.RiotInitializationException;
 import com.redis.riot.core.Step;
 import com.redis.riot.file.FileWriterRegistry;
 import com.redis.riot.file.ResourceFactory;
+import com.redis.riot.file.ResourceMap;
+import com.redis.riot.file.RiotResourceMap;
 import com.redis.riot.file.RuntimeIOException;
 import com.redis.riot.file.StdOutProtocolResolver;
 import com.redis.riot.file.WriteOptions;
@@ -36,7 +38,7 @@ import picocli.CommandLine.Parameters;
 public abstract class AbstractFileExport extends AbstractRedisExportCommand {
 
 	private Set<MimeType> flatFileTypes = new HashSet<>(
-			Arrays.asList(ResourceFactory.CSV, ResourceFactory.PSV, ResourceFactory.TSV, ResourceFactory.TEXT));
+			Arrays.asList(ResourceMap.CSV, ResourceMap.PSV, ResourceMap.TSV, ResourceMap.TEXT));
 
 	@Parameters(arity = "0..1", description = "File path or URL. If omitted, export is written to stdout.", paramLabel = "FILE")
 	private String file = StdOutProtocolResolver.DEFAULT_FILENAME;
@@ -49,6 +51,7 @@ public abstract class AbstractFileExport extends AbstractRedisExportCommand {
 
 	private FileWriterRegistry writerRegistry;
 	private ResourceFactory resourceFactory;
+	private ResourceMap resourceMap;
 	private WriteOptions writeOptions;
 
 	@Override
@@ -56,7 +59,12 @@ public abstract class AbstractFileExport extends AbstractRedisExportCommand {
 		super.initialize();
 		writerRegistry = writerRegistry();
 		resourceFactory = resourceFactory();
+		resourceMap = resourceMap();
 		writeOptions = writeOptions();
+	}
+
+	protected RiotResourceMap resourceMap() {
+		return RiotResourceMap.defaultResourceMap();
 	}
 
 	protected FileWriterRegistry writerRegistry() {
@@ -95,7 +103,8 @@ public abstract class AbstractFileExport extends AbstractRedisExportCommand {
 		} catch (IOException e) {
 			throw new RuntimeIOException(String.format("Could not create resource from file %s", file), e);
 		}
-		MimeType type = resourceFactory.type(resource, writeOptions);
+		MimeType type = writeOptions.getContentType() == null ? resourceMap.getContentTypeFor(resource)
+				: writeOptions.getContentType();
 		WriterFactory writerFactory = writerRegistry.getWriterFactory(type);
 		Assert.notNull(writerFactory, String.format("No writer found for file %s", file));
 		ItemWriter<?> writer = writerFactory.create(resource, writeOptions);

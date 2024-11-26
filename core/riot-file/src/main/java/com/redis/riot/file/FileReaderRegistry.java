@@ -19,13 +19,13 @@ public class FileReaderRegistry {
 
 	public static FileReaderRegistry defaultReaderRegistry() {
 		FileReaderRegistry registry = new FileReaderRegistry();
-		registry.register(ResourceFactory.JSON, new JsonReaderFactory());
-		registry.register(ResourceFactory.JSON_LINES, new JsonLinesReaderFactory());
-		registry.register(ResourceFactory.XML, new XmlReaderFactory());
-		registry.register(ResourceFactory.CSV, new DelimitedReaderFactory(FileOptions.DELIMITER_COMMA));
-		registry.register(ResourceFactory.PSV, new DelimitedReaderFactory(FileOptions.DELIMITER_PIPE));
-		registry.register(ResourceFactory.TSV, new DelimitedReaderFactory(FileOptions.DELIMITER_TAB));
-		registry.register(ResourceFactory.TEXT, new FixedWidthReaderFactory());
+		registry.register(RiotResourceMap.JSON, new JsonReaderFactory());
+		registry.register(RiotResourceMap.JSON_LINES, new JsonLinesReaderFactory());
+		registry.register(RiotResourceMap.XML, new XmlReaderFactory());
+		registry.register(RiotResourceMap.CSV, new DelimitedReaderFactory(FileOptions.DELIMITER_COMMA));
+		registry.register(RiotResourceMap.PSV, new DelimitedReaderFactory(FileOptions.DELIMITER_PIPE));
+		registry.register(RiotResourceMap.TSV, new DelimitedReaderFactory(FileOptions.DELIMITER_TAB));
+		registry.register(RiotResourceMap.TEXT, new FixedWidthReaderFactory());
 		return registry;
 	}
 

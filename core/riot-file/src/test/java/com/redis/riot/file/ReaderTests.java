@@ -39,6 +39,7 @@ public class ReaderTests {
 	public static final String JSON_GZ_URL = "http://storage.googleapis.com/jrx/beers.json.gz";
 
 	private final ResourceFactory resourceFactory = new ResourceFactory();
+	private final ResourceMap resourceMap = RiotResourceMap.defaultResourceMap();
 	private final FileReaderRegistry registry = FileReaderRegistry.defaultReaderRegistry();
 
 	@Test
@@ -103,7 +104,7 @@ public class ReaderTests {
 	private void assertRead(String location, ReadOptions options, Class<?> expectedType, int expectedCount)
 			throws Exception {
 		Resource resource = resourceFactory.resource(location, options);
-		MimeType type = resourceFactory.type(resource);
+		MimeType type = resourceMap.getContentTypeFor(resource);
 		ItemReader<?> reader = registry.getReaderFactory(type).create(resource, options);
 		Assertions.assertNotNull(reader);
 		List<?> items = readAll(reader);

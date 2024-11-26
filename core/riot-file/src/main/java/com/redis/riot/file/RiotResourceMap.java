@@ -8,6 +8,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.springframework.core.io.Resource;
+import org.springframework.util.MimeType;
 
 public class RiotResourceMap implements ResourceMap {
 
@@ -18,7 +19,7 @@ public class RiotResourceMap implements ResourceMap {
 	}
 
 	@Override
-	public String getContentTypeFor(Resource resource) {
+	public MimeType getContentTypeFor(Resource resource) {
 		String type = null;
 		if (resource.isFile()) {
 			try {
@@ -30,22 +31,44 @@ public class RiotResourceMap implements ResourceMap {
 		if (type == null) {
 			return getContentTypeFor(resource.getFilename());
 		}
-		return type;
+		return MimeType.valueOf(type);
 	}
 
-	public String getContentTypeFor(String filename) {
+	public MimeType getContentTypeFor(String filename) {
 		String normalizedFilename = ResourceFactory.stripGzipSuffix(filename);
 		String type = URLConnection.guessContentTypeFromName(normalizedFilename);
 		if (type != null) {
-			return type;
+			return MimeType.valueOf(type);
 		}
 		for (FileNameMap nameMap : fileNameMaps) {
 			String mapType = nameMap.getContentTypeFor(normalizedFilename);
 			if (mapType != null) {
-				return mapType;
+				return MimeType.valueOf(mapType);
 			}
 		}
 		throw new IllegalArgumentException("Could not determine type of " + filename);
 	}
 
+	public static RiotResourceMap defaultResourceMap() {
+		RiotResourceMap resourceMap = new RiotResourceMap();
+		resourceMap.addFileNameMap(new JsonLinesFileNameMap());
+		return resourceMap;
+	}
+
+	private static class JsonLinesFileNameMap implements FileNameMap {
+
+		public static final String JSONL_SUFFIX = ".jsonl";
+
+		@Override
+		public String getContentTypeFor(String fileName) {
+			if (fileName == null) {
+				return null;
+			}
+			if (fileName.endsWith(JSONL_SUFFIX)) {
+				return JSON_LINES.toString();
+			}
+			return null;
+		}
+
+	}
 }

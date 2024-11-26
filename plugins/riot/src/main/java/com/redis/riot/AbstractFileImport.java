@@ -30,6 +30,8 @@ import com.redis.riot.file.FileReaderRegistry;
 import com.redis.riot.file.ReadOptions;
 import com.redis.riot.file.ReaderFactory;
 import com.redis.riot.file.ResourceFactory;
+import com.redis.riot.file.ResourceMap;
+import com.redis.riot.file.RiotResourceMap;
 import com.redis.riot.file.RuntimeIOException;
 import com.redis.riot.file.StdInProtocolResolver;
 import com.redis.riot.function.MapToFieldFunction;
@@ -46,7 +48,7 @@ public abstract class AbstractFileImport extends AbstractRedisImportCommand {
 
 	public static final String STDIN_FILENAME = "-";
 	private static final Set<MimeType> keyValueTypes = new HashSet<>(
-			Arrays.asList(ResourceFactory.JSON, ResourceFactory.JSON_LINES, ResourceFactory.XML));
+			Arrays.asList(ResourceMap.JSON, ResourceMap.JSON_LINES, ResourceMap.XML));
 
 	@Parameters(arity = "1..*", description = "Files or URLs to import. Use '-' to read from stdin.", paramLabel = "FILE")
 	private List<String> files;
@@ -58,6 +60,7 @@ public abstract class AbstractFileImport extends AbstractRedisImportCommand {
 	private Map<String, Pattern> regexes = new LinkedHashMap<>();
 
 	private FileReaderRegistry readerRegistry;
+	private RiotResourceMap resourceMap;
 	private ResourceFactory resourceFactory;
 	private ReadOptions readOptions;
 
@@ -67,7 +70,12 @@ public abstract class AbstractFileImport extends AbstractRedisImportCommand {
 		Assert.notEmpty(files, "No file specified");
 		readerRegistry = readerRegistry();
 		resourceFactory = resourceFactory();
+		resourceMap = resourceMap();
 		readOptions = readOptions();
+	}
+
+	protected RiotResourceMap resourceMap() {
+		return RiotResourceMap.defaultResourceMap();
 	}
 
 	protected FileReaderRegistry readerRegistry() {
@@ -94,7 +102,8 @@ public abstract class AbstractFileImport extends AbstractRedisImportCommand {
 		} catch (IOException e) {
 			throw new RuntimeIOException(String.format("Could not create resource from %s", location), e);
 		}
-		MimeType type = resourceFactory.type(resource, readOptions);
+		MimeType type = readOptions.getContentType() == null ? resourceMap.getContentTypeFor(resource)
+				: readOptions.getContentType();
 		ReaderFactory readerFactory = readerRegistry.getReaderFactory(type);
 		Assert.notNull(readerFactory, () -> String.format("No reader found for file %s", location));
 		ItemReader<?> reader = readerFactory.create(resource, readOptions);

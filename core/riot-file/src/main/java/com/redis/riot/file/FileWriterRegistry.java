@@ -19,13 +19,13 @@ public class FileWriterRegistry {
 
 	public static FileWriterRegistry defaultWriterRegistry() {
 		FileWriterRegistry registry = new FileWriterRegistry();
-		registry.register(ResourceFactory.JSON, new JsonWriterFactory());
-		registry.register(ResourceFactory.JSON_LINES, new JsonLinesWriterFactory());
-		registry.register(ResourceFactory.XML, new XmlWriterFactory());
-		registry.register(ResourceFactory.CSV, new DelimitedWriterFactory(FileOptions.DELIMITER_COMMA));
-		registry.register(ResourceFactory.PSV, new DelimitedWriterFactory(FileOptions.DELIMITER_PIPE));
-		registry.register(ResourceFactory.TSV, new DelimitedWriterFactory(FileOptions.DELIMITER_TAB));
-		registry.register(ResourceFactory.TEXT, new FormattedWriterFactory());
+		registry.register(RiotResourceMap.JSON, new JsonWriterFactory());
+		registry.register(RiotResourceMap.JSON_LINES, new JsonLinesWriterFactory());
+		registry.register(RiotResourceMap.XML, new XmlWriterFactory());
+		registry.register(RiotResourceMap.CSV, new DelimitedWriterFactory(FileOptions.DELIMITER_COMMA));
+		registry.register(RiotResourceMap.PSV, new DelimitedWriterFactory(FileOptions.DELIMITER_PIPE));
+		registry.register(RiotResourceMap.TSV, new DelimitedWriterFactory(FileOptions.DELIMITER_TAB));
+		registry.register(RiotResourceMap.TEXT, new FormattedWriterFactory());
 		return registry;
 	}
 
