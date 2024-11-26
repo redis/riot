@@ -42,13 +42,13 @@ loadScripts(document, 'script');</script>
 <ul class="sub-nav-list">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field-summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor-summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method-summary">Method</a></li>
 </ul>
 <ul class="sub-nav-list">
 <li>Detail:&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field-detail">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor-detail">Constr</a>&nbsp;|&nbsp;</li>
 <li>Method</li>
 </ul>
@@ -71,7 +71,7 @@ loadScripts(document, 'script');</script>
 <div class="inheritance" title="Inheritance Tree"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">java.lang.Object</a>
 <div class="inheritance">org.springframework.core.io.AbstractResource
 <div class="inheritance">org.springframework.core.io.InputStreamResource
-<div class="inheritance"><a href="FilenameInputStreamResource.html" title="class in com.redis.riot.file">com.redis.riot.file.FilenameInputStreamResource</a>
+<div class="inheritance"><a href="NamedInputStreamResource.html" title="class in com.redis.riot.file">com.redis.riot.file.NamedInputStreamResource</a>
 <div class="inheritance">com.redis.riot.file.SystemInResource</div>
 </div>
 </div>
@@ -84,10 +84,28 @@ loadScripts(document, 'script');</script>
 </dl>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">SystemInResource</span>
-<span class="extends-implements">extends <a href="FilenameInputStreamResource.html" title="class in com.redis.riot.file">FilenameInputStreamResource</a></span></div>
+<span class="extends-implements">extends <a href="NamedInputStreamResource.html" title="class in com.redis.riot.file">NamedInputStreamResource</a></span></div>
 </section>
 <section class="summary">
 <ul class="summary-list">
+<!-- =========== FIELD SUMMARY =========== -->
+<li>
+<section class="field-summary" id="field-summary">
+<h2>Field Summary</h2>
+<div class="caption"><span>Fields</span></div>
+<div class="summary-table three-column-summary">
+<div class="table-header col-first">Modifier and Type</div>
+<div class="table-header col-second">Field</div>
+<div class="table-header col-last">Description</div>
+<div class="col-first even-row-color"><code>static final <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second even-row-color"><code><a href="#DESCRIPTION" class="member-name-link">DESCRIPTION</a></code></div>
+<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-first odd-row-color"><code>static final <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second odd-row-color"><code><a href="#FILENAME" class="member-name-link">FILENAME</a></code></div>
+<div class="col-last odd-row-color">&nbsp;</div>
+</div>
+</section>
+</li>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
 <li>
 <section class="constructor-summary" id="constructor-summary">
@@ -98,6 +116,8 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-last">Description</div>
 <div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E()" class="member-name-link">SystemInResource</a>()</code></div>
 <div class="col-last even-row-color">&nbsp;</div>
+<div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(java.io.InputStream)" class="member-name-link">SystemInResource</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream)</code></div>
+<div class="col-last odd-row-color">&nbsp;</div>
 </div>
 </section>
 </li>
@@ -106,8 +126,8 @@ loadScripts(document, 'script');</script>
 <section class="method-summary" id="method-summary">
 <h2>Method Summary</h2>
 <div class="inherited-list">
-<h3 id="methods-inherited-from-class-com.redis.riot.file.FilenameInputStreamResource">Methods inherited from class&nbsp;com.redis.riot.file.<a href="FilenameInputStreamResource.html" title="class in com.redis.riot.file">FilenameInputStreamResource</a></h3>
-<code><a href="FilenameInputStreamResource.html#getFilename()">getFilename</a></code></div>
+<h3 id="methods-inherited-from-class-com.redis.riot.file.NamedInputStreamResource">Methods inherited from class&nbsp;com.redis.riot.file.<a href="NamedInputStreamResource.html" title="class in com.redis.riot.file">NamedInputStreamResource</a></h3>
+<code><a href="NamedInputStreamResource.html#getFilename()">getFilename</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-org.springframework.core.io.InputStreamResource">Methods inherited from class&nbsp;org.springframework.core.io.InputStreamResource</h3>
 <code>equals, exists, getDescription, getInputStream, hashCode, isOpen</code></div>
@@ -126,6 +146,42 @@ loadScripts(document, 'script');</script>
 </section>
 <section class="details">
 <ul class="details-list">
+<!-- ============ FIELD DETAIL =========== -->
+<li>
+<section class="field-details" id="field-detail">
+<h2>Field Details</h2>
+<ul class="member-list">
+<li>
+<section class="detail" id="FILENAME">
+<h3>FILENAME</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">FILENAME</span></div>
+<dl class="notes">
+<dt>See Also:</dt>
+<dd>
+<ul class="see-list">
+<li><a href="../../../../constant-values.html#com.redis.riot.file.SystemInResource.FILENAME">Constant Field Values</a></li>
+</ul>
+</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="DESCRIPTION">
+<h3>DESCRIPTION</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">DESCRIPTION</span></div>
+<dl class="notes">
+<dt>See Also:</dt>
+<dd>
+<ul class="see-list">
+<li><a href="../../../../constant-values.html#com.redis.riot.file.SystemInResource.DESCRIPTION">Constant Field Values</a></li>
+</ul>
+</dd>
+</dl>
+</section>
+</li>
+</ul>
+</section>
+</li>
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
 <li>
 <section class="constructor-details" id="constructor-detail">
@@ -135,6 +191,12 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="&lt;init&gt;()">
 <h3>SystemInResource</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">SystemInResource</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="&lt;init&gt;(java.io.InputStream)">
+<h3>SystemInResource</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">SystemInResource</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream)</span></div>
 </section>
 </li>
 </ul>

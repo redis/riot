@@ -92,7 +92,7 @@ $(addBlockSwitches);
 <h1>Redis Input/Output Tools (RIOT)</h1>
 <div class="details">
 <span id="author" class="author">Julien Ruaux</span><br>
-<span id="revnumber">version 4.1.7</span>
+<span id="revnumber">version 4.1.8</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -199,7 +199,7 @@ $(addBlockSwitches);
 <p>Memcached Replication</p>
 </li>
 <li>
-<p>Stream Import/Export: Redis &lt;&#8594; Redis Stream</p>
+<p>Stream Import/Export</p>
 </li>
 </ul>
 </div>
@@ -250,10 +250,10 @@ scoop install riot</code></pre>
 </td>
 <td class="content">
 <div class="paragraph">
-<p><code>riot-4.1.7.zip</code> requires Java 11 or greater to be installed.</p>
+<p><code>riot-4.1.8.zip</code> requires Java 11 or greater to be installed.</p>
 </div>
 <div class="paragraph">
-<p><code>riot-standalone-4.1.7-*.zip</code> includes its own Java runtime and does not require a Java installation.</p>
+<p><code>riot-standalone-4.1.8-*.zip</code> includes its own Java runtime and does not require a Java installation.</p>
 </div>
 </td>
 </tr>
@@ -978,10 +978,7 @@ See the <a href="#_db_drivers">Drivers</a> section for more details.
 </div>
 </div>
 <div class="paragraph">
-<p>File paths can include <a href="https://man7.org/linux/man-pages/man7/glob.7.html">wildcard patterns</a>.</p>
-</div>
-<div class="paragraph">
-<p>RIOT will try to determine the file type from its extension (e.g. <code>.csv</code> or <code>.json</code>), but you can specify it with the <code>--filetype</code> option.</p>
+<p>RIOT will try to determine the file type from its extension (e.g. <code>.csv</code> or <code>.json</code>), but you can specify it with the <code>--type</code> option.</p>
 </div>
 <div class="paragraph">
 <p>Gzipped files are supported and the extension before <code>.gz</code> is used (e.g. <code>myfile.json.gz</code> &#8594; <code>json</code>).</p>
@@ -1024,13 +1021,13 @@ Use <code>-</code> to read from standard input.
 <div class="listingblock">
 <div class="title">Importing from Amazon S3</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="console">riot file-import s3://riot-bucket-jrx/beers.json --s3-region us-west-1 hset --keyspace beer --key id</code></pre>
+<pre class="CodeRay highlight"><code data-lang="console">riot file-import s3://riotx/beers.json --s3-region us-west-1 hset --keyspace beer --key id</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">Importing from Google Cloud Storage</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="console">riot file-import gs://riot-bucket-jrx/beers.json hset --keyspace beer --key id</code></pre>
+<pre class="CodeRay highlight"><code data-lang="console">riot file-import gs://riotx/beers.json hset --keyspace beer --key id</code></pre>
 </div>
 </div>
 <div class="sect4">
@@ -1202,7 +1199,7 @@ Otherwise specify the field names using the <code>--fields</code> option.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="console">riot file-import http://storage.googleapis.com/jrx/accounts.fw --ranges 1 9 25 41 53 67 83 --header hset --keyspace account --key Account</code></pre>
+<pre class="CodeRay highlight"><code data-lang="console">riot file-import http://storage.googleapis.com/jrx/accounts.fw --type fw --ranges 1 9 25 41 53 67 83 --header hset --keyspace account --key Account</code></pre>
 </div>
 </div>
 </div>
@@ -2128,8 +2125,8 @@ Either increase max JVM heap size (<code>export JAVA_OPTS="-Xmx8g"</code>) or re
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 4.1.7<br>
-Last updated 2024-11-12 22:56:39 UTC
+Version 4.1.8<br>
+Last updated 2024-11-26 20:36:28 UTC
 </div>
 </div>
 <link rel="stylesheet" href="./coderay-asciidoctor.css">

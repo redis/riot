@@ -68,10 +68,13 @@ loadScripts(document, 'script');</script>
 <ul>
 <li class="circle">java.lang.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" class="type-name-link external-link" title="class or interface in java.lang">Object</a>
 <ul>
-<li class="circle">com.redis.riot.file.<a href="com/redis/riot/file/AbstractRegistry.html" class="type-name-link" title="class in com.redis.riot.file">AbstractRegistry</a>&lt;T&gt;
+<li class="circle">com.redis.riot.file.<a href="com/redis/riot/file/AbstractReaderFactory.html" class="type-name-link" title="class in com.redis.riot.file">AbstractReaderFactory</a> (implements com.redis.riot.file.<a href="com/redis/riot/file/ReaderFactory.html" title="interface in com.redis.riot.file">ReaderFactory</a>)
 <ul>
-<li class="circle">com.redis.riot.file.<a href="com/redis/riot/file/FileReaderRegistry.html" class="type-name-link" title="class in com.redis.riot.file">FileReaderRegistry</a></li>
-<li class="circle">com.redis.riot.file.<a href="com/redis/riot/file/FileWriterRegistry.html" class="type-name-link" title="class in com.redis.riot.file">FileWriterRegistry</a></li>
+<li class="circle">com.redis.riot.file.<a href="com/redis/riot/file/DelimitedReaderFactory.html" class="type-name-link" title="class in com.redis.riot.file">DelimitedReaderFactory</a></li>
+<li class="circle">com.redis.riot.file.<a href="com/redis/riot/file/FixedWidthReaderFactory.html" class="type-name-link" title="class in com.redis.riot.file">FixedWidthReaderFactory</a></li>
+<li class="circle">com.redis.riot.file.<a href="com/redis/riot/file/JsonLinesReaderFactory.html" class="type-name-link" title="class in com.redis.riot.file">JsonLinesReaderFactory</a></li>
+<li class="circle">com.redis.riot.file.<a href="com/redis/riot/file/JsonReaderFactory.html" class="type-name-link" title="class in com.redis.riot.file">JsonReaderFactory</a></li>
+<li class="circle">com.redis.riot.file.<a href="com/redis/riot/file/XmlReaderFactory.html" class="type-name-link" title="class in com.redis.riot.file">XmlReaderFactory</a></li>
 </ul>
 </li>
 <li class="circle">org.springframework.core.io.AbstractResource (implements org.springframework.core.io.Resource)
@@ -87,7 +90,7 @@ loadScripts(document, 'script');</script>
 </li>
 <li class="circle">org.springframework.core.io.InputStreamResource
 <ul>
-<li class="circle">com.redis.riot.file.<a href="com/redis/riot/file/FilenameInputStreamResource.html" class="type-name-link" title="class in com.redis.riot.file">FilenameInputStreamResource</a>
+<li class="circle">com.redis.riot.file.<a href="com/redis/riot/file/NamedInputStreamResource.html" class="type-name-link" title="class in com.redis.riot.file">NamedInputStreamResource</a>
 <ul>
 <li class="circle">com.redis.riot.file.<a href="com/redis/riot/file/SystemInResource.html" class="type-name-link" title="class in com.redis.riot.file">SystemInResource</a></li>
 </ul>
@@ -110,10 +113,15 @@ loadScripts(document, 'script');</script>
 </li>
 </ul>
 </li>
-<li class="circle">com.redis.riot.<a href="com/redis/riot/AwsArgs.html" class="type-name-link" title="class in com.redis.riot">AwsArgs</a></li>
-<li class="circle">com.redis.riot.file.<a href="com/redis/riot/file/AwsCredentials.html" class="type-name-link" title="class in com.redis.riot.file">AwsCredentials</a></li>
-<li class="circle">com.redis.riot.<a href="com/redis/riot/AwsCredentialsArgs.html" class="type-name-link" title="class in com.redis.riot">AwsCredentialsArgs</a></li>
-<li class="circle">com.redis.riot.file.<a href="com/redis/riot/file/AwsOptions.html" class="type-name-link" title="class in com.redis.riot.file">AwsOptions</a></li>
+<li class="circle">com.redis.riot.file.<a href="com/redis/riot/file/AbstractWriterFactory.html" class="type-name-link" title="class in com.redis.riot.file">AbstractWriterFactory</a> (implements com.redis.riot.file.<a href="com/redis/riot/file/WriterFactory.html" title="interface in com.redis.riot.file">WriterFactory</a>)
+<ul>
+<li class="circle">com.redis.riot.file.<a href="com/redis/riot/file/DelimitedWriterFactory.html" class="type-name-link" title="class in com.redis.riot.file">DelimitedWriterFactory</a></li>
+<li class="circle">com.redis.riot.file.<a href="com/redis/riot/file/FormattedWriterFactory.html" class="type-name-link" title="class in com.redis.riot.file">FormattedWriterFactory</a></li>
+<li class="circle">com.redis.riot.file.<a href="com/redis/riot/file/JsonLinesWriterFactory.html" class="type-name-link" title="class in com.redis.riot.file">JsonLinesWriterFactory</a></li>
+<li class="circle">com.redis.riot.file.<a href="com/redis/riot/file/JsonWriterFactory.html" class="type-name-link" title="class in com.redis.riot.file">JsonWriterFactory</a></li>
+<li class="circle">com.redis.riot.file.<a href="com/redis/riot/file/XmlWriterFactory.html" class="type-name-link" title="class in com.redis.riot.file">XmlWriterFactory</a></li>
+</ul>
+</li>
 <li class="circle">com.redis.riot.core.<a href="com/redis/riot/core/BaseCommand.html" class="type-name-link" title="class in com.redis.riot.core">BaseCommand</a>
 <ul>
 <li class="circle">com.redis.riot.core.<a href="com/redis/riot/core/AbstractCallableCommand.html" class="type-name-link" title="class in com.redis.riot.core">AbstractCallableCommand</a> (implements java.util.concurrent.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/concurrent/Callable.html" title="class or interface in java.util.concurrent" class="external-link">Callable</a>&lt;V&gt;)
@@ -211,21 +219,28 @@ loadScripts(document, 'script');</script>
 <li class="circle">com.redis.riot.core.processor.<a href="com/redis/riot/core/processor/FieldExtractorFactory.html" class="type-name-link" title="class in com.redis.riot.core.processor">FieldExtractorFactory</a></li>
 <li class="circle">com.redis.riot.core.processor.<a href="com/redis/riot/core/processor/FieldExtractorFactory.FieldExtractorFactoryBuilder.html" class="type-name-link" title="class in com.redis.riot.core.processor">FieldExtractorFactory.FieldExtractorFactoryBuilder</a></li>
 <li class="circle">com.redis.riot.operation.<a href="com/redis/riot/operation/FieldFilterArgs.html" class="type-name-link" title="class in com.redis.riot.operation">FieldFilterArgs</a></li>
-<li class="circle">com.redis.riot.<a href="com/redis/riot/FileArgs.html" class="type-name-link" title="class in com.redis.riot">FileArgs</a></li>
-<li class="circle">com.redis.riot.file.<a href="com/redis/riot/file/FileOptions.html" class="type-name-link" title="class in com.redis.riot.file">FileOptions</a></li>
+<li class="circle">com.redis.riot.<a href="com/redis/riot/FileArgs.html" class="type-name-link" title="class in com.redis.riot">FileArgs</a>
+<ul>
 <li class="circle">com.redis.riot.<a href="com/redis/riot/FileReaderArgs.html" class="type-name-link" title="class in com.redis.riot">FileReaderArgs</a></li>
-<li class="circle">com.redis.riot.file.<a href="com/redis/riot/file/FileReaderFactories.html" class="type-name-link" title="class in com.redis.riot.file">FileReaderFactories</a></li>
-<li class="circle">com.redis.riot.file.<a href="com/redis/riot/file/FileReaderOptions.html" class="type-name-link" title="class in com.redis.riot.file">FileReaderOptions</a></li>
-<li class="circle">com.redis.riot.file.<a href="com/redis/riot/file/Files.html" class="type-name-link" title="class in com.redis.riot.file">Files</a></li>
-<li class="circle">com.redis.riot.file.<a href="com/redis/riot/file/FileType.html" class="type-name-link" title="class in com.redis.riot.file">FileType</a></li>
-<li class="circle">com.redis.riot.<a href="com/redis/riot/FileTypeArgs.html" class="type-name-link" title="class in com.redis.riot">FileTypeArgs</a></li>
 <li class="circle">com.redis.riot.<a href="com/redis/riot/FileWriterArgs.html" class="type-name-link" title="class in com.redis.riot">FileWriterArgs</a></li>
-<li class="circle">com.redis.riot.file.<a href="com/redis/riot/file/FileWriterFactories.html" class="type-name-link" title="class in com.redis.riot.file">FileWriterFactories</a></li>
-<li class="circle">com.redis.riot.file.<a href="com/redis/riot/file/FileWriterOptions.html" class="type-name-link" title="class in com.redis.riot.file">FileWriterOptions</a></li>
+</ul>
+</li>
+<li class="circle">com.redis.riot.file.<a href="com/redis/riot/file/FileOptions.html" class="type-name-link" title="class in com.redis.riot.file">FileOptions</a>
+<ul>
+<li class="circle">com.redis.riot.file.<a href="com/redis/riot/file/ReadOptions.html" class="type-name-link" title="class in com.redis.riot.file">ReadOptions</a></li>
+<li class="circle">com.redis.riot.file.<a href="com/redis/riot/file/WriteOptions.html" class="type-name-link" title="class in com.redis.riot.file">WriteOptions</a></li>
+</ul>
+</li>
+<li class="circle">com.redis.riot.file.<a href="com/redis/riot/file/FileReaderRegistry.html" class="type-name-link" title="class in com.redis.riot.file">FileReaderRegistry</a></li>
+<li class="circle">com.redis.riot.file.<a href="com/redis/riot/file/FileReaderResult.html" class="type-name-link" title="class in com.redis.riot.file">FileReaderResult</a></li>
+<li class="circle">com.redis.riot.<a href="com/redis/riot/FileTypeArgs.html" class="type-name-link" title="class in com.redis.riot">FileTypeArgs</a></li>
+<li class="circle">com.redis.riot.file.<a href="com/redis/riot/file/FileWriterRegistry.html" class="type-name-link" title="class in com.redis.riot.file">FileWriterRegistry</a></li>
+<li class="circle">com.redis.riot.file.<a href="com/redis/riot/file/FileWriterResult.html" class="type-name-link" title="class in com.redis.riot.file">FileWriterResult</a></li>
 <li class="circle">com.redis.riot.core.processor.<a href="com/redis/riot/core/processor/FunctionPredicate.html" class="type-name-link" title="class in com.redis.riot.core.processor">FunctionPredicate</a>&lt;S,<wbr>T&gt; (implements java.util.function.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Predicate.html" title="class or interface in java.util.function" class="external-link">Predicate</a>&lt;T&gt;)</li>
-<li class="circle">com.redis.riot.<a href="com/redis/riot/GcpArgs.html" class="type-name-link" title="class in com.redis.riot">GcpArgs</a></li>
-<li class="circle">com.redis.riot.file.<a href="com/redis/riot/file/GcpOptions.html" class="type-name-link" title="class in com.redis.riot.file">GcpOptions</a></li>
 <li class="circle">com.redis.riot.<a href="com/redis/riot/GenerateArgs.html" class="type-name-link" title="class in com.redis.riot">GenerateArgs</a></li>
+<li class="circle">com.redis.riot.<a href="com/redis/riot/GoogleStorageArgs.html" class="type-name-link" title="class in com.redis.riot">GoogleStorageArgs</a></li>
+<li class="circle">com.redis.riot.file.<a href="com/redis/riot/file/GoogleStorageOptions.html" class="type-name-link" title="class in com.redis.riot.file">GoogleStorageOptions</a></li>
+<li class="circle">com.redis.riot.file.<a href="com/redis/riot/file/GoogleStorageProtocolResolver.html" class="type-name-link" title="class in com.redis.riot.file">GoogleStorageProtocolResolver</a> (implements org.springframework.core.io.ProtocolResolver)</li>
 <li class="circle">com.redis.riot.file.<a href="com/redis/riot/file/HeaderCallbackHandler.html" class="type-name-link" title="class in com.redis.riot.file">HeaderCallbackHandler</a> (implements org.springframework.batch.item.file.LineCallbackHandler)</li>
 <li class="circle">com.redis.riot.core.processor.<a href="com/redis/riot/core/processor/IdFunctionBuilder.html" class="type-name-link" title="class in com.redis.riot.core.processor">IdFunctionBuilder</a></li>
 <li class="circle">com.redis.riot.core.processor.<a href="com/redis/riot/core/processor/IdFunctionBuilder.ConcatenatingFunction.html" class="type-name-link" title="class in com.redis.riot.core.processor">IdFunctionBuilder.ConcatenatingFunction</a> (implements java.util.function.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;T,<wbr>R&gt;)</li>
@@ -278,7 +293,7 @@ loadScripts(document, 'script');</script>
 <li class="circle">com.redis.riot.file.<a href="com/redis/riot/file/MapFieldSetMapper.html" class="type-name-link" title="class in com.redis.riot.file">MapFieldSetMapper</a> (implements org.springframework.batch.item.file.mapping.FieldSetMapper&lt;T&gt;)</li>
 <li class="circle">com.redis.riot.core.processor.<a href="com/redis/riot/core/processor/MapFilteringFunction.html" class="type-name-link" title="class in com.redis.riot.core.processor">MapFilteringFunction</a> (implements java.util.function.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/UnaryOperator.html" title="class or interface in java.util.function" class="external-link">UnaryOperator</a>&lt;T&gt;)</li>
 <li class="circle">com.redis.riot.core.processor.<a href="com/redis/riot/core/processor/MapFlatteningFunction.html" class="type-name-link" title="class in com.redis.riot.core.processor">MapFlatteningFunction</a>&lt;T&gt; (implements java.util.function.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;T,<wbr>R&gt;)</li>
-<li class="circle">com.redis.riot.file.<a href="com/redis/riot/file/MapToFieldFunction.html" class="type-name-link" title="class in com.redis.riot.file">MapToFieldFunction</a> (implements java.util.function.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;T,<wbr>R&gt;)</li>
+<li class="circle">com.redis.riot.function.<a href="com/redis/riot/function/MapToFieldFunction.html" class="type-name-link" title="class in com.redis.riot.function">MapToFieldFunction</a> (implements java.util.function.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;T,<wbr>R&gt;)</li>
 <li class="circle">com.redis.riot.operation.<a href="com/redis/riot/operation/MemberOperationArgs.html" class="type-name-link" title="class in com.redis.riot.operation">MemberOperationArgs</a></li>
 <li class="circle">com.redis.riot.core.<a href="com/redis/riot/core/NoopItemWriter.html" class="type-name-link" title="class in com.redis.riot.core">NoopItemWriter</a>&lt;T&gt; (implements org.springframework.batch.item.ItemWriter&lt;T&gt;)</li>
 <li class="circle">com.redis.riot.function.<a href="com/redis/riot/function/ObjectMapperFunction.html" class="type-name-link" title="class in com.redis.riot.function">ObjectMapperFunction</a>&lt;T&gt; (implements java.util.function.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;T,<wbr>R&gt;)</li>
@@ -300,13 +315,18 @@ loadScripts(document, 'script');</script>
 <li class="circle">com.redis.riot.core.processor.<a href="com/redis/riot/core/processor/RegexNamedGroupFunction.html" class="type-name-link" title="class in com.redis.riot.core.processor">RegexNamedGroupFunction</a> (implements java.util.function.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;T,<wbr>R&gt;)</li>
 <li class="circle">com.redis.riot.<a href="com/redis/riot/ReplicateReadLogger.html" class="type-name-link" title="class in com.redis.riot">ReplicateReadLogger</a>&lt;K&gt; (implements org.springframework.batch.core.ItemReadListener&lt;T&gt;, org.springframework.batch.core.ItemWriteListener&lt;S&gt;)</li>
 <li class="circle">com.redis.riot.<a href="com/redis/riot/ReplicateWriteLogger.html" class="type-name-link" title="class in com.redis.riot">ReplicateWriteLogger</a>&lt;K&gt; (implements org.springframework.batch.core.ItemWriteListener&lt;S&gt;)</li>
-<li class="circle">com.redis.riot.<a href="com/redis/riot/ResourceArgs.html" class="type-name-link" title="class in com.redis.riot">ResourceArgs</a></li>
-<li class="circle">com.redis.riot.file.<a href="com/redis/riot/file/ResourceOptions.html" class="type-name-link" title="class in com.redis.riot.file">ResourceOptions</a></li>
+<li class="circle">com.redis.riot.file.<a href="com/redis/riot/file/ResourceFactory.html" class="type-name-link" title="class in com.redis.riot.file">ResourceFactory</a></li>
+<li class="circle">com.redis.riot.file.<a href="com/redis/riot/file/RiotResourceLoader.html" class="type-name-link" title="class in com.redis.riot.file">RiotResourceLoader</a> (implements org.springframework.core.io.ResourceLoader)</li>
+<li class="circle">com.redis.riot.file.<a href="com/redis/riot/file/RiotResourceMap.html" class="type-name-link" title="class in com.redis.riot.file">RiotResourceMap</a> (implements com.redis.riot.file.<a href="com/redis/riot/file/ResourceMap.html" title="interface in com.redis.riot.file">ResourceMap</a>)</li>
 <li class="circle">com.redis.riot.core.<a href="com/redis/riot/core/RiotUtils.html" class="type-name-link" title="class in com.redis.riot.core">RiotUtils</a></li>
 <li class="circle">com.redis.riot.core.<a href="com/redis/riot/core/RiotVersion.html" class="type-name-link" title="class in com.redis.riot.core">RiotVersion</a></li>
+<li class="circle">com.redis.riot.<a href="com/redis/riot/S3Args.html" class="type-name-link" title="class in com.redis.riot">S3Args</a></li>
+<li class="circle">com.redis.riot.file.<a href="com/redis/riot/file/S3Options.html" class="type-name-link" title="class in com.redis.riot.file">S3Options</a></li>
+<li class="circle">com.redis.riot.file.<a href="com/redis/riot/file/S3ProtocolResolver.html" class="type-name-link" title="class in com.redis.riot.file">S3ProtocolResolver</a> (implements org.springframework.core.io.ProtocolResolver, org.springframework.core.io.ResourceLoader)</li>
 <li class="circle">com.redis.riot.operation.<a href="com/redis/riot/operation/ScoreArgs.html" class="type-name-link" title="class in com.redis.riot.operation">ScoreArgs</a></li>
 <li class="circle">com.redis.riot.<a href="com/redis/riot/SourceRedisArgs.html" class="type-name-link" title="class in com.redis.riot">SourceRedisArgs</a> (implements com.redis.riot.<a href="com/redis/riot/RedisClientArgs.html" title="interface in com.redis.riot">RedisClientArgs</a>)</li>
-<li class="circle">com.redis.riot.<a href="com/redis/riot/SslArgs.html" class="type-name-link" title="class in com.redis.riot">SslArgs</a></li>
+<li class="circle">com.redis.riot.file.<a href="com/redis/riot/file/StdInProtocolResolver.html" class="type-name-link" title="class in com.redis.riot.file">StdInProtocolResolver</a> (implements org.springframework.core.io.ProtocolResolver)</li>
+<li class="circle">com.redis.riot.file.<a href="com/redis/riot/file/StdOutProtocolResolver.html" class="type-name-link" title="class in com.redis.riot.file">StdOutProtocolResolver</a> (implements org.springframework.core.io.ProtocolResolver)</li>
 <li class="circle">com.redis.riot.core.<a href="com/redis/riot/core/Step.html" class="type-name-link" title="class in com.redis.riot.core">Step</a>&lt;I,<wbr>O&gt;</li>
 <li class="circle">com.redis.riot.core.<a href="com/redis/riot/core/StepArgs.html" class="type-name-link" title="class in com.redis.riot.core">StepArgs</a></li>
 <li class="circle">com.redis.riot.function.<a href="com/redis/riot/function/StreamItemProcessor.html" class="type-name-link" title="class in com.redis.riot.function">StreamItemProcessor</a> (implements org.springframework.batch.item.ItemProcessor&lt;I,<wbr>O&gt;)</li>
@@ -319,15 +339,16 @@ loadScripts(document, 'script');</script>
 <ul>
 <li class="circle">java.lang.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Exception.html" class="type-name-link external-link" title="class or interface in java.lang">Exception</a>
 <ul>
-<li class="circle">java.io.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/IOException.html" class="type-name-link external-link" title="class or interface in java.io">IOException</a>
-<ul>
-<li class="circle">com.redis.riot.file.<a href="com/redis/riot/file/UnknownFileTypeException.html" class="type-name-link" title="class in com.redis.riot.file">UnknownFileTypeException</a></li>
-<li class="circle">com.redis.riot.file.<a href="com/redis/riot/file/UnsupportedFileTypeException.html" class="type-name-link" title="class in com.redis.riot.file">UnsupportedFileTypeException</a></li>
-</ul>
-</li>
+<li class="circle">com.redis.riot.core.<a href="com/redis/riot/core/RiotExecutionException.html" class="type-name-link" title="class in com.redis.riot.core">RiotExecutionException</a></li>
+<li class="circle">com.redis.riot.core.<a href="com/redis/riot/core/RiotInitializationException.html" class="type-name-link" title="class in com.redis.riot.core">RiotInitializationException</a></li>
 <li class="circle">java.lang.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/RuntimeException.html" class="type-name-link external-link" title="class or interface in java.lang">RuntimeException</a>
 <ul>
 <li class="circle">com.redis.riot.core.processor.<a href="com/redis/riot/core/processor/FieldExtractorFactory.MissingFieldException.html" class="type-name-link" title="class in com.redis.riot.core.processor">FieldExtractorFactory.MissingFieldException</a></li>
+<li class="circle">org.springframework.core.NestedRuntimeException
+<ul>
+<li class="circle">com.redis.riot.file.<a href="com/redis/riot/file/RuntimeIOException.html" class="type-name-link" title="class in com.redis.riot.file">RuntimeIOException</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -352,12 +373,13 @@ loadScripts(document, 'script');</script>
 <section class="hierarchy">
 <h2 title="Interface Hierarchy">Interface Hierarchy</h2>
 <ul>
-<li class="circle">com.redis.riot.file.<a href="com/redis/riot/file/FileReaderFactory.html" class="type-name-link" title="interface in com.redis.riot.file">FileReaderFactory</a></li>
-<li class="circle">com.redis.riot.file.<a href="com/redis/riot/file/FileWriterFactory.html" class="type-name-link" title="interface in com.redis.riot.file">FileWriterFactory</a></li>
 <li class="circle">com.redis.riot.core.<a href="com/redis/riot/core/IO.html" class="type-name-link" title="interface in com.redis.riot.core">IO</a></li>
 <li class="circle">com.redis.riot.operation.<a href="com/redis/riot/operation/OperationCommand.html" class="type-name-link" title="interface in com.redis.riot.operation">OperationCommand</a></li>
+<li class="circle">com.redis.riot.file.<a href="com/redis/riot/file/ReaderFactory.html" class="type-name-link" title="interface in com.redis.riot.file">ReaderFactory</a></li>
 <li class="circle">com.redis.riot.<a href="com/redis/riot/RedisClientArgs.html" class="type-name-link" title="interface in com.redis.riot">RedisClientArgs</a></li>
+<li class="circle">com.redis.riot.file.<a href="com/redis/riot/file/ResourceMap.html" class="type-name-link" title="interface in com.redis.riot.file">ResourceMap</a></li>
 <li class="circle">com.redis.riot.core.<a href="com/redis/riot/core/StepConfiguration.html" class="type-name-link" title="interface in com.redis.riot.core">StepConfiguration</a></li>
+<li class="circle">com.redis.riot.file.<a href="com/redis/riot/file/WriterFactory.html" class="type-name-link" title="interface in com.redis.riot.file">WriterFactory</a></li>
 </ul>
 </section>
 <section class="hierarchy">
@@ -369,7 +391,6 @@ loadScripts(document, 'script');</script>
 <ul>
 <li class="circle">com.redis.riot.<a href="com/redis/riot/CompareMode.html" class="type-name-link" title="enum class in com.redis.riot">CompareMode</a></li>
 <li class="circle">com.redis.riot.<a href="com/redis/riot/ContentType.html" class="type-name-link" title="enum class in com.redis.riot">ContentType</a></li>
-<li class="circle">com.redis.riot.<a href="com/redis/riot/FileTypeEnum.html" class="type-name-link" title="enum class in com.redis.riot">FileTypeEnum</a></li>
 <li class="circle">com.redis.riot.core.<a href="com/redis/riot/core/ProgressStyle.html" class="type-name-link" title="enum class in com.redis.riot.core">ProgressStyle</a></li>
 <li class="circle">com.redis.riot.<a href="com/redis/riot/ReadFrom.html" class="type-name-link" title="enum class in com.redis.riot">ReadFrom</a></li>
 <li class="circle">com.redis.riot.<a href="com/redis/riot/Replicate.Type.html" class="type-name-link" title="enum class in com.redis.riot">Replicate.Type</a></li>

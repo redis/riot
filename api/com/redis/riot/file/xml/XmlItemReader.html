@@ -94,7 +94,8 @@ loadScripts(document, 'script');</script>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">XmlItemReader&lt;T&gt;</span>
 <span class="extends-implements">extends org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader&lt;T&gt;
 implements org.springframework.batch.item.file.ResourceAwareItemReaderItemStream&lt;T&gt;</span></div>
-<div class="block"><code>ItemStreamReader</code> implementation that reads XML objects from a <code>Resource</code> having the following format:
+<div class="block"><code>ItemStreamReader</code> implementation that reads XML objects from a
+ <code>Resource</code> having the following format:
  
  <pre>
  <code>
@@ -155,13 +156,15 @@ implements org.springframework.batch.item.file.ResourceAwareItemReaderItemStream
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setStrict(boolean)" class="member-name-link">setStrict</a><wbr>(boolean&nbsp;strict)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">In strict mode the reader will throw an exception on <code>AbstractItemCountingItemStreamItemReader.open(org.springframework.batch.item.ExecutionContext)</code> if
- the input resource does not exist.</div>
+<div class="block">In strict mode the reader will throw an exception on
+ <code>AbstractItemCountingItemStreamItemReader.open(org.springframework.batch.item.ExecutionContext)</code> if the input
+ resource does not exist.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setXmlObjectReader(com.redis.riot.file.xml.XmlObjectReader)" class="member-name-link">setXmlObjectReader</a><wbr>(<a href="XmlObjectReader.html" title="class in com.redis.riot.file.xml">XmlObjectReader</a>&lt;<a href="XmlItemReader.html" title="type parameter in XmlItemReader">T</a>&gt;&nbsp;xmlObjectReader)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Set the <a href="XmlObjectReader.html" title="class in com.redis.riot.file.xml"><code>XmlObjectReader</code></a> to use to read and map XML elements to domain objects.</div>
+<div class="block">Set the <a href="XmlObjectReader.html" title="class in com.redis.riot.file.xml"><code>XmlObjectReader</code></a> to use to read and map XML elements to domain
+ objects.</div>
 </div>
 </div>
 </div>
@@ -217,7 +220,8 @@ implements org.springframework.batch.item.file.ResourceAwareItemReaderItemStream
 <section class="detail" id="setXmlObjectReader(com.redis.riot.file.xml.XmlObjectReader)">
 <h3>setXmlObjectReader</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setXmlObjectReader</span><wbr><span class="parameters">(<a href="XmlObjectReader.html" title="class in com.redis.riot.file.xml">XmlObjectReader</a>&lt;<a href="XmlItemReader.html" title="type parameter in XmlItemReader">T</a>&gt;&nbsp;xmlObjectReader)</span></div>
-<div class="block">Set the <a href="XmlObjectReader.html" title="class in com.redis.riot.file.xml"><code>XmlObjectReader</code></a> to use to read and map XML elements to domain objects.</div>
+<div class="block">Set the <a href="XmlObjectReader.html" title="class in com.redis.riot.file.xml"><code>XmlObjectReader</code></a> to use to read and map XML elements to domain
+ objects.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>xmlObjectReader</code> - the XML object reader to use</dd>
@@ -228,8 +232,9 @@ implements org.springframework.batch.item.file.ResourceAwareItemReaderItemStream
 <section class="detail" id="setStrict(boolean)">
 <h3>setStrict</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setStrict</span><wbr><span class="parameters">(boolean&nbsp;strict)</span></div>
-<div class="block">In strict mode the reader will throw an exception on <code>AbstractItemCountingItemStreamItemReader.open(org.springframework.batch.item.ExecutionContext)</code> if
- the input resource does not exist.</div>
+<div class="block">In strict mode the reader will throw an exception on
+ <code>AbstractItemCountingItemStreamItemReader.open(org.springframework.batch.item.ExecutionContext)</code> if the input
+ resource does not exist.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>strict</code> - true by default</dd>

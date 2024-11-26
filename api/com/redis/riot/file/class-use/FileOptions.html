@@ -65,13 +65,13 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="com.redis.riot">
 <h2>Uses of <a href="../FileOptions.html" title="class in com.redis.riot.file">FileOptions</a> in <a href="../../package-summary.html">com.redis.riot</a></h2>
-<div class="caption"><span>Methods in <a href="../../package-summary.html">com.redis.riot</a> that return <a href="../FileOptions.html" title="class in com.redis.riot.file">FileOptions</a></span></div>
+<div class="caption"><span>Methods in <a href="../../package-summary.html">com.redis.riot</a> with parameters of type <a href="../FileOptions.html" title="class in com.redis.riot.file">FileOptions</a></span></div>
 <div class="summary-table three-column-summary">
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color"><code><a href="../FileOptions.html" title="class in com.redis.riot.file">FileOptions</a></code></div>
-<div class="col-second even-row-color"><span class="type-name-label">FileArgs.</span><code><a href="../../FileArgs.html#fileOptions()" class="member-name-link">fileOptions</a>()</code></div>
+<div class="col-first even-row-color"><code>void</code></div>
+<div class="col-second even-row-color"><span class="type-name-label">FileArgs.</span><code><a href="../../FileArgs.html#apply(com.redis.riot.file.FileOptions)" class="member-name-link">apply</a><wbr>(<a href="../FileOptions.html" title="class in com.redis.riot.file">FileOptions</a>&nbsp;options)</code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 </div>
 </section>
@@ -79,16 +79,16 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="com.redis.riot.file">
 <h2>Uses of <a href="../FileOptions.html" title="class in com.redis.riot.file">FileOptions</a> in <a href="../package-summary.html">com.redis.riot.file</a></h2>
-<div class="caption"><span>Methods in <a href="../package-summary.html">com.redis.riot.file</a> that return <a href="../FileOptions.html" title="class in com.redis.riot.file">FileOptions</a></span></div>
+<div class="caption"><span>Subclasses of <a href="../FileOptions.html" title="class in com.redis.riot.file">FileOptions</a> in <a href="../package-summary.html">com.redis.riot.file</a></span></div>
 <div class="summary-table three-column-summary">
 <div class="table-header col-first">Modifier and Type</div>
-<div class="table-header col-second">Method</div>
+<div class="table-header col-second">Class</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color"><code><a href="../FileOptions.html" title="class in com.redis.riot.file">FileOptions</a></code></div>
-<div class="col-second even-row-color"><span class="type-name-label">FileReaderOptions.</span><code><a href="../FileReaderOptions.html#getFileOptions()" class="member-name-link">getFileOptions</a>()</code></div>
+<div class="col-first even-row-color"><code>class&nbsp;</code></div>
+<div class="col-second even-row-color"><code><a href="../ReadOptions.html" class="type-name-link" title="class in com.redis.riot.file">ReadOptions</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code><a href="../FileOptions.html" title="class in com.redis.riot.file">FileOptions</a></code></div>
-<div class="col-second odd-row-color"><span class="type-name-label">FileWriterOptions.</span><code><a href="../FileWriterOptions.html#getFileOptions()" class="member-name-link">getFileOptions</a>()</code></div>
+<div class="col-first odd-row-color"><code>class&nbsp;</code></div>
+<div class="col-second odd-row-color"><code><a href="../WriteOptions.html" class="type-name-link" title="class in com.redis.riot.file">WriteOptions</a></code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
 </div>
 <div class="caption"><span>Methods in <a href="../package-summary.html">com.redis.riot.file</a> with parameters of type <a href="../FileOptions.html" title="class in com.redis.riot.file">FileOptions</a></span></div>
@@ -96,16 +96,14 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color"><code>protected <a href="../AbstractRegistry.html" title="type parameter in AbstractRegistry">T</a></code></div>
-<div class="col-second even-row-color"><span class="type-name-label">AbstractRegistry.</span><code><a href="../AbstractRegistry.html#factory(org.springframework.core.io.Resource,com.redis.riot.file.FileOptions)" class="member-name-link">factory</a><wbr>(org.springframework.core.io.Resource&nbsp;resource,
+<div class="col-first even-row-color"><code>org.springframework.core.io.Resource</code></div>
+<div class="col-second even-row-color"><span class="type-name-label">ResourceFactory.</span><code><a href="../ResourceFactory.html#resource(java.lang.String,com.redis.riot.file.FileOptions)" class="member-name-link">resource</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;location,
  <a href="../FileOptions.html" title="class in com.redis.riot.file">FileOptions</a>&nbsp;options)</code></div>
 <div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>void</code></div>
-<div class="col-second odd-row-color"><span class="type-name-label">FileReaderOptions.</span><code><a href="../FileReaderOptions.html#setFileOptions(com.redis.riot.file.FileOptions)" class="member-name-link">setFileOptions</a><wbr>(<a href="../FileOptions.html" title="class in com.redis.riot.file">FileOptions</a>&nbsp;fileOptions)</code></div>
+<div class="col-first odd-row-color"><code>org.springframework.core.io.WritableResource</code></div>
+<div class="col-second odd-row-color"><span class="type-name-label">ResourceFactory.</span><code><a href="../ResourceFactory.html#writableResource(java.lang.String,com.redis.riot.file.FileOptions)" class="member-name-link">writableResource</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;location,
+ <a href="../FileOptions.html" title="class in com.redis.riot.file">FileOptions</a>&nbsp;options)</code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
-<div class="col-first even-row-color"><code>void</code></div>
-<div class="col-second even-row-color"><span class="type-name-label">FileWriterOptions.</span><code><a href="../FileWriterOptions.html#setFileOptions(com.redis.riot.file.FileOptions)" class="member-name-link">setFileOptions</a><wbr>(<a href="../FileOptions.html" title="class in com.redis.riot.file">FileOptions</a>&nbsp;fileOptions)</code></div>
-<div class="col-last even-row-color">&nbsp;</div>
 </div>
 </section>
 </li>

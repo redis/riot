@@ -60,6 +60,8 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/core/QuietMapAccessor.html#canRead(org.springframework.expression.EvaluationContext,java.lang.Object,java.lang.String)" class="member-name-link">canRead(EvaluationContext, Object, String)</a> - Method in class com.redis.riot.core.<a href="../com/redis/riot/core/QuietMapAccessor.html" title="class in com.redis.riot.core">QuietMapAccessor</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="../com/redis/riot/file/S3Options.html#client()" class="member-name-link">client()</a> - Method in class com.redis.riot.file.<a href="../com/redis/riot/file/S3Options.html" title="class in com.redis.riot.file">S3Options</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/RedisContext.html#clientResources(io.lettuce.core.resource.ClientResources)" class="member-name-link">clientResources(ClientResources)</a> - Method in class com.redis.riot.<a href="../com/redis/riot/RedisContext.html" title="class in com.redis.riot">RedisContext</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/core/ThrottledItemWriter.html#close()" class="member-name-link">close()</a> - Method in class com.redis.riot.core.<a href="../com/redis/riot/core/ThrottledItemWriter.html" title="class in com.redis.riot.core">ThrottledItemWriter</a></dt>
@@ -174,13 +176,31 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/RedisURIConverter.html#convert(java.lang.String)" class="member-name-link">convert(String)</a> - Method in class com.redis.riot.<a href="../com/redis/riot/RedisURIConverter.html" title="class in com.redis.riot">RedisURIConverter</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/file/FileReaderFactory.html#create(org.springframework.core.io.Resource,com.redis.riot.file.FileReaderOptions)" class="member-name-link">create(Resource, FileReaderOptions)</a> - Method in interface com.redis.riot.file.<a href="../com/redis/riot/file/FileReaderFactory.html" title="interface in com.redis.riot.file">FileReaderFactory</a></dt>
+<dt><a href="../com/redis/riot/file/DelimitedReaderFactory.html#create(org.springframework.core.io.Resource,com.redis.riot.file.ReadOptions)" class="member-name-link">create(Resource, ReadOptions)</a> - Method in class com.redis.riot.file.<a href="../com/redis/riot/file/DelimitedReaderFactory.html" title="class in com.redis.riot.file">DelimitedReaderFactory</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/file/FileWriterFactory.html#create(org.springframework.core.io.WritableResource,com.redis.riot.file.FileWriterOptions)" class="member-name-link">create(WritableResource, FileWriterOptions)</a> - Method in interface com.redis.riot.file.<a href="../com/redis/riot/file/FileWriterFactory.html" title="interface in com.redis.riot.file">FileWriterFactory</a></dt>
+<dt><a href="../com/redis/riot/file/FixedWidthReaderFactory.html#create(org.springframework.core.io.Resource,com.redis.riot.file.ReadOptions)" class="member-name-link">create(Resource, ReadOptions)</a> - Method in class com.redis.riot.file.<a href="../com/redis/riot/file/FixedWidthReaderFactory.html" title="class in com.redis.riot.file">FixedWidthReaderFactory</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/AwsCredentialsArgs.html#credentials()" class="member-name-link">credentials()</a> - Method in class com.redis.riot.<a href="../com/redis/riot/AwsCredentialsArgs.html" title="class in com.redis.riot">AwsCredentialsArgs</a></dt>
+<dt><a href="../com/redis/riot/file/JsonLinesReaderFactory.html#create(org.springframework.core.io.Resource,com.redis.riot.file.ReadOptions)" class="member-name-link">create(Resource, ReadOptions)</a> - Method in class com.redis.riot.file.<a href="../com/redis/riot/file/JsonLinesReaderFactory.html" title="class in com.redis.riot.file">JsonLinesReaderFactory</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/FileTypeEnum.html#CSV" class="member-name-link">CSV</a> - Enum constant in enum class com.redis.riot.<a href="../com/redis/riot/FileTypeEnum.html" title="enum class in com.redis.riot">FileTypeEnum</a></dt>
+<dt><a href="../com/redis/riot/file/JsonReaderFactory.html#create(org.springframework.core.io.Resource,com.redis.riot.file.ReadOptions)" class="member-name-link">create(Resource, ReadOptions)</a> - Method in class com.redis.riot.file.<a href="../com/redis/riot/file/JsonReaderFactory.html" title="class in com.redis.riot.file">JsonReaderFactory</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="../com/redis/riot/file/ReaderFactory.html#create(org.springframework.core.io.Resource,com.redis.riot.file.ReadOptions)" class="member-name-link">create(Resource, ReadOptions)</a> - Method in interface com.redis.riot.file.<a href="../com/redis/riot/file/ReaderFactory.html" title="interface in com.redis.riot.file">ReaderFactory</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="../com/redis/riot/file/XmlReaderFactory.html#create(org.springframework.core.io.Resource,com.redis.riot.file.ReadOptions)" class="member-name-link">create(Resource, ReadOptions)</a> - Method in class com.redis.riot.file.<a href="../com/redis/riot/file/XmlReaderFactory.html" title="class in com.redis.riot.file">XmlReaderFactory</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="../com/redis/riot/file/DelimitedWriterFactory.html#create(org.springframework.core.io.WritableResource,com.redis.riot.file.WriteOptions)" class="member-name-link">create(WritableResource, WriteOptions)</a> - Method in class com.redis.riot.file.<a href="../com/redis/riot/file/DelimitedWriterFactory.html" title="class in com.redis.riot.file">DelimitedWriterFactory</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="../com/redis/riot/file/FormattedWriterFactory.html#create(org.springframework.core.io.WritableResource,com.redis.riot.file.WriteOptions)" class="member-name-link">create(WritableResource, WriteOptions)</a> - Method in class com.redis.riot.file.<a href="../com/redis/riot/file/FormattedWriterFactory.html" title="class in com.redis.riot.file">FormattedWriterFactory</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="../com/redis/riot/file/JsonLinesWriterFactory.html#create(org.springframework.core.io.WritableResource,com.redis.riot.file.WriteOptions)" class="member-name-link">create(WritableResource, WriteOptions)</a> - Method in class com.redis.riot.file.<a href="../com/redis/riot/file/JsonLinesWriterFactory.html" title="class in com.redis.riot.file">JsonLinesWriterFactory</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="../com/redis/riot/file/JsonWriterFactory.html#create(org.springframework.core.io.WritableResource,com.redis.riot.file.WriteOptions)" class="member-name-link">create(WritableResource, WriteOptions)</a> - Method in class com.redis.riot.file.<a href="../com/redis/riot/file/JsonWriterFactory.html" title="class in com.redis.riot.file">JsonWriterFactory</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="../com/redis/riot/file/WriterFactory.html#create(org.springframework.core.io.WritableResource,com.redis.riot.file.WriteOptions)" class="member-name-link">create(WritableResource, WriteOptions)</a> - Method in interface com.redis.riot.file.<a href="../com/redis/riot/file/WriterFactory.html" title="interface in com.redis.riot.file">WriterFactory</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="../com/redis/riot/file/XmlWriterFactory.html#create(org.springframework.core.io.WritableResource,com.redis.riot.file.WriteOptions)" class="member-name-link">create(WritableResource, WriteOptions)</a> - Method in class com.redis.riot.file.<a href="../com/redis/riot/file/XmlWriterFactory.html" title="class in com.redis.riot.file">XmlWriterFactory</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="../com/redis/riot/file/ResourceMap.html#CSV" class="member-name-link">CSV</a> - Static variable in interface com.redis.riot.file.<a href="../com/redis/riot/file/ResourceMap.html" title="interface in com.redis.riot.file">ResourceMap</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/file/xml/XmlItemReaderBuilder.html#currentItemCount(int)" class="member-name-link">currentItemCount(int)</a> - Method in class com.redis.riot.file.xml.<a href="../com/redis/riot/file/xml/XmlItemReaderBuilder.html" title="class in com.redis.riot.file.xml">XmlItemReaderBuilder</a></dt>
 <dd>
