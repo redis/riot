@@ -141,43 +141,47 @@ loadScripts(document, 'script');</script>
 <section class="method-summary" id="method-summary">
 <h2>Method Summary</h2>
 <div id="method-summary-table">
-<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="method-summary-table-tab0" role="tab" aria-selected="true" aria-controls="method-summary-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table', 3)" class="active-table-tab">All Methods</button><button id="method-summary-table-tab2" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab2', 3)" class="table-tab">Instance Methods</button><button id="method-summary-table-tab3" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab3', 3)" class="table-tab">Abstract Methods</button><button id="method-summary-table-tab4" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab4', 3)" class="table-tab">Concrete Methods</button></div>
+<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="method-summary-table-tab0" role="tab" aria-selected="true" aria-controls="method-summary-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table', 3)" class="active-table-tab">All Methods</button><button id="method-summary-table-tab1" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab1', 3)" class="table-tab">Static Methods</button><button id="method-summary-table-tab2" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab2', 3)" class="table-tab">Instance Methods</button><button id="method-summary-table-tab3" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab3', 3)" class="table-tab">Abstract Methods</button><button id="method-summary-table-tab4" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab4', 3)" class="table-tab">Concrete Methods</button></div>
 <div id="method-summary-table.tabpanel" role="tabpanel" aria-labelledby="method-summary-table-tab0">
 <div class="summary-table three-column-summary">
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#checkNotifyConfig(io.lettuce.core.AbstractRedisClient,org.slf4j.Logger)" class="member-name-link">checkNotifyConfig</a><wbr>(io.lettuce.core.AbstractRedisClient&nbsp;client,
+ org.slf4j.Logger&nbsp;log)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#configure(org.springframework.expression.spel.support.StandardEvaluationContext)" class="member-name-link">configure</a><wbr>(org.springframework.expression.spel.support.StandardEvaluationContext&nbsp;context)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#configure(org.springframework.expression.spel.support.StandardEvaluationContext)" class="member-name-link">configure</a><wbr>(org.springframework.expression.spel.support.StandardEvaluationContext&nbsp;context)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#configureSourceRedisReader(com.redis.spring.batch.item.redis.RedisItemReader)" class="member-name-link">configureSourceRedisReader</a><wbr>(com.redis.spring.batch.item.redis.RedisItemReader&lt;?,<wbr>?&gt;&nbsp;reader)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#configureSourceRedisReader(com.redis.spring.batch.item.redis.RedisItemReader)" class="member-name-link">configureSourceRedisReader</a><wbr>(com.redis.spring.batch.item.redis.RedisItemReader&lt;?,<wbr>?&gt;&nbsp;reader)</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="RedisReaderArgs.html" title="class in com.redis.riot">RedisReaderArgs</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getSourceRedisReaderArgs()" class="member-name-link">getSourceRedisReaderArgs</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="RedisReaderArgs.html" title="class in com.redis.riot">RedisReaderArgs</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getSourceRedisReaderArgs()" class="member-name-link">getSourceRedisReaderArgs</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#initialize()" class="member-name-link">initialize</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#initialize()" class="member-name-link">initialize</a>()</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setSourceRedisReaderArgs(com.redis.riot.RedisReaderArgs)" class="member-name-link">setSourceRedisReaderArgs</a><wbr>(<a href="RedisReaderArgs.html" title="class in com.redis.riot">RedisReaderArgs</a>&nbsp;args)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setSourceRedisReaderArgs(com.redis.riot.RedisReaderArgs)" class="member-name-link">setSourceRedisReaderArgs</a><wbr>(<a href="RedisReaderArgs.html" title="class in com.redis.riot">RedisReaderArgs</a>&nbsp;args)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>protected abstract <a href="RedisContext.html" title="class in com.redis.riot">RedisContext</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#sourceRedisContext()" class="member-name-link">sourceRedisContext</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected &lt;K,<wbr>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>protected abstract <a href="RedisContext.html" title="class in com.redis.riot">RedisContext</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#sourceRedisContext()" class="member-name-link">sourceRedisContext</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected &lt;K,<wbr>
 V,<wbr>
 T,<wbr>
 O&gt;&nbsp;<a href="core/Step.html" title="class in com.redis.riot.core">Step</a>&lt;com.redis.spring.batch.item.redis.common.KeyValue&lt;K&gt;,<wbr>O&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#step(com.redis.spring.batch.item.redis.RedisItemReader,org.springframework.batch.item.ItemWriter)" class="member-name-link">step</a><wbr>(com.redis.spring.batch.item.redis.RedisItemReader&lt;K,<wbr>V&gt;&nbsp;reader,
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#step(com.redis.spring.batch.item.redis.RedisItemReader,org.springframework.batch.item.ItemWriter)" class="member-name-link">step</a><wbr>(com.redis.spring.batch.item.redis.RedisItemReader&lt;K,<wbr>V&gt;&nbsp;reader,
  org.springframework.batch.item.ItemWriter&lt;O&gt;&nbsp;writer)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected &lt;O&gt;&nbsp;<a href="core/Step.html" title="class in com.redis.riot.core">Step</a>&lt;com.redis.spring.batch.item.redis.common.KeyValue&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;,<wbr>O&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#step(org.springframework.batch.item.ItemWriter)" class="member-name-link">step</a><wbr>(org.springframework.batch.item.ItemWriter&lt;O&gt;&nbsp;writer)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#teardown()" class="member-name-link">teardown</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected &lt;O&gt;&nbsp;<a href="core/Step.html" title="class in com.redis.riot.core">Step</a>&lt;com.redis.spring.batch.item.redis.common.KeyValue&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;,<wbr>O&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#step(org.springframework.batch.item.ItemWriter)" class="member-name-link">step</a><wbr>(org.springframework.batch.item.ItemWriter&lt;O&gt;&nbsp;writer)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#teardown()" class="member-name-link">teardown</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
 </div>
@@ -308,6 +312,13 @@ T,<wbr>
 O&gt;</span>
 <span class="return-type"><a href="core/Step.html" title="class in com.redis.riot.core">Step</a>&lt;com.redis.spring.batch.item.redis.common.KeyValue&lt;K&gt;,<wbr>O&gt;</span>&nbsp;<span class="element-name">step</span><wbr><span class="parameters">(com.redis.spring.batch.item.redis.RedisItemReader&lt;K,<wbr>V&gt;&nbsp;reader,
  org.springframework.batch.item.ItemWriter&lt;O&gt;&nbsp;writer)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="checkNotifyConfig(io.lettuce.core.AbstractRedisClient,org.slf4j.Logger)">
+<h3>checkNotifyConfig</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">checkNotifyConfig</span><wbr><span class="parameters">(io.lettuce.core.AbstractRedisClient&nbsp;client,
+ org.slf4j.Logger&nbsp;log)</span></div>
 </section>
 </li>
 <li>

@@ -75,7 +75,7 @@ loadScripts(document, 'script');</script>
 <div class="inheritance" title="Inheritance Tree"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">java.lang.Object</a>
 <div class="inheritance">org.springframework.batch.item.ItemStreamSupport
 <div class="inheritance">org.springframework.batch.item.support.AbstractItemStreamItemWriter&lt;T&gt;
-<div class="inheritance">org.springframework.batch.item.support.AbstractFileItemWriter&lt;T&gt;
+<div class="inheritance">com.redis.riot.resource.AbstractFileItemWriter&lt;T&gt;
 <div class="inheritance">com.redis.riot.file.xml.XmlResourceItemWriter&lt;T&gt;</div>
 </div>
 </div>
@@ -88,7 +88,7 @@ loadScripts(document, 'script');</script>
 </dl>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">XmlResourceItemWriter&lt;T&gt;</span>
-<span class="extends-implements">extends org.springframework.batch.item.support.AbstractFileItemWriter&lt;T&gt;</span></div>
+<span class="extends-implements">extends com.redis.riot.resource.AbstractFileItemWriter&lt;T&gt;</span></div>
 <div class="block">Item writer that writes data in XML format to an output file. The location of
  the output file is defined by a <code>Resource</code> and must represent a
  writable file. Items are transformed to XML format using a <code>XmlMapper</code>.
@@ -113,8 +113,8 @@ loadScripts(document, 'script');</script>
 <section class="nested-class-summary" id="nested-class-summary">
 <h2>Nested Class Summary</h2>
 <div class="inherited-list">
-<h2 id="nested-classes-inherited-from-class-org.springframework.batch.item.support.AbstractFileItemWriter">Nested classes/interfaces inherited from class&nbsp;org.springframework.batch.item.support.AbstractFileItemWriter</h2>
-<code>org.springframework.batch.item.support.AbstractFileItemWriter.OutputState</code></div>
+<h2 id="nested-classes-inherited-from-class-com.redis.riot.resource.AbstractFileItemWriter">Nested classes/interfaces inherited from class&nbsp;com.redis.riot.resource.AbstractFileItemWriter</h2>
+<code>com.redis.riot.resource.AbstractFileItemWriter.OutputState</code></div>
 </section>
 </li>
 <!-- =========== FIELD SUMMARY =========== -->
@@ -122,7 +122,7 @@ loadScripts(document, 'script');</script>
 <section class="field-summary" id="field-summary">
 <h2>Field Summary</h2>
 <div class="inherited-list">
-<h3 id="fields-inherited-from-class-org.springframework.batch.item.support.AbstractFileItemWriter">Fields inherited from class&nbsp;org.springframework.batch.item.support.AbstractFileItemWriter</h3>
+<h3 id="fields-inherited-from-class-com.redis.riot.resource.AbstractFileItemWriter">Fields inherited from class&nbsp;com.redis.riot.resource.AbstractFileItemWriter</h3>
 <code>append, DEFAULT_CHARSET, DEFAULT_LINE_SEPARATOR, DEFAULT_TRANSACTIONAL, lineSeparator, logger, shouldDeleteIfExists, state</code></div>
 </section>
 </li>
@@ -174,7 +174,7 @@ loadScripts(document, 'script');</script>
 </div>
 </div>
 <div class="inherited-list">
-<h3 id="methods-inherited-from-class-org.springframework.batch.item.support.AbstractFileItemWriter">Methods inherited from class&nbsp;org.springframework.batch.item.support.AbstractFileItemWriter</h3>
+<h3 id="methods-inherited-from-class-com.redis.riot.resource.AbstractFileItemWriter">Methods inherited from class&nbsp;com.redis.riot.resource.AbstractFileItemWriter</h3>
 <code>close, getOutputState, open, setAppendAllowed, setEncoding, setFooterCallback, setForceSync, setHeaderCallback, setLineSeparator, setResource, setSaveState, setShouldDeleteIfEmpty, setShouldDeleteIfExists, setTransactional, update, write</code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-org.springframework.batch.item.ItemStreamSupport">Methods inherited from class&nbsp;org.springframework.batch.item.ItemStreamSupport</h3>
@@ -257,7 +257,7 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">doWrite</span><wbr><span class="parameters">(org.springframework.batch.item.Chunk&lt;? extends <a href="XmlResourceItemWriter.html" title="type parameter in XmlResourceItemWriter">T</a>&gt;&nbsp;items)</span></div>
 <dl class="notes">
 <dt>Specified by:</dt>
-<dd><code>doWrite</code>&nbsp;in class&nbsp;<code>org.springframework.batch.item.support.AbstractFileItemWriter&lt;<a href="XmlResourceItemWriter.html" title="type parameter in XmlResourceItemWriter">T</a>&gt;</code></dd>
+<dd><code>doWrite</code>&nbsp;in class&nbsp;<code>com.redis.riot.resource.AbstractFileItemWriter&lt;<a href="XmlResourceItemWriter.html" title="type parameter in XmlResourceItemWriter">T</a>&gt;</code></dd>
 </dl>
 </section>
 </li>
