@@ -1,5 +1,6 @@
 package com.redis.riot;
 
+import com.google.cloud.spring.core.GcpScope;
 import com.redis.riot.file.WriteOptions;
 
 import lombok.ToString;
@@ -38,6 +39,7 @@ public class FileWriterArgs extends FileArgs {
 	public WriteOptions fileWriterOptions() {
 		WriteOptions options = new WriteOptions();
 		apply(options);
+		options.getGoogleStorageOptions().setScope(GcpScope.STORAGE_READ_WRITE);
 		options.setAppend(append);
 		options.setElementName(elementName);
 		options.setForceSync(forceSync);

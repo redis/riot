@@ -19,10 +19,11 @@ package com.redis.riot.file.xml;
 import org.springframework.batch.item.file.FlatFileFooterCallback;
 import org.springframework.batch.item.file.FlatFileHeaderCallback;
 import org.springframework.batch.item.json.JsonObjectMarshaller;
-import org.springframework.batch.item.support.AbstractFileItemWriter;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.WritableResource;
 import org.springframework.util.Assert;
+
+import com.redis.riot.resource.AbstractFileItemWriter;
 
 /**
  * Builder for {@link XmlResourceItemWriter}.
