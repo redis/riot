@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.Assert;
@@ -72,12 +73,11 @@ public abstract class AbstractExportCommand extends AbstractJobCommand {
 
 	protected <K, V, T, O> Step<KeyValue<K>, O> step(RedisItemReader<K, V> reader, ItemWriter<O> writer) {
 		Step<KeyValue<K>, O> step = new Step<>(reader, writer);
-		if (reader.getMode() != ReaderMode.LIVEONLY) {
+		if (reader.getMode() == ReaderMode.SCAN) {
 			log.info("Configuring step with scan size estimator");
 			step.maxItemCountSupplier(reader.scanSizeEstimator());
-		}
-		if (reader.getMode() != ReaderMode.SCAN) {
-			checkNotifyConfig(reader.getClient());
+		} else {
+			checkNotifyConfig(reader.getClient(), log);
 			log.info("Configuring export step with live true, flushInterval {}, idleTimeout {}",
 					reader.getFlushInterval(), reader.getIdleTimeout());
 			step.live(true);
@@ -87,7 +87,7 @@ public abstract class AbstractExportCommand extends AbstractJobCommand {
 		return step;
 	}
 
-	private void checkNotifyConfig(AbstractRedisClient client) {
+	public static void checkNotifyConfig(AbstractRedisClient client, Logger log) {
 		Map<String, String> valueMap;
 		try (StatefulRedisModulesConnection<String, String> conn = RedisModulesUtils.connection(client)) {
 			try {
@@ -105,7 +105,7 @@ public abstract class AbstractExportCommand extends AbstractJobCommand {
 						NOTIFY_CONFIG, NOTIFY_CONFIG_VALUE, actual));
 	}
 
-	private Set<Character> characterSet(String string) {
+	private static Set<Character> characterSet(String string) {
 		return string.codePoints().mapToObj(c -> (char) c).collect(Collectors.toSet());
 	}
 
