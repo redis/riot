@@ -70,4 +70,7 @@ enforce {
     rule(enforcer.rules.DependencyConvergence) { r ->
         r.enabled = false
     }
+    rule(enforcer.rules.ForceDependencies) { r ->
+        r.dependencies.addAll "com.google.protobuf:protobuf-java:$protobufVersion"
+    }
 }
