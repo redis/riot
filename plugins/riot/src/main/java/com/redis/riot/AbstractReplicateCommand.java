@@ -115,6 +115,7 @@ public abstract class AbstractReplicateCommand extends AbstractRedisTargetExport
 		KeyComparisonItemReader<byte[], byte[]> reader = new KeyComparisonItemReader<>(source, target);
 		reader.setComparator(keyComparator());
 		reader.setProcessor(processor());
+		configureAsyncReader(reader);
 		return reader;
 	}
 
