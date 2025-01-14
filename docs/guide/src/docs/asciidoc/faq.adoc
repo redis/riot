@@ -10,6 +10,8 @@ Unknown options: '--keyspace', '--key'::
 ERR DUMP payload version or checksum are wrong::
   Redis 7 DUMP format is not backwards compatible with previous versions.
   To replicate between different Redis versions, use <<_replication_type_struct,Type-Based Replication>>.
+ERR Unsupported Type 0::
+  The target database is most likely CRDB in which case you need to use type-based replication (`--struct` option).
 Process gets stuck during replication and eventually times out::
   This could be due to big keys clogging the replication pipes.
   In these cases it might be hard to catch the offending key(s).
@@ -26,5 +28,5 @@ ERR Error running script... This Redis command is not allowed from scripts::
 java.lang.OutOfMemoryError: Java heap space::
   The RIOT JVM ran out of memory.
   Either increase max JVM heap size (`export JAVA_OPTS="-Xmx8g"`) or reduce RIOT memory usage by lowering `threads`, `batch`, `read-batch` and `read-queue`.
-
+  
 
