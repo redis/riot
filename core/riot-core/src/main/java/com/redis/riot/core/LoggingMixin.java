@@ -130,6 +130,7 @@ public class LoggingMixin {
 		setBoolean(SimpleLogger.SHOW_SHORT_LOG_NAME_KEY, mixin.showShortLogName);
 		setBoolean(SimpleLogger.LEVEL_IN_BRACKETS_KEY, mixin.levelInBrackets);
 		setLogLevel("com.amazonaws.internal", Level.ERROR);
+		setLogLevel("com.redis.spring.batch.step.FlushingFaultTolerantStepBuilder", Level.ERROR);
 		setLogLevel("org.springframework.batch.core.step.builder.FaultTolerantStepBuilder", Level.ERROR);
 		setLogLevel("org.springframework.batch.core.step.item.ChunkMonitor", Level.ERROR);
 		mixin.levels.forEach(this::setLogLevel);
