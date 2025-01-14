@@ -1,23 +1,25 @@
 package com.redis.riot.core;
 
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import org.springframework.batch.core.ExitStatus;
-import org.springframework.batch.core.ItemWriteListener;
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.core.JobExecutionException;
-import org.springframework.batch.core.JobParameters;
-import org.springframework.batch.core.StepExecution;
-import org.springframework.batch.core.StepExecutionListener;
+import org.springframework.batch.core.*;
+import org.springframework.batch.core.explore.JobExplorer;
+import org.springframework.batch.core.explore.support.JobExplorerFactoryBean;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.job.builder.SimpleJobBuilder;
 import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.launch.support.TaskExecutorJobLauncher;
+import org.springframework.batch.core.listener.JobExecutionListenerSupport;
+import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
+import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
 import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.batch.core.repository.JobRestartException;
+import org.springframework.batch.core.repository.support.JobRepositoryFactoryBean;
 import org.springframework.batch.core.step.builder.FaultTolerantStepBuilder;
 import org.springframework.batch.core.step.builder.SimpleStepBuilder;
 import org.springframework.batch.core.step.builder.StepBuilder;
@@ -30,6 +32,7 @@ import org.springframework.batch.item.ItemStreamSupport;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.support.SynchronizedItemReader;
 import org.springframework.batch.item.support.SynchronizedItemStreamReader;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.retry.policy.AlwaysRetryPolicy;
@@ -49,6 +52,8 @@ import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
+import static com.redis.spring.batch.JobUtils.hsqldbDataSource;
+
 @Command
 public abstract class AbstractJobCommand extends AbstractCallableCommand {
 
@@ -57,6 +62,9 @@ public abstract class AbstractJobCommand extends AbstractCallableCommand {
 	@Option(names = "--job-name", description = "Job name.", paramLabel = "<string>", hidden = true)
 	private String jobName;
 
+	@Option(names = "--repeat-every", description = "After the job completes keep repeating it on a fixed interval (ex 5m, 1h)")
+	private String repeatEvery;
+
 	@ArgGroup(exclusive = false, heading = "Job options%n")
 	private StepArgs stepArgs = new StepArgs();
 
@@ -64,6 +72,9 @@ public abstract class AbstractJobCommand extends AbstractCallableCommand {
 	private JobRepository jobRepository;
 	private PlatformTransactionManager transactionManager;
 	private JobLauncher jobLauncher;
+	private JobExplorer jobExplorer;
+
+	protected Runnable onJobSuccessCallback;
 
 	@Override
 	protected void initialize() throws RiotInitializationException {
@@ -88,6 +99,14 @@ public abstract class AbstractJobCommand extends AbstractCallableCommand {
 				throw new RiotInitializationException("Could not create job launcher", e);
 			}
 		}
+		if (jobExplorer == null){
+            try {
+                jobExplorer = JobUtils.jobExplorerFactoryBean(jobRepositoryName).getObject();
+            } catch (Exception e) {
+				log.warn("Error getting jobExplorer", e);
+                throw new RiotInitializationException("Could not create job explorer", e);
+            }
+        }
 	}
 
 	private JobLauncher jobLauncher() throws Exception {
@@ -154,6 +173,60 @@ public abstract class AbstractJobCommand extends AbstractCallableCommand {
 		while (iterator.hasNext()) {
 			job.next(step(iterator.next()));
 		}
+
+		if (null != repeatEvery){
+			job.incrementer(new RunIdIncrementer());
+			job.preventRestart();
+			String standardDuration = repeatEvery.toLowerCase()
+					.replace("m", "M")
+					.replace("h", "H");
+			if (!standardDuration.startsWith("P")){
+				standardDuration = "PT" + standardDuration;
+			}
+			Duration repeatDuration = Duration.parse(standardDuration);
+			job.listener(new JobExecutionListener() {
+				Job lastJob;
+
+				@Override
+				public void afterJob(JobExecution jobExecution) {
+					if (jobExecution.getStatus() == BatchStatus.COMPLETED){
+						if (null != onJobSuccessCallback){
+							onJobSuccessCallback.run();
+						}
+
+						log.info("Finished job, will run again in {}", repeatEvery);
+						try {
+							Thread.sleep(repeatDuration.toMillis());
+							if (lastJob == null){
+								lastJob = job.build();
+							}
+
+							Job nextJob = jobBuilder()
+									.start(step(steps.stream().findFirst().get()))
+									.incrementer(new RunIdIncrementer())
+									.preventRestart()
+									.listener(this)
+									.build();
+
+							JobParametersBuilder paramsBuilder = new JobParametersBuilder(
+									jobExecution.getJobParameters(),
+									jobExplorer);
+
+							jobLauncher.run(nextJob, paramsBuilder
+									.addString("runTime", String.valueOf(System.currentTimeMillis()))
+									.getNextJobParameters(lastJob)
+									.toJobParameters());
+							lastJob = nextJob;
+						} catch (InterruptedException | JobExecutionAlreadyRunningException | JobRestartException |
+								 JobInstanceAlreadyCompleteException | JobParametersInvalidException e) {
+							throw new RuntimeException(e);
+						}
+					}
+					JobExecutionListener.super.afterJob(jobExecution);
+				}
+			});
+		}
+
 		return job.build();
 	}
 
@@ -326,4 +399,11 @@ public abstract class AbstractJobCommand extends AbstractCallableCommand {
 		this.jobLauncher = jobLauncher;
 	}
 
+    public JobExplorer getJobExplorer() {
+        return jobExplorer;
+    }
+
+    public void setJobExplorer(JobExplorer jobExplorer) {
+        this.jobExplorer = jobExplorer;
+    }
 }
