@@ -16,7 +16,7 @@ import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
-@Command(name = "replicate", description = "Replicate a Redis database into another Redis database.", aliases = "sync")
+@Command(name = "replicate", aliases = "sync", description = "Replicate a Redis database into another Redis database.")
 public class Replicate extends AbstractReplicateCommand {
 
 	public enum Type {

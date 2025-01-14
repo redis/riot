@@ -17,7 +17,7 @@ import com.redis.spring.batch.item.redis.gen.ItemType;
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 
-@Command(name = "generate", description = "Generate Redis data structures.")
+@Command(name = "generate", aliases = "gen", description = "Generate Redis data structures.")
 public class Generate extends AbstractRedisCommand {
 
 	private static final String TASK_NAME = "Generating";
