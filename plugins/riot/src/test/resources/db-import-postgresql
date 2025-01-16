@@ -1,1 +1,1 @@
-riot db-import "SELECT * FROM orders" --jdbc-url "jdbc:postgresql://host:port/database" --jdbc-username appuser --jdbc-password passwd hset --keyspace order --key order_id
+riot db-import "SELECT * FROM orders" --jdbc-url "jdbc:postgresql://host:port/database" --jdbc-user appuser --jdbc-pass passwd hset --keyspace order --key order_id
