@@ -92,7 +92,7 @@ $(addBlockSwitches);
 <h1>Redis Input/Output Tools (RIOT)</h1>
 <div class="details">
 <span id="author" class="author">Julien Ruaux</span><br>
-<span id="revnumber">version 4.1.10</span>
+<span id="revnumber">version 4.2.0</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -250,10 +250,10 @@ scoop install riot</code></pre>
 </td>
 <td class="content">
 <div class="paragraph">
-<p><code>riot-4.1.10.zip</code> requires Java 11 or greater to be installed.</p>
+<p><code>riot-4.2.0.zip</code> requires Java 11 or greater to be installed.</p>
 </div>
 <div class="paragraph">
-<p><code>riot-standalone-4.1.10-*.zip</code> includes its own Java runtime and does not require a Java installation.</p>
+<p><code>riot-standalone-4.2.0-*.zip</code> includes its own Java runtime and does not require a Java installation.</p>
 </div>
 </td>
 </tr>
@@ -321,13 +321,13 @@ For example, import commands like <code>file-import</code>, <code>db-import</cod
 <div class="ulist">
 <ul>
 <li>
-<p><code>field1='foo'</code> &#8594; generate a field named <code>field1</code> containing the string <code>foo</code></p>
+<p><code>--proc field1="'foo'"</code> &#8594; generate a field named <code>field1</code> containing the string <code>foo</code></p>
 </li>
 <li>
-<p><code>temp=(temp-32)*5/9</code> &#8594; convert from Fahrenheit to Celsius</p>
+<p><code>--proc temp="(temp-32)*5/9"</code> &#8594; convert from Fahrenheit to Celsius</p>
 </li>
 <li>
-<p><code>name=remove(first).concat(remove(last))</code> &#8594; concatenate <code>first</code> and <code>last</code> fields and delete them</p>
+<p><code>--proc name='remove("first").concat(remove("last"))'</code> &#8594; concatenate <code>first</code> and <code>last</code> fields and delete them</p>
 </li>
 <li>
 <p><code>field2=null</code> &#8594; delete <code>field2</code></p>
@@ -2093,6 +2093,10 @@ Try running with job option <code>--progress log</code>.</p>
 To replicate between different Redis versions, use <a href="#_replication_type_struct">Type-Based Replication</a>.</p>
 </li>
 <li>
+<p><em>ERR Unsupported Type 0</em></p>
+<p>The target database is most likely CRDB in which case you need to use type-based replication (<code>--struct</code> option).</p>
+</li>
+<li>
 <p><em>Process gets stuck during replication and eventually times out</em></p>
 <p>This could be due to big keys clogging the replication pipes.
 In these cases it might be hard to catch the offending key(s).
@@ -2125,8 +2129,8 @@ Either increase max JVM heap size (<code>export JAVA_OPTS="-Xmx8g"</code>) or re
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 4.1.10<br>
-Last updated 2024-12-13 06:51:37 UTC
+Version 4.2.0<br>
+Last updated 2025-01-16 02:01:07 UTC
 </div>
 </div>
 <link rel="stylesheet" href="./coderay-asciidoctor.css">
