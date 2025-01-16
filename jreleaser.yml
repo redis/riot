@@ -20,7 +20,7 @@ project:
   authors:
     - Julien Ruaux
   license: Apache-2.0
-  inceptionYear: '2020'
+  inceptionYear: 2020
   stereotype: CLI
   vendor: Redis
   icons:
@@ -202,7 +202,7 @@ distributions:
         extraProperties:
           skipFlatpak: true
 
-  riot-standalone:  
+  riot-standalone:
     brew:
       active: ALWAYS
       continueOnError: true
