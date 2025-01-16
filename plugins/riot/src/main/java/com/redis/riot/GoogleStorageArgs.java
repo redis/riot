@@ -7,7 +7,7 @@ import com.redis.riot.file.GoogleStorageOptions;
 import lombok.ToString;
 import picocli.CommandLine.Option;
 
-@ToString(exclude = "encodedKey")
+@ToString
 public class GoogleStorageArgs {
 
 	@Option(names = "--gcs-key-file", description = "Google Cloud Storage private key (e.g. /usr/local/key.json).", paramLabel = "<file>")

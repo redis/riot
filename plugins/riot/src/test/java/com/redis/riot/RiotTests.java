@@ -67,7 +67,7 @@ abstract class RiotTests extends AbstractRiotApplicationTestBase {
 		replicate.getSourceRedisArgs().setCluster(getRedisServer().isRedisCluster());
 		replicate.setTargetRedisUri(targetRedisURI);
 		replicate.getTargetRedisArgs().setCluster(getTargetRedisServer().isRedisCluster());
-		replicate.getSourceRedisReaderArgs().setIdleTimeout(DEFAULT_IDLE_TIMEOUT_SECONDS);
+		replicate.getSourceRedisReaderArgs().setIdleTimeout(DEFAULT_IDLE_TIMEOUT);
 		replicate.call();
 	}
 

@@ -31,6 +31,7 @@ public class MainCommand extends BaseCommand implements Callable<Integer>, IO {
 		commandLine.setExecutionExceptionHandler(new PrintExceptionMessageHandler());
 		commandLine.registerConverter(DataSize.class, DataSize::parse);
 		commandLine.registerConverter(Expression.class, Expression::parse);
+		commandLine.registerConverter(Duration.class, Duration::parse);
 		commandLine.registerConverter(TemplateExpression.class, Expression::parseTemplate);
 		commandLine.setExecutionStrategy(LoggingMixin.executionStrategy(commandLine.getExecutionStrategy()));
 		return commandLine.execute(args);

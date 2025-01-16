@@ -11,6 +11,8 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
+import com.redis.riot.core.RiotExecutionException;
+
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -31,11 +33,11 @@ public class DatabaseExport extends AbstractRedisExportCommand {
 	private boolean assertUpdates = DEFAULT_ASSERT_UPDATES;
 
 	@Override
-	protected Job job() {
+	protected Job job() throws RiotExecutionException {
 		return job(step(writer()).processor(mapProcessor()));
 	}
 
-	private JdbcBatchItemWriter<Map<String, Object>> writer() {
+	private JdbcBatchItemWriter<Map<String, Object>> writer() throws RiotExecutionException {
 		Assert.hasLength(sql, "No SQL statement specified");
 		log.info("Creating data source with {}", dataSourceArgs);
 		DataSource dataSource = dataSourceArgs.dataSource();

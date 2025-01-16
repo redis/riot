@@ -4,11 +4,13 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.StringTokenizer;
 import java.util.Vector;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.TestInfo;
 import org.slf4j.simple.SimpleLogger;
 
+import com.redis.riot.core.Duration;
 import com.redis.riot.core.MainCommand;
 import com.redis.spring.batch.test.AbstractTargetTestBase;
 
@@ -17,7 +19,7 @@ import picocli.CommandLine.ParseResult;
 
 public abstract class AbstractRiotTestBase extends AbstractTargetTestBase {
 
-	public static final long DEFAULT_IDLE_TIMEOUT_SECONDS = 1;
+	public static final Duration DEFAULT_IDLE_TIMEOUT = new Duration(1, TimeUnit.SECONDS);
 	public static final int DEFAULT_EVENT_QUEUE_CAPACITY = 100000;
 
 	static {

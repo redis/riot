@@ -10,6 +10,8 @@ import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuild
 import org.springframework.jdbc.core.ColumnMapRowMapper;
 import org.springframework.util.Assert;
 
+import com.redis.riot.core.RiotExecutionException;
+
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Parameters;
@@ -27,11 +29,11 @@ public class DatabaseImport extends AbstractRedisImportCommand {
 	private DatabaseReaderArgs readerArgs = new DatabaseReaderArgs();
 
 	@Override
-	protected Job job() {
+	protected Job job() throws RiotExecutionException {
 		return job(step(reader()));
 	}
 
-	protected JdbcCursorItemReader<Map<String, Object>> reader() {
+	protected JdbcCursorItemReader<Map<String, Object>> reader() throws RiotExecutionException {
 		Assert.hasLength(sql, "No SQL statement specified");
 		log.info("Creating data source with {}", dataSourceArgs);
 		DataSource dataSource = dataSourceArgs.dataSource();

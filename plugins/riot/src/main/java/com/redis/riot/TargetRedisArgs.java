@@ -1,13 +1,14 @@
 package com.redis.riot;
 
 import java.io.File;
-import java.time.Duration;
+
+import com.redis.riot.core.Duration;
 
 import io.lettuce.core.protocol.ProtocolVersion;
 import lombok.ToString;
 import picocli.CommandLine.Option;
 
-@ToString(exclude = { "password", "keystorePassword", "truststorePassword", "keyPassword" })
+@ToString
 public class TargetRedisArgs implements RedisClientArgs {
 
 	@Option(names = "--target-user", description = "Target ACL style 'AUTH username pass'. Needs password.", paramLabel = "<name>")
@@ -16,8 +17,8 @@ public class TargetRedisArgs implements RedisClientArgs {
 	@Option(names = "--target-pass", arity = "0..1", interactive = true, description = "Password to use when connecting to the target server.", paramLabel = "<pwd>")
 	private char[] password;
 
-	@Option(names = "--target-timeout", description = "Target Redis command timeout in seconds (default: ${DEFAULT-VALUE}).", paramLabel = "<sec>")
-	private long timeout = DEFAULT_TIMEOUT_SECONDS;
+	@Option(names = "--target-timeout", description = "Target Redis command timeout, e.g. 30s or 5m (default: ${DEFAULT-VALUE}).", paramLabel = "<duration>")
+	private Duration timeout = DEFAULT_TIMEOUT;
 
 	@Option(names = "--target-tls", description = "Establish a secure TLS connection to target.")
 	private boolean tls;
@@ -93,10 +94,10 @@ public class TargetRedisArgs implements RedisClientArgs {
 
 	@Override
 	public Duration getTimeout() {
-		return Duration.ofSeconds(timeout);
+		return timeout;
 	}
 
-	public void setTimeout(long timeout) {
+	public void setTimeout(Duration timeout) {
 		this.timeout = timeout;
 	}
 

@@ -1,6 +1,5 @@
 package com.redis.riot.core;
 
-import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
@@ -67,8 +66,8 @@ public abstract class AbstractJobCommand extends AbstractCallableCommand {
 	@Option(names = "--job-name", description = "Job name.", paramLabel = "<string>", hidden = true)
 	private String jobName;
 
-	@Option(names = "--repeat-every", description = "After the job completes keep repeating it on a fixed interval (ex 5m, 1h)")
-	private String repeatEvery;
+	@Option(names = "--repeat", description = "After the job completes keep repeating it on a fixed interval (ex 5m, 1h)", paramLabel = "<duration>")
+	private Duration repeatEvery;
 
 	@ArgGroup(exclusive = false, heading = "Job options%n")
 	private StepArgs stepArgs = new StepArgs();
@@ -179,59 +178,64 @@ public abstract class AbstractJobCommand extends AbstractCallableCommand {
 			job.next(step(iterator.next()));
 		}
 
-		if (null != repeatEvery) {
+		if (repeatEvery != null) {
 			job.incrementer(new RunIdIncrementer());
 			job.preventRestart();
-			String standardDuration = repeatEvery.toLowerCase().replace("m", "M").replace("h", "H");
-			if (!standardDuration.startsWith("P")) {
-				standardDuration = "PT" + standardDuration;
-			}
-			Duration repeatDuration = Duration.parse(standardDuration);
-			job.listener(new JobExecutionListener() {
-				Job lastJob;
-
-				@Override
-				public void afterJob(JobExecution jobExecution) {
-					if (jobExecution.getStatus() == BatchStatus.COMPLETED) {
-						if (null != onJobSuccessCallback) {
-							onJobSuccessCallback.run();
-						}
-
-						log.info("Finished job, will run again in {}", repeatEvery);
-						try {
-							Thread.sleep(repeatDuration.toMillis());
-							if (lastJob == null) {
-								lastJob = job.build();
-							}
-
-							Job nextJob = jobBuilder().start(step(steps.stream().findFirst().get()))
-									.incrementer(new RunIdIncrementer()).preventRestart().listener(this).build();
-
-							JobParametersBuilder paramsBuilder = new JobParametersBuilder(
-									jobExecution.getJobParameters(), jobExplorer);
-
-							jobLauncher.run(nextJob,
-									paramsBuilder.addString("runTime", String.valueOf(System.currentTimeMillis()))
-											.getNextJobParameters(lastJob).toJobParameters());
-							lastJob = nextJob;
-						} catch (InterruptedException | JobExecutionAlreadyRunningException | JobRestartException
-								| JobInstanceAlreadyCompleteException | JobParametersInvalidException e) {
-							throw new RuntimeException(e);
-						}
-					}
-					JobExecutionListener.super.afterJob(jobExecution);
-				}
-			});
+			job.listener(new RepeatJobExecutionListener(job, steps));
 		}
 
 		return job.build();
+	}
+
+	private class RepeatJobExecutionListener implements JobExecutionListener {
+
+		private final SimpleJobBuilder job;
+		private final Collection<Step<?, ?>> steps;
+		private Job lastJob;
+
+		public RepeatJobExecutionListener(SimpleJobBuilder job, Collection<Step<?, ?>> steps) {
+			this.job = job;
+			this.steps = steps;
+		}
+
+		@Override
+		public void afterJob(JobExecution jobExecution) {
+			if (jobExecution.getStatus() == BatchStatus.COMPLETED) {
+				if (null != onJobSuccessCallback) {
+					onJobSuccessCallback.run();
+				}
+
+				log.info("Finished job, will run again in {}", repeatEvery);
+				try {
+					Thread.sleep(repeatEvery.toMillis());
+					if (lastJob == null) {
+						lastJob = job.build();
+					}
+
+					Job nextJob = jobBuilder().start(step(steps.stream().findFirst().get()))
+							.incrementer(new RunIdIncrementer()).preventRestart().listener(this).build();
+
+					JobParametersBuilder paramsBuilder = new JobParametersBuilder(jobExecution.getJobParameters(),
+							jobExplorer);
+
+					jobLauncher.run(nextJob,
+							paramsBuilder.addString("runTime", String.valueOf(System.currentTimeMillis()))
+									.getNextJobParameters(lastJob).toJobParameters());
+					lastJob = nextJob;
+				} catch (InterruptedException | JobExecutionAlreadyRunningException | JobRestartException
+						| JobInstanceAlreadyCompleteException | JobParametersInvalidException e) {
+					throw new RuntimeException(e);
+				}
+			}
+			JobExecutionListener.super.afterJob(jobExecution);
+		}
 	}
 
 	protected boolean shouldShowProgress() {
 		return stepArgs.getProgressArgs().getStyle() != ProgressStyle.NONE;
 	}
 
-	protected abstract Job job();
+	protected abstract Job job() throws RiotExecutionException;
 
 	private <I, O> TaskletStep step(Step<I, O> step) {
 		log.info("Creating {}", step);

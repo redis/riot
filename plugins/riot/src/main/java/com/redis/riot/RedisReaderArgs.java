@@ -63,8 +63,8 @@ public class RedisReaderArgs {
 	@Option(names = "--flush-interval", description = "Max duration in millis between flushes in live mode (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>")
 	private long flushInterval = DEFAULT_FLUSH_INTERVAL.toMillis();
 
-	@Option(names = "--idle-timeout", description = "Min duration in seconds to consider reader complete in live mode (default: no timeout).", paramLabel = "<sec>")
-	private long idleTimeout;
+	@Option(names = "--idle-timeout", description = "Min duration to consider reader complete in live mode, for example 3s 5m (default: no timeout).", paramLabel = "<duration>")
+	private com.redis.riot.core.Duration idleTimeout;
 
 	@Option(names = "--event-queue", description = "Capacity of the keyspace notification queue (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	private int eventQueueCapacity = DEFAULT_EVENT_QUEUE_CAPACITY;
@@ -84,8 +84,8 @@ public class RedisReaderArgs {
 	public <K> void configure(RedisItemReader<K, ?> reader) {
 		reader.setChunkSize(chunkSize);
 		reader.setFlushInterval(Duration.ofMillis(flushInterval));
-		if (idleTimeout > 0) {
-			reader.setIdleTimeout(Duration.ofSeconds(idleTimeout));
+		if (idleTimeout != null) {
+			reader.setIdleTimeout(idleTimeout.toJavaTime());
 		}
 		reader.setKeyPattern(keyPattern);
 		reader.setKeyType(keyType);
@@ -191,11 +191,11 @@ public class RedisReaderArgs {
 		this.flushInterval = intervalMillis;
 	}
 
-	public long getIdleTimeout() {
+	public com.redis.riot.core.Duration getIdleTimeout() {
 		return idleTimeout;
 	}
 
-	public void setIdleTimeout(long idleTimeout) {
+	public void setIdleTimeout(com.redis.riot.core.Duration idleTimeout) {
 		this.idleTimeout = idleTimeout;
 	}
 
