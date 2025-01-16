@@ -1,7 +1,7 @@
 environment:
   properties:
     jdkPathPrefix: 'plugins/riot/build/jdks'
-    jdkFilePrefix: 'zulu17.52.17-ca-jdk17.0.12'
+    jdkFilePrefix: 'zulu21.38.21-ca-jdk21.0.5'
 
 project:
   name: riot
@@ -27,11 +27,12 @@ project:
     - url: https://raw.githubusercontent.com/redis/riot/main/src/media/icon_256x256.png
       width: 256
       height: 256
-  java:
-    groupId: com.redis
-    version: '21'
-    multiProject: true
-    mainClass: com.redis.riot.Riot
+  languages:
+    java:
+      groupId: com.redis
+      version: 21
+      multiProject: true
+      mainClass: com.redis.riot.Riot
   tags: ['riot', 'redis', 'input', 'output', 'tool', 'data', 'import', 'export']
 
 platform:
@@ -49,10 +50,9 @@ release:
       preset: conventional-commits
       contributors:
         format: '- {{contributorName}}{{#contributorUsernameAsLink}} ({{.}}){{/contributorUsernameAsLink}}'
-        enabled: false
       contentTemplate: 'src/jreleaser/changelog.tpl'
       extraProperties:
-        categorizeScopes: 'true'
+        categorizeScopes: true
       labelers:
         - label: 'i18n'
           title: 'regex:^(?:i18n(?:\(.*\))?!?):\s.*'
@@ -121,7 +121,7 @@ assemble:
     riot-standalone:
       active: ALWAYS
       java:
-        version: '21'
+        version: 21
       imageName: '{{distributionName}}-{{projectEffectiveVersion}}'
       executable: riot
       fileSets:
@@ -143,21 +143,21 @@ assemble:
         - 'jdk.security.auth'
         - 'jdk.security.jgss'
       targetJdks:
-        - path: '{{jdkPathPrefix}}/zulu17Osx/{{jdkFilePrefix}}-macosx_x64/zulu-17.jdk/Contents/Home'
+        - path: '{{jdkPathPrefix}}/zulu21Osx/{{jdkFilePrefix}}-macosx_x64/zulu-21.jdk/Contents/Home'
           platform: 'osx-x86_64'
-        - path: '{{jdkPathPrefix}}/zulu17OsxArm/{{jdkFilePrefix}}-macosx_aarch64/zulu-17.jdk/Contents/Home'
+        - path: '{{jdkPathPrefix}}/zulu21OsxArm/{{jdkFilePrefix}}-macosx_aarch64/zulu-21.jdk/Contents/Home'
           platform: 'osx-aarch_64'
-        - path: '{{jdkPathPrefix}}/zulu17Linux/{{jdkFilePrefix}}-linux_x64'
+        - path: '{{jdkPathPrefix}}/zulu21Linux/{{jdkFilePrefix}}-linux_x64'
           platform: 'linux-x86_64'
-        - path: '{{jdkPathPrefix}}/zulu17LinuxArm/{{jdkFilePrefix}}-linux_aarch64'
+        - path: '{{jdkPathPrefix}}/zulu21LinuxArm/{{jdkFilePrefix}}-linux_aarch64'
           platform: 'linux-aarch_64'
-        - path: '{{jdkPathPrefix}}/zulu17LinuxMusl/{{jdkFilePrefix}}-linux_musl_x64'
+        - path: '{{jdkPathPrefix}}/zulu21LinuxMusl/{{jdkFilePrefix}}-linux_musl_x64'
           platform: 'linux_musl-x86_64'
-        - path: '{{jdkPathPrefix}}/zulu17LinuxMuslArm/{{jdkFilePrefix}}-linux_musl_aarch64'
+        - path: '{{jdkPathPrefix}}/zulu21LinuxMuslArm/{{jdkFilePrefix}}-linux_musl_aarch64'
           platform: 'linux_musl-aarch_64'
-        - path: '{{jdkPathPrefix}}/zulu17Windows/{{jdkFilePrefix}}-win_x64'
+        - path: '{{jdkPathPrefix}}/zulu21Windows/{{jdkFilePrefix}}-win_x64'
           platform: 'windows-x86_64'
-        - path: '{{jdkPathPrefix}}/zulu17WindowsArm/{{jdkFilePrefix}}-win_aarch64'
+        - path: '{{jdkPathPrefix}}/zulu21WindowsArm/{{jdkFilePrefix}}-win_aarch64'
           platform: 'windows-aarch_64'
       mainJar:
         path: 'plugins/riot/build/libs/riot-{{projectVersion}}.jar'
@@ -196,11 +196,11 @@ distributions:
       - path: plugins/{{distributionName}}/build/distributions/{{distributionName}}-{{projectVersion}}.zip
         transform: '{{distributionName}}/{{distributionName}}-{{projectEffectiveVersion}}.zip'
         extraProperties:
-          skipSpec: 'true'
+          skipSpec: true
       - path: plugins/{{distributionName}}/build/distributions/{{distributionName}}-{{projectVersion}}.tar
         transform: '{{distributionName}}/{{distributionName}}-{{projectEffectiveVersion}}.tar'
         extraProperties:
-          skipFlatpak: 'true'
+          skipFlatpak: true
 
   riot-standalone:  
     brew:
@@ -216,6 +216,6 @@ files:
   artifacts:
     - path: VERSION
       extraProperties:
-        skipChecksum: 'true'
-        skipSigning: 'true'
-        skipSbom: 'true'
+        skipChecksum: true
+        skipSigning: true
+        skipSbom: true
