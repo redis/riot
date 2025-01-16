@@ -21,7 +21,7 @@ public class DatabaseImport extends AbstractRedisImportCommand {
 	private DataSourceArgs dataSourceArgs = new DataSourceArgs();
 
 	@Parameters(arity = "1", description = "SQL SELECT statement", paramLabel = "SQL")
-	private String sql;
+	protected String sql;
 
 	@ArgGroup(exclusive = false)
 	private DatabaseReaderArgs readerArgs = new DatabaseReaderArgs();
@@ -31,7 +31,7 @@ public class DatabaseImport extends AbstractRedisImportCommand {
 		return job(step(reader()));
 	}
 
-	private JdbcCursorItemReader<Map<String, Object>> reader() {
+	protected JdbcCursorItemReader<Map<String, Object>> reader() {
 		Assert.hasLength(sql, "No SQL statement specified");
 		log.info("Creating data source with {}", dataSourceArgs);
 		DataSource dataSource = dataSourceArgs.dataSource();
