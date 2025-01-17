@@ -21,7 +21,7 @@ import picocli.CommandLine.Option;
 @ToString
 public class KeyValueProcessorArgs {
 
-	@Option(names = "--key-proc", description = "SpEL template expression to transform key names, e.g. \"#{#source.database}:#{key}\" for 'abc' returns '0:abc'", paramLabel = "<exp>")
+	@Option(names = "--key-proc", description = "SpEL template expression to transform key names, e.g. \"#{#source.database}:#{key}\" for 'abc' returns '0:abc'.", paramLabel = "<exp>")
 	private TemplateExpression keyExpression;
 
 	@Option(names = "--type-proc", description = "SpEL expression to transform key types.", paramLabel = "<exp>")
