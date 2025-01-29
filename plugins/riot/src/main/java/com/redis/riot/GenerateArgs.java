@@ -24,7 +24,7 @@ public class GenerateArgs {
 	@Option(names = "--count", description = "Number of items to generate (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	private int count = DEFAULT_COUNT;
 
-	@Option(names = "--key-separator", description = "Key separator (default: ${DEFAULT-VALUE}).", paramLabel = "<str>", hidden = true)
+	@Option(names = "--key-separator", description = "Key separator (default: ${DEFAULT-VALUE}).", paramLabel = "<str>")
 	private String keySepataror = GeneratorItemReader.DEFAULT_KEY_SEPARATOR;
 
 	@Option(names = "--keyspace", description = "Keyspace prefix for generated data structures (default: ${DEFAULT-VALUE}).", paramLabel = "<str>")

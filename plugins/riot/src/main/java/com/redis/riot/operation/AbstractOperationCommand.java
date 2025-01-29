@@ -25,7 +25,7 @@ public abstract class AbstractOperationCommand extends BaseCommand implements Op
 	@Option(names = { "-k", "--key" }, arity = "1..*", description = "Key fields.", paramLabel = "<fields>")
 	private List<String> keyFields;
 
-	@Option(names = "--separator", description = "Key separator (default: ${DEFAULT-VALUE}).", paramLabel = "<str>")
+	@Option(names = "--key-separator", description = "Key separator (default: ${DEFAULT-VALUE}).", paramLabel = "<str>")
 	private String keySeparator = DEFAULT_SEPARATOR;
 
 	@Option(names = "--remove", description = "Remove key or member fields the first time they are used.")

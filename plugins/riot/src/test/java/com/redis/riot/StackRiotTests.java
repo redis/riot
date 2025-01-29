@@ -438,7 +438,7 @@ class StackRiotTests extends RiotTests {
 		assertExecutionSuccessful(execute(info, "file-import-json-elastic-jsonset"));
 		Assertions.assertEquals(2, keyCount("elastic:*"));
 		ObjectMapper mapper = new ObjectMapper();
-		String doc1 = redisCommands.jsonGet("elastic:doc1");
+		String doc1 = redisCommands.jsonGet("elastic:doc1").get(0).toString();
 		String expected = "{\"_index\":\"test-index\",\"_type\":\"docs\",\"_id\":\"doc1\",\"_score\":1,\"_source\":{\"name\":\"ruan\",\"age\":30,\"articles\":[\"1\",\"3\"]}}";
 		Assertions.assertEquals(mapper.readTree(expected), mapper.readTree(doc1));
 	}
