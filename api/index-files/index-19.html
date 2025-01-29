@@ -308,7 +308,7 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/RedisArgs.html#setHost(java.lang.String)" class="member-name-link">setHost(String)</a> - Method in class com.redis.riot.<a href="../com/redis/riot/RedisArgs.html" title="class in com.redis.riot">RedisArgs</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/RedisReaderArgs.html#setIdleTimeout(long)" class="member-name-link">setIdleTimeout(long)</a> - Method in class com.redis.riot.<a href="../com/redis/riot/RedisReaderArgs.html" title="class in com.redis.riot">RedisReaderArgs</a></dt>
+<dt><a href="../com/redis/riot/RedisReaderArgs.html#setIdleTimeout(com.redis.riot.core.Duration)" class="member-name-link">setIdleTimeout(Duration)</a> - Method in class com.redis.riot.<a href="../com/redis/riot/RedisReaderArgs.html" title="class in com.redis.riot">RedisReaderArgs</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/operation/AbstractOperationCommand.html#setIgnoreMissingFields(boolean)" class="member-name-link">setIgnoreMissingFields(boolean)</a> - Method in class com.redis.riot.operation.<a href="../com/redis/riot/operation/AbstractOperationCommand.html" title="class in com.redis.riot.operation">AbstractOperationCommand</a></dt>
 <dd>&nbsp;</dd>
@@ -702,11 +702,11 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/RedisReaderArgs.html#setThreads(int)" class="member-name-link">setThreads(int)</a> - Method in class com.redis.riot.<a href="../com/redis/riot/RedisReaderArgs.html" title="class in com.redis.riot">RedisReaderArgs</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/RedisArgs.html#setTimeout(long)" class="member-name-link">setTimeout(long)</a> - Method in class com.redis.riot.<a href="../com/redis/riot/RedisArgs.html" title="class in com.redis.riot">RedisArgs</a></dt>
+<dt><a href="../com/redis/riot/RedisArgs.html#setTimeout(com.redis.riot.core.Duration)" class="member-name-link">setTimeout(Duration)</a> - Method in class com.redis.riot.<a href="../com/redis/riot/RedisArgs.html" title="class in com.redis.riot">RedisArgs</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/TargetRedisArgs.html#setTimeout(long)" class="member-name-link">setTimeout(long)</a> - Method in class com.redis.riot.<a href="../com/redis/riot/TargetRedisArgs.html" title="class in com.redis.riot">TargetRedisArgs</a></dt>
+<dt><a href="../com/redis/riot/SourceRedisArgs.html#setTimeout(com.redis.riot.core.Duration)" class="member-name-link">setTimeout(Duration)</a> - Method in class com.redis.riot.<a href="../com/redis/riot/SourceRedisArgs.html" title="class in com.redis.riot">SourceRedisArgs</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/SourceRedisArgs.html#setTimeout(java.time.Duration)" class="member-name-link">setTimeout(Duration)</a> - Method in class com.redis.riot.<a href="../com/redis/riot/SourceRedisArgs.html" title="class in com.redis.riot">SourceRedisArgs</a></dt>
+<dt><a href="../com/redis/riot/TargetRedisArgs.html#setTimeout(com.redis.riot.core.Duration)" class="member-name-link">setTimeout(Duration)</a> - Method in class com.redis.riot.<a href="../com/redis/riot/TargetRedisArgs.html" title="class in com.redis.riot">TargetRedisArgs</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/GenerateArgs.html#setTimeseriesSampleCount(com.redis.spring.batch.item.redis.common.Range)" class="member-name-link">setTimeseriesSampleCount(Range)</a> - Method in class com.redis.riot.<a href="../com/redis/riot/GenerateArgs.html" title="class in com.redis.riot">GenerateArgs</a></dt>
 <dd>&nbsp;</dd>
@@ -768,7 +768,7 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/GenerateArgs.html#setTypes(java.util.List)" class="member-name-link">setTypes(List&lt;ItemType&gt;)</a> - Method in class com.redis.riot.<a href="../com/redis/riot/GenerateArgs.html" title="class in com.redis.riot">GenerateArgs</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="../com/redis/riot/core/ProgressArgs.html#setUpdateInterval(long)" class="member-name-link">setUpdateInterval(long)</a> - Method in class com.redis.riot.core.<a href="../com/redis/riot/core/ProgressArgs.html" title="class in com.redis.riot.core">ProgressArgs</a></dt>
+<dt><a href="../com/redis/riot/core/ProgressArgs.html#setUpdateInterval(com.redis.riot.core.Duration)" class="member-name-link">setUpdateInterval(Duration)</a> - Method in class com.redis.riot.core.<a href="../com/redis/riot/core/ProgressArgs.html" title="class in com.redis.riot.core">ProgressArgs</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/RedisArgs.html#setUri(io.lettuce.core.RedisURI)" class="member-name-link">setUri(RedisURI)</a> - Method in class com.redis.riot.<a href="../com/redis/riot/RedisArgs.html" title="class in com.redis.riot">RedisArgs</a></dt>
 <dd>&nbsp;</dd>
@@ -927,6 +927,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="../com/redis/riot/Replicate.Type.html#STRUCT" class="member-name-link">STRUCT</a> - Enum constant in enum class com.redis.riot.<a href="../com/redis/riot/Replicate.Type.html" title="enum class in com.redis.riot">Replicate.Type</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/Riot.html#subcommands()" class="member-name-link">subcommands()</a> - Method in class com.redis.riot.<a href="../com/redis/riot/Riot.html" title="class in com.redis.riot">Riot</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="../com/redis/riot/core/Duration.html#succinctDuration(double,java.util.concurrent.TimeUnit)" class="member-name-link">succinctDuration(double, TimeUnit)</a> - Static method in class com.redis.riot.core.<a href="../com/redis/riot/core/Duration.html" title="class in com.redis.riot.core">Duration</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="../com/redis/riot/core/Duration.html#succinctNanos(long)" class="member-name-link">succinctNanos(long)</a> - Static method in class com.redis.riot.core.<a href="../com/redis/riot/core/Duration.html" title="class in com.redis.riot.core">Duration</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/redis/riot/operation/SugaddCommand.html" class="type-name-link" title="class in com.redis.riot.operation">SugaddCommand</a> - Class in <a href="../com/redis/riot/operation/package-summary.html">com.redis.riot.operation</a></dt>
 <dd>&nbsp;</dd>

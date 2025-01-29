@@ -92,7 +92,7 @@ $(addBlockSwitches);
 <h1>Redis Input/Output Tools (RIOT)</h1>
 <div class="details">
 <span id="author" class="author">Julien Ruaux</span><br>
-<span id="revnumber">version 4.2.0</span>
+<span id="revnumber">version 4.2.1</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -250,10 +250,10 @@ scoop install riot</code></pre>
 </td>
 <td class="content">
 <div class="paragraph">
-<p><code>riot-4.2.0.zip</code> requires Java 11 or greater to be installed.</p>
+<p><code>riot-4.2.1.zip</code> requires Java 11 or greater to be installed.</p>
 </div>
 <div class="paragraph">
-<p><code>riot-standalone-4.2.0-*.zip</code> includes its own Java runtime and does not require a Java installation.</p>
+<p><code>riot-standalone-4.2.1-*.zip</code> includes its own Java runtime and does not require a Java installation.</p>
 </div>
 </td>
 </tr>
@@ -307,7 +307,7 @@ Here, only one reader is being accessed from multiple threads.</p>
 <div class="listingblock">
 <div class="title">Multi-threading example</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="console">riot db-import &quot;SELECT * FROM orders&quot; --jdbc-url &quot;jdbc:postgresql://host:port/database&quot; --jdbc-username appuser --jdbc-password passwd --threads 3 hset --keyspace order --key order_id</code></pre>
+<pre class="CodeRay highlight"><code data-lang="console">riot db-import &quot;SELECT * FROM orders&quot; --jdbc-url &quot;jdbc:postgresql://host:port/database&quot; --jdbc-user appuser --jdbc-pass passwd --threads 3 hset --keyspace order --key order_id</code></pre>
 </div>
 </div>
 </div>
@@ -747,33 +747,25 @@ Most providers don&#8217;t take any arguments and can be called directly:</p>
 <p>RIOT relies on JDBC to interact with databases.
 It includes JDBC drivers for the most common database systems:</p>
 </div>
-<div class="ulist">
-<ul>
-<li>
-<p><a href="https://docs.oracle.com/cd/E11882_01/appdev.112/e13995/oracle/jdbc/OracleDriver.html">Oracle</a></p>
-<div class="paragraph">
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><a href="https://docs.oracle.com/cd/E11882_01/appdev.112/e13995/oracle/jdbc/OracleDriver.html">Oracle</a></dt>
+<dd>
 <p><code>jdbc:oracle:thin:@myhost:1521:orcl</code></p>
-</div>
-</li>
-<li>
-<p><a href="https://docs.microsoft.com/en-us/sql/connect/jdbc/building-the-connection-url?view=sql-server-2017">MS SQL Server</a></p>
-<div class="paragraph">
+</dd>
+<dt class="hdlist1"><a href="https://docs.microsoft.com/en-us/sql/connect/jdbc/building-the-connection-url?view=sql-server-2017">SQL Server</a></dt>
+<dd>
 <p><code>jdbc:sqlserver://[serverName[\instanceName][:portNumber]][;property=value[;property=value]]</code></p>
-</div>
-</li>
-<li>
-<p><a href="https://dev.mysql.com/doc/connector-j/8.0/en/connector-j-reference-jdbc-url-format.html">MySQL</a></p>
-<div class="paragraph">
+</dd>
+<dt class="hdlist1"><a href="https://dev.mysql.com/doc/connector-j/8.0/en/connector-j-reference-jdbc-url-format.html">MySQL</a></dt>
+<dd>
 <p><code>jdbc:mysql://[host]:[port][/database][?properties]</code></p>
-</div>
-</li>
-<li>
-<p><a href="https://www.postgresql.org/docs/7.4/jdbc-use.html">PostgreSQL</a></p>
-<div class="paragraph">
+</dd>
+<dt class="hdlist1"><a href="https://www.postgresql.org/docs/7.4/jdbc-use.html">Postgres</a></dt>
+<dd>
 <p><code>jdbc:postgresql://host:port/database</code></p>
-</div>
-</li>
-</ul>
+</dd>
+</dl>
 </div>
 <div class="admonitionblock tip">
 <table>
@@ -867,13 +859,13 @@ See the <a href="#_db_drivers">Drivers</a> section for more details.
 <div class="listingblock">
 <div class="title">PostgreSQL Import Example</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="console">riot db-import &quot;SELECT * FROM orders&quot; --jdbc-url &quot;jdbc:postgresql://host:port/database&quot; --jdbc-username appuser --jdbc-password passwd hset --keyspace order --key order_id</code></pre>
+<pre class="CodeRay highlight"><code data-lang="console">riot db-import &quot;SELECT * FROM orders&quot; --jdbc-url &quot;jdbc:postgresql://host:port/database&quot; --jdbc-user appuser --jdbc-pass passwd hset --keyspace order --key order_id</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">Import from PostgreSQL to JSON strings</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="console">riot db-import &quot;SELECT * FROM orders&quot; --jdbc-url &quot;jdbc:postgresql://host:port/database&quot; --jdbc-username appuser --jdbc-password passwd set --keyspace order --key order_id</code></pre>
+<pre class="CodeRay highlight"><code data-lang="console">riot db-import &quot;SELECT * FROM orders&quot; --jdbc-url &quot;jdbc:postgresql://host:port/database&quot; --jdbc-user appuser --jdbc-pass passwd set --keyspace order --key order_id</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -936,7 +928,7 @@ See the <a href="#_db_drivers">Drivers</a> section for more details.
 <div class="listingblock">
 <div class="title">Example: export to PostgreSQL</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="console">riot db-export &quot;INSERT INTO mytable (id, field1, field2) VALUES (CAST(:id AS SMALLINT), :field1, :field2)&quot; --jdbc-url &quot;jdbc:postgresql://host:port/database&quot; --jdbc-username appuser --jdbc-password passwd --key-pattern &quot;gen:*&quot; --key-regex &quot;gen:(?&lt;id&gt;.*)&quot;</code></pre>
+<pre class="CodeRay highlight"><code data-lang="console">riot db-export &quot;INSERT INTO mytable (id, field1, field2) VALUES (CAST(:id AS SMALLINT), :field1, :field2)&quot; --jdbc-url &quot;jdbc:postgresql://host:port/database&quot; --jdbc-user appuser --jdbc-pass passwd --key-pattern &quot;gen:*&quot; --key-regex &quot;gen:(?&lt;id&gt;.*)&quot;</code></pre>
 </div>
 </div>
 </div>
@@ -2129,8 +2121,8 @@ Either increase max JVM heap size (<code>export JAVA_OPTS="-Xmx8g"</code>) or re
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 4.2.0<br>
-Last updated 2025-01-16 02:01:07 UTC
+Version 4.2.1<br>
+Last updated 2025-01-29 02:00:09 UTC
 </div>
 </div>
 <link rel="stylesheet" href="./coderay-asciidoctor.css">
