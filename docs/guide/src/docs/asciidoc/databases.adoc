@@ -12,21 +12,13 @@
 {project-title} relies on JDBC to interact with databases.
 It includes JDBC drivers for the most common database systems:
 
-* {link_jdbc_oracle}
-+
-`jdbc:oracle:thin:@myhost:1521:orcl`
+https://docs.oracle.com/cd/E11882_01/appdev.112/e13995/oracle/jdbc/OracleDriver.html[Oracle]:: `jdbc:oracle:thin:@myhost:1521:orcl`
 
-* {link_jdbc_mssql}
-+
-`jdbc:sqlserver://[serverName[\instanceName][:portNumber]][;property=value[;property=value]]`
+https://docs.microsoft.com/en-us/sql/connect/jdbc/building-the-connection-url?view=sql-server-2017[SQL Server]:: `jdbc:sqlserver://[serverName[\instanceName][:portNumber]][;property=value[;property=value]]`
 
-* {link_jdbc_mysql}
-+
-`jdbc:mysql://[host]:[port][/database][?properties]`
+https://dev.mysql.com/doc/connector-j/8.0/en/connector-j-reference-jdbc-url-format.html[MySQL]:: `jdbc:mysql://[host]:[port][/database][?properties]`
 
-* {link_jdbc_postgres}
-+
-`jdbc:postgresql://host:port/database`
+https://www.postgresql.org/docs/7.4/jdbc-use.html[Postgres]:: `jdbc:postgresql://host:port/database`
 
 [TIP]
 ====
