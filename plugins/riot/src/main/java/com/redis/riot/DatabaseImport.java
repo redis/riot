@@ -36,7 +36,12 @@ public class DatabaseImport extends AbstractRedisImportCommand {
 	protected JdbcCursorItemReader<Map<String, Object>> reader() throws RiotExecutionException {
 		Assert.hasLength(sql, "No SQL statement specified");
 		log.info("Creating data source with {}", dataSourceArgs);
-		DataSource dataSource = dataSourceArgs.dataSource();
+		DataSource dataSource;
+		try {
+			dataSource = dataSourceArgs.dataSource();
+		} catch (Exception e) {
+			throw new RiotExecutionException("Could not initialize data source", e);
+		}
 		log.info("Creating JDBC reader with sql=\"{}\" {}", sql, readerArgs);
 		JdbcCursorItemReaderBuilder<Map<String, Object>> reader = new JdbcCursorItemReaderBuilder<>();
 		reader.dataSource(dataSource);

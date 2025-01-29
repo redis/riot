@@ -5,8 +5,6 @@ import javax.sql.DataSource;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.jdbc.EmbeddedDatabaseConnection;
 
-import com.redis.riot.core.RiotExecutionException;
-
 import lombok.ToString;
 import picocli.CommandLine.Option;
 
@@ -25,18 +23,14 @@ public class DataSourceArgs {
 	@Option(names = "--jdbc-pass", arity = "0..1", interactive = true, description = "Login password of the database.", paramLabel = "<pwd>")
 	private String password;
 
-	public DataSource dataSource() throws RiotExecutionException {
+	public DataSource dataSource() throws Exception {
 		DataSourceProperties properties = new DataSourceProperties();
 		properties.setUrl(url);
 		properties.setDriverClassName(driver);
 		properties.setUsername(username);
 		properties.setPassword(password);
 		properties.setEmbeddedDatabaseConnection(EmbeddedDatabaseConnection.NONE);
-		try {
-			properties.afterPropertiesSet();
-		} catch (Exception e) {
-			throw new RiotExecutionException("Could not initialize datasource", e);
-		}
+		properties.afterPropertiesSet();
 		return properties.initializeDataSourceBuilder().build();
 	}
 

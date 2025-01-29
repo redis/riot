@@ -40,7 +40,12 @@ public class DatabaseExport extends AbstractRedisExportCommand {
 	private JdbcBatchItemWriter<Map<String, Object>> writer() throws RiotExecutionException {
 		Assert.hasLength(sql, "No SQL statement specified");
 		log.info("Creating data source with {}", dataSourceArgs);
-		DataSource dataSource = dataSourceArgs.dataSource();
+		DataSource dataSource;
+		try {
+			dataSource = dataSourceArgs.dataSource();
+		} catch (Exception e) {
+			throw new RiotExecutionException("Could not initialize data source", e);
+		}
 		log.info("Creating JDBC writer with sql=\"{}\" assertUpdates={}", sql, assertUpdates);
 		JdbcBatchItemWriterBuilder<Map<String, Object>> builder = new JdbcBatchItemWriterBuilder<>();
 		builder.itemSqlParameterSourceProvider(NullableSqlParameterSource::new);
