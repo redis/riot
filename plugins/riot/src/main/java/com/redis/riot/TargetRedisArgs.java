@@ -17,7 +17,7 @@ public class TargetRedisArgs implements RedisClientArgs {
 	@Option(names = "--target-pass", arity = "0..1", interactive = true, description = "Password to use when connecting to the target server.", paramLabel = "<pwd>")
 	private char[] password;
 
-	@Option(names = "--target-timeout", description = "Target Redis command timeout, e.g. 30s or 5m (default: ${DEFAULT-VALUE}).", paramLabel = "<duration>")
+	@Option(names = "--target-timeout", description = "Target Redis command timeout, e.g. 30s or 5m (default: ${DEFAULT-VALUE}).", paramLabel = "<dur>")
 	private Duration timeout = DEFAULT_TIMEOUT;
 
 	@Option(names = "--target-tls", description = "Establish a secure TLS connection to target.")

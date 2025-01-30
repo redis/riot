@@ -34,7 +34,7 @@ public class RedisArgs implements RedisClientArgs {
 			"--pass" }, arity = "0..1", interactive = true, description = "Password to use when connecting to the Redis server.", paramLabel = "<password>")
 	private char[] password;
 
-	@Option(names = "--timeout", description = "Redis command timeout, e.g. 30s or 5m (default: ${DEFAULT-VALUE}).", paramLabel = "<duration>")
+	@Option(names = "--timeout", description = "Redis command timeout, e.g. 30s or 5m (default: ${DEFAULT-VALUE}).", paramLabel = "<dur>")
 	private Duration timeout = DEFAULT_TIMEOUT;
 
 	@Option(names = { "-n", "--db" }, description = "Redis database number.", paramLabel = "<db>")

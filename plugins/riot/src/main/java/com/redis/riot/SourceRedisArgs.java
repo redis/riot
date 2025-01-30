@@ -17,7 +17,7 @@ public class SourceRedisArgs implements RedisClientArgs {
 	@Option(names = "--source-pass", arity = "0..1", interactive = true, description = "Password to use when connecting to the source server.", paramLabel = "<pwd>")
 	private char[] password;
 
-	@Option(names = "--source-timeout", description = "Source Redis command timeout, e.g. 30s or 5m (default: ${DEFAULT-VALUE}).", paramLabel = "<duration>")
+	@Option(names = "--source-timeout", description = "Source Redis command timeout, e.g. 30s or 5m (default: ${DEFAULT-VALUE}).", paramLabel = "<dur>")
 	private Duration timeout = DEFAULT_TIMEOUT;
 
 	@Option(names = "--source-tls", description = "Establish a secure TLS connection to source.")

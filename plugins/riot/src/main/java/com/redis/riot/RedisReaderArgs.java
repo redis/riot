@@ -63,7 +63,7 @@ public class RedisReaderArgs {
 	@Option(names = "--flush-interval", description = "Max duration in millis between flushes in live mode (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>")
 	private long flushInterval = DEFAULT_FLUSH_INTERVAL.toMillis();
 
-	@Option(names = "--idle-timeout", description = "Min duration to consider reader complete in live mode, for example 3s 5m (default: no timeout).", paramLabel = "<duration>")
+	@Option(names = "--idle-timeout", description = "Min duration to consider reader complete in live mode, for example 3s 5m (default: no timeout).", paramLabel = "<dur>")
 	private com.redis.riot.core.Duration idleTimeout;
 
 	@Option(names = "--event-queue", description = "Capacity of the keyspace notification queue (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")

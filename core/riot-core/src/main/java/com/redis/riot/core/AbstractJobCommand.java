@@ -66,7 +66,7 @@ public abstract class AbstractJobCommand extends AbstractCallableCommand {
 	@Option(names = "--job-name", description = "Job name.", paramLabel = "<string>", hidden = true)
 	private String jobName;
 
-	@Option(names = "--repeat", description = "After the job completes keep repeating it on a fixed interval (ex 5m, 1h)", paramLabel = "<duration>")
+	@Option(names = "--repeat", description = "After the job completes keep repeating it on a fixed interval (ex 5m, 1h)", paramLabel = "<dur>")
 	private Duration repeatEvery;
 
 	@ArgGroup(exclusive = false, heading = "Job options%n")

@@ -14,7 +14,7 @@ public class ProgressArgs {
 	@Option(names = "--progress", description = "Progress style: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<style>")
 	private ProgressStyle style = DEFAULT_STYLE;
 
-	@Option(names = "--progress-rate", description = "Progress update interval in millis (default: ${DEFAULT-VALUE}).", paramLabel = "<duration>", hidden = true)
+	@Option(names = "--progress-rate", description = "Progress update interval in millis (default: ${DEFAULT-VALUE}).", paramLabel = "<dur>", hidden = true)
 	private Duration updateInterval = DEFAULT_UPDATE_INTERVAL;
 
 	public ProgressStyle getStyle() {
