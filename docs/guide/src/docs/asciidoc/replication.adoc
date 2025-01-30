@@ -191,8 +191,8 @@ Number of keys with mismatched TTL i.e. difference is greater than tolerance (ca
 
 There are 2 comparison modes available through `--compare` (`--quick` for `compare` command):
 
-* Quick (default): compares key types and TTLs.
-* Full: compares key types, TTLs, and values.
+Quick (default):: Compare key types and TTLs.
+Full:: Compare key types, TTLs, and values.
 
 To show which keys differ, use the `--show-diffs` option.
 

@@ -3,8 +3,8 @@
 
 {project-title} includes 2 commands for data generation:
 
-* <<_datagen_struct,`generate`>>: Generate Redis data structures
-* <<_datagen_faker,`faker`>>: Import data from {link_datafaker}
+<<_datagen_struct,`generate`>>:: Generate Redis data structures
+<<_datagen_faker,`faker`>>:: Import data from {link_datafaker}
 
 [[_datagen_struct]]
 == Data Structure Generator

@@ -3,8 +3,8 @@
 
 {project-title} includes two commands for interaction with relational databases:
 
-* <<_db_import, `db-import`>>: Import database tables into Redis
-* <<_db_export, `db-export`>>: Export Redis data structures to a database
+<<_db_import, `db-import`>>:: Import database tables into Redis
+<<_db_export, `db-export`>>:: Export Redis data structures to a database
 
 [[_db_drivers]]
 == Drivers
@@ -24,8 +24,8 @@ https://www.postgresql.org/docs/7.4/jdbc-use.html[Postgres]:: `jdbc:postgresql:/
 ====
 For non-included databases you must install the corresponding JDBC driver under the `lib` directory and modify the `CLASSPATH`:
 
-* *nix: `bin/riot` -> `CLASSPATH=$APP_HOME/lib/myjdbc.jar:$APP_HOME/lib/...`
-* Windows: `bin\riot.bat` -> `set CLASSPATH=%APP_HOME%\lib\myjdbc.jar;%APP_HOME%\lib\...`
+*nix:: `bin/riot` -> `CLASSPATH=$APP_HOME/lib/myjdbc.jar:$APP_HOME/lib/...`
+Windows:: `bin\riot.bat` -> `set CLASSPATH=%APP_HOME%\lib\myjdbc.jar;%APP_HOME%\lib\...`
 ====
 
 [[_db_import]]

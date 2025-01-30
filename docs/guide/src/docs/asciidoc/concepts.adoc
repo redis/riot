@@ -36,12 +36,13 @@ include::{testdir}/db-import-postgresql-multithreaded[]
 
 {project-title} lets you transform incoming records using processors.
 These processors allow you to create/update/delete fields using the Spring Expression Language ({link_spel}).
+
 For example, import commands like `file-import`, `db-import`, and `faker` have a `--proc` option that allow for field-level processing:
 
-* `--proc field1="'foo'"` -> generate a field named `field1` containing the string `foo`
-* `--proc temp="(temp-32)*5/9"` -> convert from Fahrenheit to Celsius
-* `--proc name='remove("first").concat(remove("last"))'` -> concatenate `first` and `last` fields and delete them
-* `field2=null` -> delete `field2`
+`--proc field1="'foo'"`:: Generate a field named `field1` containing the string `foo`
+`--proc temp="(temp-32)*5/9"`:: Convert from Fahrenheit to Celsius
+`--proc name='remove("first").concat(remove("last"))'`:: Concatenate `first` and `last` fields and delete them
+`--proc field2=null`:: Delete `field2`
 
 Input fields are accessed by name (e.g. `field3=field1+field2`).
 

@@ -3,8 +3,8 @@
 
 {project-title} includes two commands to work with files in various formats:
 
-* <<_file_import,`file-import`>>: Import data from files
-* <<_file_export,`file-export`>>: Export Redis data structures to files
+<<_file_import,`file-import`>>:: Import data from files
+<<_file_export,`file-export`>>:: Export Redis data structures to files
 
 [[_file_import]]
 == File Import
