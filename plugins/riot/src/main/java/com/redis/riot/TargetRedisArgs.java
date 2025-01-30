@@ -59,7 +59,7 @@ public class TargetRedisArgs implements RedisClientArgs {
 	@Option(names = "--target-key", description = "Private key file to authenticate with (PKCS#8 PEM).", paramLabel = "<file>")
 	private File key;
 
-	@Option(names = "--target-key-pass", arity = "0..1", interactive = true, description = "Private key password.", paramLabel = "<pwd>")
+	@Option(names = "--target-key-pass", arity = "0..1", interactive = true, description = "Private key password.", paramLabel = "pw")
 	private char[] keyPassword;
 
 	@Option(names = "--target-cacert", description = "CA Certificate file to verify with (X.509).", paramLabel = "<file>")

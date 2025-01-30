@@ -59,7 +59,7 @@ public class SourceRedisArgs implements RedisClientArgs {
 	@Option(names = "--source-key", description = "Private key file to authenticate with (PKCS#8 PEM).", paramLabel = "<file>")
 	private File key;
 
-	@Option(names = "--source-key-pass", arity = "0..1", interactive = true, description = "Private key password.", paramLabel = "<pwd>")
+	@Option(names = "--source-key-pass", arity = "0..1", interactive = true, description = "Private key password.", paramLabel = "p")
 	private char[] keyPassword;
 
 	@Option(names = "--source-cacert", description = "CA Certificate file to verify with (X.509).", paramLabel = "<file>")
