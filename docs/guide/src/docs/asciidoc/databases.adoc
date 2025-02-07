@@ -38,7 +38,7 @@ See the <<_db_drivers,Drivers>> section for more details.
 
 [source,console]
 ----
-riot db-import --jdbc-url <jdbc url> SQL [REDIS COMMAND...]
+riot db-import --jdbc-url <jdbc url> --uri <redis uri> SQL [REDIS COMMAND...]
 ----
 
 To show the full usage, run:
@@ -50,17 +50,7 @@ riot db-import --help
 
 You must specify at least one Redis command as a target.
 
-[IMPORTANT]
-====
-Redis connection options apply to the root command (`riot`) and not to subcommands.
-
-In this example the Redis options will not be taken into account:
-
-[source,subs="verbatim,attributes"]
-----
-riot db-import "SELECT * FROM customers" hset -h myredis.com -p 6380
-----
-====
+IMPORTANT: Redis connection options apply to the root command (`riot`) and not to subcommands.
 
 The keys that will be written are constructed from input records by concatenating the keyspace prefix and key fields.
 
