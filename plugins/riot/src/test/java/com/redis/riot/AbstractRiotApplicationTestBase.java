@@ -1,5 +1,8 @@
 package com.redis.riot;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.junit.jupiter.api.TestInfo;
 import org.slf4j.simple.SimpleLogger;
 
@@ -33,11 +36,11 @@ abstract class AbstractRiotApplicationTestBase extends AbstractRiotTestBase {
 	private class TestRiot extends Riot {
 
 		private final TestInfo info;
-		private final IExecutionStrategy[] configs;
+		private final List<IExecutionStrategy> configs;
 
 		public TestRiot(TestInfo info, IExecutionStrategy... configs) {
 			this.info = info;
-			this.configs = configs;
+			this.configs = Arrays.asList(configs);
 		}
 
 		@Override
@@ -77,9 +80,7 @@ abstract class AbstractRiotApplicationTestBase extends AbstractRiotTestBase {
 					replicateCommand.setCompareMode(CompareMode.NONE);
 				}
 			}
-			for (IExecutionStrategy config : configs) {
-				config.execute(parseResult);
-			}
+			configs.forEach(c -> c.execute(parseResult));
 			return super.executionStrategy(parseResult);
 		}
 
