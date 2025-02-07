@@ -40,26 +40,8 @@ abstract class AbstractRiotApplicationTestBase extends AbstractRiotTestBase {
 			this.configs = configs;
 		}
 
-		private void configure(RedisArgs redisArgs) {
-			redisArgs.setUri(redisURI);
-			redisArgs.setCluster(getRedisServer().isRedisCluster());
-		}
-
-		private void configure(RedisReaderArgs redisReaderArgs) {
-			redisReaderArgs.setIdleTimeout(DEFAULT_IDLE_TIMEOUT);
-			redisReaderArgs.setEventQueueCapacity(DEFAULT_EVENT_QUEUE_CAPACITY);
-		}
-
 		@Override
-		protected int execute(ParseResult parseResult, IExecutionStrategy defaultStrategy) {
-			configure(parseResult);
-			for (IExecutionStrategy config : configs) {
-				config.execute(parseResult);
-			}
-			return super.execute(parseResult, defaultStrategy);
-		}
-
-		private void configure(ParseResult parseResult) {
+		protected int executionStrategy(ParseResult parseResult) {
 			for (ParseResult subParseResult : parseResult.subcommands()) {
 				Object command = subParseResult.commandSpec().commandLine().getCommand();
 				if (command instanceof OperationCommand) {
@@ -95,7 +77,22 @@ abstract class AbstractRiotApplicationTestBase extends AbstractRiotTestBase {
 					replicateCommand.setCompareMode(CompareMode.NONE);
 				}
 			}
+			for (IExecutionStrategy config : configs) {
+				config.execute(parseResult);
+			}
+			return super.executionStrategy(parseResult);
 		}
+
+		private void configure(RedisArgs redisArgs) {
+			redisArgs.setUri(redisURI);
+			redisArgs.setCluster(getRedisServer().isRedisCluster());
+		}
+
+		private void configure(RedisReaderArgs args) {
+			args.setIdleTimeout(DEFAULT_IDLE_TIMEOUT);
+			args.setEventQueueCapacity(DEFAULT_EVENT_QUEUE_CAPACITY);
+		}
+
 	}
 
 }

@@ -153,7 +153,7 @@ class StackRiotTests extends RiotTests {
 	}
 
 	private int executeFileDumpExport(ParseResult parseResult, TestInfo info) {
-		AbstractFileExport command = command(parseResult);
+		FileExport command = command(parseResult);
 		command.setJobName(name(info));
 		command.setFile(replace(command.getFile()));
 		return ExitCode.OK;

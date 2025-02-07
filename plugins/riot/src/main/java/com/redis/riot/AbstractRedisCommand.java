@@ -2,7 +2,6 @@ package com.redis.riot;
 
 import com.redis.lettucemod.api.sync.RedisModulesCommands;
 import com.redis.riot.core.AbstractJobCommand;
-import com.redis.riot.core.RiotInitializationException;
 import com.redis.spring.batch.item.redis.RedisItemWriter;
 
 import picocli.CommandLine.ArgGroup;
@@ -15,7 +14,7 @@ public abstract class AbstractRedisCommand extends AbstractJobCommand {
 	private RedisContext redisContext;
 
 	@Override
-	protected void initialize() throws RiotInitializationException {
+	protected void initialize() {
 		super.initialize();
 		redisContext = RedisContext.of(redisArgs);
 		redisContext.afterPropertiesSet();

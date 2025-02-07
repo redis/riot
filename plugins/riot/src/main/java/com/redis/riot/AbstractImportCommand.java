@@ -16,7 +16,6 @@ import org.springframework.util.CollectionUtils;
 
 import com.redis.riot.core.AbstractJobCommand;
 import com.redis.riot.core.QuietMapAccessor;
-import com.redis.riot.core.RiotInitializationException;
 import com.redis.riot.core.RiotUtils;
 import com.redis.riot.core.Step;
 import com.redis.riot.core.processor.PredicateOperator;
@@ -67,7 +66,7 @@ public abstract class AbstractImportCommand extends AbstractJobCommand {
 	private List<OperationCommand> importOperationCommands = new ArrayList<>();
 
 	@Override
-	protected void initialize() throws RiotInitializationException {
+	protected void initialize() {
 		super.initialize();
 		targetRedisContext = targetRedisContext();
 		targetRedisContext.afterPropertiesSet();

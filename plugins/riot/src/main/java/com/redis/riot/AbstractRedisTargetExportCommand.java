@@ -2,7 +2,6 @@ package com.redis.riot;
 
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
-import com.redis.riot.core.RiotInitializationException;
 import com.redis.spring.batch.item.redis.RedisItemReader;
 import com.redis.spring.batch.item.redis.RedisItemWriter;
 
@@ -30,7 +29,7 @@ public abstract class AbstractRedisTargetExportCommand extends AbstractExportCom
 	private RedisContext targetRedisContext;
 
 	@Override
-	protected void initialize() throws RiotInitializationException {
+	protected void initialize() {
 		super.initialize();
 		targetRedisContext = targetRedisContext();
 		targetRedisContext.afterPropertiesSet();

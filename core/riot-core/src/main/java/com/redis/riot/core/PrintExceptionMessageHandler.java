@@ -6,19 +6,32 @@ import picocli.CommandLine.ParseResult;
 
 public class PrintExceptionMessageHandler implements IExecutionExceptionHandler {
 
-	public int handleExecutionException(Exception ex, CommandLine cmd, ParseResult parseResult) {
+	public int handleExecutionException(Exception exception, CommandLine cmd, ParseResult parseResult) {
+
+		Throwable finalException = unwrapException(exception);
 
 		if (cmd.getCommand() instanceof BaseCommand) {
 			if (((BaseCommand) cmd.getCommand()).loggingMixin.isStacktrace()) {
-				ex.printStackTrace(cmd.getErr());
+				finalException.printStackTrace(cmd.getErr());
 			}
 		}
 
 		// bold red error message
-		cmd.getErr().println(cmd.getColorScheme().errorText(ex.getMessage()));
+		cmd.getErr().println(cmd.getColorScheme().errorText(finalException.getMessage()));
 
-		return cmd.getExitCodeExceptionMapper() != null ? cmd.getExitCodeExceptionMapper().getExitCode(ex)
+		return cmd.getExitCodeExceptionMapper() != null ? cmd.getExitCodeExceptionMapper().getExitCode(finalException)
 				: cmd.getCommandSpec().exitCodeOnExecutionException();
+	}
+
+	private Throwable unwrapException(Exception exception) {
+		if (exception instanceof RiotException) {
+			RiotException riotException = (RiotException) exception;
+			if (riotException.getCause() == null) {
+				return riotException;
+			}
+			return riotException.getCause();
+		}
+		return exception;
 	}
 
 }

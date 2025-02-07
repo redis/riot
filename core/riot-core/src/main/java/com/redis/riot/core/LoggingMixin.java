@@ -8,9 +8,9 @@ import java.util.Map;
 import org.slf4j.event.Level;
 import org.slf4j.simple.SimpleLogger;
 
-import picocli.CommandLine.IExecutionStrategy;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
+import picocli.CommandLine.ParseResult;
 import picocli.CommandLine.Spec;
 
 public class LoggingMixin {
@@ -107,11 +107,9 @@ public class LoggingMixin {
 		getTopLevelCommandLoggingMixin(mixee).level = level;
 	}
 
-	public static IExecutionStrategy executionStrategy(IExecutionStrategy delegate) {
-		return r -> {
-			getTopLevelCommandLoggingMixin(r.commandSpec()).configureLoggers();
-			return delegate.execute(r);
-		};
+	public static int executionStrategy(ParseResult parseResult) {
+		getTopLevelCommandLoggingMixin(parseResult.commandSpec()).configureLoggers();
+		return 0;
 	}
 
 	public void configureLoggers() {

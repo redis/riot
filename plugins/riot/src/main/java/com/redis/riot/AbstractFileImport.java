@@ -22,7 +22,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MimeType;
 
-import com.redis.riot.core.RiotInitializationException;
+import com.redis.riot.core.RiotException;
 import com.redis.riot.core.RiotUtils;
 import com.redis.riot.core.Step;
 import com.redis.riot.core.processor.RegexNamedGroupFunction;
@@ -32,18 +32,15 @@ import com.redis.riot.file.ReaderFactory;
 import com.redis.riot.file.ResourceFactory;
 import com.redis.riot.file.ResourceMap;
 import com.redis.riot.file.RiotResourceMap;
-import com.redis.riot.file.RuntimeIOException;
 import com.redis.riot.file.StdInProtocolResolver;
 import com.redis.riot.function.MapToFieldFunction;
 import com.redis.spring.batch.item.redis.RedisItemWriter;
 import com.redis.spring.batch.item.redis.common.KeyValue;
 
 import picocli.CommandLine.ArgGroup;
-import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
-@Command(name = "file-import", description = "Import data from files.")
 public abstract class AbstractFileImport extends AbstractRedisImportCommand {
 
 	public static final String STDIN_FILENAME = "-";
@@ -65,7 +62,7 @@ public abstract class AbstractFileImport extends AbstractRedisImportCommand {
 	private ReadOptions readOptions;
 
 	@Override
-	protected void initialize() throws RiotInitializationException {
+	protected void initialize() {
 		super.initialize();
 		Assert.notEmpty(files, "No file specified");
 		readerRegistry = readerRegistry();
@@ -100,7 +97,7 @@ public abstract class AbstractFileImport extends AbstractRedisImportCommand {
 		try {
 			resource = resourceFactory.resource(location, readOptions);
 		} catch (IOException e) {
-			throw new RuntimeIOException(String.format("Could not create resource from %s", location), e);
+			throw new RiotException(String.format("Could not create resource from %s", location), e);
 		}
 		MimeType type = readOptions.getContentType() == null ? resourceMap.getContentTypeFor(resource)
 				: readOptions.getContentType();

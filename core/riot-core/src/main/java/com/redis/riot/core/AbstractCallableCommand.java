@@ -27,13 +27,13 @@ public abstract class AbstractCallableCommand extends BaseCommand implements Cal
 		return 0;
 	}
 
-	protected void initialize() throws RiotInitializationException {
+	protected void initialize() {
 		if (log == null) {
 			log = LoggerFactory.getLogger(getClass());
 		}
 	}
 
-	protected abstract void execute() throws RiotExecutionException;
+	protected abstract void execute();
 
 	protected void teardown() {
 		// do nothing

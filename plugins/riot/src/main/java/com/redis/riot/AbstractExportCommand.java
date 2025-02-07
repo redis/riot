@@ -12,7 +12,6 @@ import org.springframework.util.Assert;
 import com.redis.lettucemod.RedisModulesUtils;
 import com.redis.lettucemod.api.StatefulRedisModulesConnection;
 import com.redis.riot.core.AbstractJobCommand;
-import com.redis.riot.core.RiotInitializationException;
 import com.redis.riot.core.Step;
 import com.redis.spring.batch.item.redis.RedisItemReader;
 import com.redis.spring.batch.item.redis.RedisItemReader.ReaderMode;
@@ -36,7 +35,7 @@ public abstract class AbstractExportCommand extends AbstractJobCommand {
 	private RedisContext sourceRedisContext;
 
 	@Override
-	protected void initialize() throws RiotInitializationException {
+	protected void initialize() {
 		super.initialize();
 		sourceRedisContext = sourceRedisContext();
 		sourceRedisContext.afterPropertiesSet();
