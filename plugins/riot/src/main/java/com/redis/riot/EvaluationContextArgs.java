@@ -20,6 +20,7 @@ import picocli.CommandLine.Option;
 public class EvaluationContextArgs {
 
 	public static final String DEFAULT_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
+	public static final String DEFAULT_NUMBER_FORMAT = "#,###.##";
 	public static final String VAR_DATE = "date";
 	public static final String VAR_NUMBER = "number";
 	public static final String VAR_FAKER = "faker";
@@ -31,7 +32,7 @@ public class EvaluationContextArgs {
 	private String dateFormat = DEFAULT_DATE_FORMAT;
 
 	@Option(names = "--number-format", description = "Number format (default: ${DEFAULT-VALUE}). For details see https://www.baeldung.com/java-decimalformat", paramLabel = "<fmt>")
-	private String numberFormat = "#,###.##";
+	private String numberFormat = DEFAULT_NUMBER_FORMAT;
 
 	private Map<String, Object> vars = new LinkedHashMap<>();
 
