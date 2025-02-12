@@ -94,7 +94,7 @@ public class Replicate extends AbstractReplicateCommand {
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private RedisItemReader<byte[], byte[]> reader() {
+	protected RedisItemReader<byte[], byte[]> reader() {
 		if (isStruct()) {
 			log.info("Creating Redis data-structure reader");
 			return RedisItemReader.struct(ByteArrayCodec.INSTANCE);
