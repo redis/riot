@@ -1,11 +1,12 @@
 package com.redis.riot;
 
-import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.function.FunctionItemProcessor;
 import org.springframework.util.unit.DataSize;
 
+import com.redis.riot.core.RiotDuration;
 import com.redis.riot.core.processor.FunctionPredicate;
 import com.redis.riot.core.processor.PredicateOperator;
 import com.redis.spring.batch.item.AbstractAsyncItemReader;
@@ -24,12 +25,14 @@ import picocli.CommandLine.Option;
 public class RedisReaderArgs {
 
 	public static final int DEFAULT_QUEUE_CAPACITY = RedisItemReader.DEFAULT_QUEUE_CAPACITY;
-	public static final Duration DEFAULT_POLL_TIMEOUT = AbstractPollableItemReader.DEFAULT_POLL_TIMEOUT;
+	public static final RiotDuration DEFAULT_POLL_TIMEOUT = RiotDuration
+			.of(AbstractPollableItemReader.DEFAULT_POLL_TIMEOUT, ChronoUnit.MILLIS);
 	public static final int DEFAULT_THREADS = AbstractAsyncItemReader.DEFAULT_THREADS;
 	public static final int DEFAULT_CHUNK_SIZE = AbstractAsyncItemReader.DEFAULT_CHUNK_SIZE;
 	public static final int DEFAULT_MEMORY_USAGE_SAMPLES = KeyValueRead.DEFAULT_MEM_USAGE_SAMPLES;
 	public static final long DEFAULT_SCAN_COUNT = 1000;
-	public static final Duration DEFAULT_FLUSH_INTERVAL = RedisItemReader.DEFAULT_FLUSH_INTERVAL;
+	public static final RiotDuration DEFAULT_FLUSH_INTERVAL = RiotDuration.of(RedisItemReader.DEFAULT_FLUSH_INTERVAL,
+			ChronoUnit.MILLIS);
 	public static final int DEFAULT_EVENT_QUEUE_CAPACITY = RedisItemReader.DEFAULT_EVENT_QUEUE_CAPACITY;
 	public static final ReaderMode DEFAULT_MODE = RedisItemReader.DEFAULT_MODE;
 
@@ -60,11 +63,11 @@ public class RedisReaderArgs {
 	@Option(names = "--mem-samples", description = "Number of memory usage samples for a key (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	private int memUsageSamples = DEFAULT_MEMORY_USAGE_SAMPLES;
 
-	@Option(names = "--flush-interval", description = "Max duration in millis between flushes in live mode (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>")
-	private long flushInterval = DEFAULT_FLUSH_INTERVAL.toMillis();
+	@Option(names = "--flush-interval", description = "Max duration between flushes in live mode (default: ${DEFAULT-VALUE}).", paramLabel = "<dur>")
+	private RiotDuration flushInterval = DEFAULT_FLUSH_INTERVAL;
 
 	@Option(names = "--idle-timeout", description = "Min duration to consider reader complete in live mode, for example 3s 5m (default: no timeout).", paramLabel = "<dur>")
-	private Duration idleTimeout;
+	private RiotDuration idleTimeout;
 
 	@Option(names = "--event-queue", description = "Capacity of the keyspace notification queue (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	private int eventQueueCapacity = DEFAULT_EVENT_QUEUE_CAPACITY;
@@ -78,20 +81,20 @@ public class RedisReaderArgs {
 	@ArgGroup(exclusive = false)
 	private KeyFilterArgs keyFilterArgs = new KeyFilterArgs();
 
-	@Option(names = "--read-poll", description = "Interval in millis between queue polls (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>", hidden = true)
-	private long pollTimeout = DEFAULT_POLL_TIMEOUT.toMillis();
+	@Option(names = "--read-poll", description = "Interval between queue polls (default: ${DEFAULT-VALUE}).", paramLabel = "<dur>", hidden = true)
+	private RiotDuration pollTimeout = DEFAULT_POLL_TIMEOUT;
 
 	public <K> void configure(RedisItemReader<K, ?> reader) {
 		reader.setChunkSize(chunkSize);
-		reader.setFlushInterval(Duration.ofMillis(flushInterval));
+		reader.setFlushInterval(flushInterval.getValue());
 		if (idleTimeout != null) {
-			reader.setIdleTimeout(idleTimeout);
+			reader.setIdleTimeout(idleTimeout.getValue());
 		}
 		reader.setKeyPattern(keyPattern);
 		reader.setKeyType(keyType);
 		reader.setMode(mode);
 		reader.setEventQueueCapacity(eventQueueCapacity);
-		reader.setPollTimeout(Duration.ofMillis(pollTimeout));
+		reader.setPollTimeout(pollTimeout.getValue());
 		reader.setProcessor(keyProcessor(reader.getCodec(), keyFilterArgs));
 		reader.setQueueCapacity(queueCapacity);
 		reader.setRetryLimit(retryLimit);
@@ -183,19 +186,19 @@ public class RedisReaderArgs {
 		this.keyFilterArgs = keyFilterArgs;
 	}
 
-	public long getFlushInterval() {
+	public RiotDuration getFlushInterval() {
 		return flushInterval;
 	}
 
-	public void setFlushInterval(long intervalMillis) {
-		this.flushInterval = intervalMillis;
+	public void setFlushInterval(RiotDuration interval) {
+		this.flushInterval = interval;
 	}
 
-	public Duration getIdleTimeout() {
+	public RiotDuration getIdleTimeout() {
 		return idleTimeout;
 	}
 
-	public void setIdleTimeout(Duration idleTimeout) {
+	public void setIdleTimeout(RiotDuration idleTimeout) {
 		this.idleTimeout = idleTimeout;
 	}
 
@@ -215,11 +218,11 @@ public class RedisReaderArgs {
 		this.mode = mode;
 	}
 
-	public long getPollTimeout() {
+	public RiotDuration getPollTimeout() {
 		return pollTimeout;
 	}
 
-	public void setPollTimeout(long pollTimeout) {
+	public void setPollTimeout(RiotDuration pollTimeout) {
 		this.pollTimeout = pollTimeout;
 	}
 

@@ -1,10 +1,8 @@
 package com.redis.riot.core;
 
 import java.io.PrintWriter;
-import java.time.Duration;
 import java.util.concurrent.Callable;
 
-import org.springframework.boot.convert.DurationStyle;
 import org.springframework.util.unit.DataSize;
 
 import picocli.CommandLine;
@@ -44,7 +42,7 @@ public class MainCommand extends BaseCommand implements Callable<Integer>, IO {
 	}
 
 	protected void registerConverters(CommandLine commandLine) {
-		commandLine.registerConverter(Duration.class, DurationStyle.SIMPLE::parse);
+		commandLine.registerConverter(RiotDuration.class, RiotDuration::parse);
 		commandLine.registerConverter(DataSize.class, DataSize::parse);
 		commandLine.registerConverter(Expression.class, Expression::parse);
 		commandLine.registerConverter(TemplateExpression.class, Expression::parseTemplate);

@@ -1,6 +1,5 @@
 package com.redis.riot.core;
 
-import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
@@ -68,7 +67,7 @@ public abstract class AbstractJobCommand extends AbstractCallableCommand {
 	private String jobName;
 
 	@Option(names = "--repeat", description = "After the job completes keep repeating it on a fixed interval (ex 5m, 1h)", paramLabel = "<dur>")
-	private Duration repeatEvery;
+	private RiotDuration repeatEvery;
 
 	@ArgGroup(exclusive = false, heading = "Job options%n")
 	private StepArgs stepArgs = new StepArgs();
@@ -208,7 +207,7 @@ public abstract class AbstractJobCommand extends AbstractCallableCommand {
 
 				log.info("Finished job, will run again in {}", repeatEvery);
 				try {
-					Thread.sleep(repeatEvery.toMillis());
+					Thread.sleep(repeatEvery.getValue().toMillis());
 					if (lastJob == null) {
 						lastJob = job.build();
 					}
@@ -346,9 +345,9 @@ public abstract class AbstractJobCommand extends AbstractCallableCommand {
 			log.info("Using no-op writer");
 			writer = new NoopItemWriter<>();
 		}
-		if (stepArgs.getSleep() > 0) {
-			log.info("Throttling writer with sleep={}ms", stepArgs.getSleep());
-			writer = new ThrottledItemWriter<>(writer, stepArgs.getSleep());
+		if (stepArgs.getSleep() != null) {
+			log.info("Throttling writer with sleep={}", stepArgs.getSleep());
+			writer = new ThrottledItemWriter<>(writer, stepArgs.getSleep().getValue().toMillis());
 		}
 		return writer;
 	}

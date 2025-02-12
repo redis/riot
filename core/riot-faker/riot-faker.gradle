@@ -19,15 +19,3 @@ dependencies {
     implementation 'org.springframework.batch:spring-batch-infrastructure'
     api group: 'net.datafaker', name: 'datafaker', version: datafakerVersion
 }
-
-compileJava {
-    options.compilerArgs += ["-AprojectPath=${project.group}/${project.name}"]
-}
-
-if (!(project.findProperty('automatic.module.name.skip') ?: false).toBoolean()) {
-    jar {
-        manifest {
-            attributes('Automatic-Module-Name': project.findProperty('automatic.module.name'))
-        }
-    }
-}

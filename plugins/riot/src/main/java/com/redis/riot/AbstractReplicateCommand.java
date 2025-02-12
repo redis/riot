@@ -1,6 +1,6 @@
 package com.redis.riot;
 
-import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 
 import org.springframework.batch.item.ItemProcessor;
@@ -9,6 +9,7 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.Assert;
 
 import com.redis.riot.CompareStatusItemWriter.StatusCount;
+import com.redis.riot.core.RiotDuration;
 import com.redis.riot.core.RiotUtils;
 import com.redis.riot.core.Step;
 import com.redis.riot.function.StringKeyValue;
@@ -27,7 +28,8 @@ import picocli.CommandLine.Option;
 
 public abstract class AbstractReplicateCommand extends AbstractRedisTargetExportCommand {
 
-	public static final Duration DEFAULT_TTL_TOLERANCE = DefaultKeyComparator.DEFAULT_TTL_TOLERANCE;
+	public static final RiotDuration DEFAULT_TTL_TOLERANCE = RiotDuration.of(DefaultKeyComparator.DEFAULT_TTL_TOLERANCE,
+			ChronoUnit.SECONDS);
 	public static final boolean DEFAULT_COMPARE_STREAM_MESSAGE_ID = true;
 
 	private static final String COMPARE_TASK_NAME = "Comparing";
@@ -36,8 +38,8 @@ public abstract class AbstractReplicateCommand extends AbstractRedisTargetExport
 	@Option(names = "--show-diffs", description = "Print details of key mismatches during dataset verification. Disables progress reporting.")
 	private boolean showDiffs;
 
-	@Option(names = "--ttl-tolerance", description = "Max TTL offset in millis to consider keys equal (default: ${DEFAULT-VALUE}).", paramLabel = "<ms>")
-	private long ttlToleranceMillis = DEFAULT_TTL_TOLERANCE.toMillis();
+	@Option(names = "--ttl-tolerance", description = "Max TTL delta to consider keys equal (default: ${DEFAULT-VALUE}).", paramLabel = "<dur>")
+	private RiotDuration ttlTolerance = DEFAULT_TTL_TOLERANCE;
 
 	@ArgGroup(exclusive = false)
 	private EvaluationContextArgs evaluationContextArgs = new EvaluationContextArgs();
@@ -121,11 +123,10 @@ public abstract class AbstractReplicateCommand extends AbstractRedisTargetExport
 
 	private KeyComparator<byte[]> keyComparator() {
 		boolean ignoreStreamId = isIgnoreStreamMessageId();
-		Duration ttlTolerance = Duration.ofMillis(ttlToleranceMillis);
 		log.info("Creating KeyComparator with ttlTolerance={} ignoreStreamMessageId={}", ttlTolerance, ignoreStreamId);
 		DefaultKeyComparator<byte[], byte[]> comparator = new DefaultKeyComparator<>(ByteArrayCodec.INSTANCE);
 		comparator.setIgnoreStreamMessageId(ignoreStreamId);
-		comparator.setTtlTolerance(ttlTolerance);
+		comparator.setTtlTolerance(ttlTolerance.getValue());
 		return comparator;
 	}
 
@@ -153,12 +154,12 @@ public abstract class AbstractReplicateCommand extends AbstractRedisTargetExport
 		this.showDiffs = showDiffs;
 	}
 
-	public long getTtlToleranceMillis() {
-		return ttlToleranceMillis;
+	public RiotDuration getTtlTolerance() {
+		return ttlTolerance;
 	}
 
-	public void setTtlToleranceMillis(long tolerance) {
-		this.ttlToleranceMillis = tolerance;
+	public void setTtlTolerance(RiotDuration tolerance) {
+		this.ttlTolerance = tolerance;
 	}
 
 	public KeyValueProcessorArgs getProcessorArgs() {

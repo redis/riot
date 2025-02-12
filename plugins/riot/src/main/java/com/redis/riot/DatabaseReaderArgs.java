@@ -2,6 +2,8 @@ package com.redis.riot;
 
 import org.springframework.batch.item.database.AbstractCursorItemReader;
 
+import com.redis.riot.core.RiotDuration;
+
 import lombok.ToString;
 import picocli.CommandLine.Option;
 
@@ -10,7 +12,8 @@ public class DatabaseReaderArgs {
 
 	public static final int DEFAULT_FETCH_SIZE = AbstractCursorItemReader.VALUE_NOT_SET;
 	public static final int DEFAULT_MAX_RESULT_SET_ROWS = AbstractCursorItemReader.VALUE_NOT_SET;
-	public static final int DEFAULT_QUERY_TIMEOUT = AbstractCursorItemReader.VALUE_NOT_SET;
+	public static final RiotDuration DEFAULT_QUERY_TIMEOUT = RiotDuration
+			.ofMillis(AbstractCursorItemReader.VALUE_NOT_SET);
 
 	@Option(names = "--max", description = "Max number of rows to import.", paramLabel = "<count>")
 	private int maxItemCount;
@@ -21,8 +24,8 @@ public class DatabaseReaderArgs {
 	@Option(names = "--rows", description = "Max number of rows the ResultSet can contain.", paramLabel = "<count>")
 	private int maxRows = DEFAULT_MAX_RESULT_SET_ROWS;
 
-	@Option(names = "--query-timeout", description = "The time in milliseconds for the query to timeout.", paramLabel = "<ms>")
-	private int queryTimeout = DEFAULT_QUERY_TIMEOUT;
+	@Option(names = "--query-timeout", description = "The duration for the query to timeout.", paramLabel = "<dur>")
+	private RiotDuration queryTimeout = DEFAULT_QUERY_TIMEOUT;
 
 	@Option(names = "--shared-connection", description = "Use same connection for cursor and other processing.", hidden = true)
 	private boolean useSharedExtendedConnection;
@@ -59,11 +62,11 @@ public class DatabaseReaderArgs {
 		this.maxRows = maxResultSetRows;
 	}
 
-	public int getQueryTimeout() {
+	public RiotDuration getQueryTimeout() {
 		return queryTimeout;
 	}
 
-	public void setQueryTimeout(int queryTimeout) {
+	public void setQueryTimeout(RiotDuration queryTimeout) {
 		this.queryTimeout = queryTimeout;
 	}
 

@@ -50,7 +50,7 @@ public class DatabaseImport extends AbstractRedisImportCommand {
 		reader.rowMapper(new ColumnMapRowMapper());
 		reader.fetchSize(readerArgs.getFetchSize());
 		reader.maxRows(readerArgs.getMaxRows());
-		reader.queryTimeout(readerArgs.getQueryTimeout());
+		reader.queryTimeout(Math.toIntExact(readerArgs.getQueryTimeout().getValue().toMillis()));
 		reader.useSharedExtendedConnection(readerArgs.isUseSharedExtendedConnection());
 		reader.verifyCursorPosition(readerArgs.isVerifyCursorPosition());
 		if (readerArgs.getMaxItemCount() > 0) {

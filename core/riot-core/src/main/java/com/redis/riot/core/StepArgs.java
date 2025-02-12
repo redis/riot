@@ -15,8 +15,8 @@ public class StepArgs {
 	public static final SkipPolicy DEFAULT_SKIP_POLICY = SkipPolicy.NEVER;
 	public static final int DEFAULT_RETRY_LIMIT = MaxAttemptsRetryPolicy.DEFAULT_MAX_ATTEMPTS;
 
-	@Option(names = "--sleep", description = "Duration in millis to wait after each batch write (default: no sleep).", paramLabel = "<ms>")
-	private long sleep;
+	@Option(names = "--sleep", description = "Duration to wait after each batch write, e.g. 1ms or 3s (default: no sleep).", paramLabel = "<dur>")
+	private RiotDuration sleep;
 
 	@Option(names = "--threads", description = "Number of concurrent threads to use for batch processing (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	private int threads = DEFAULT_THREADS;
@@ -42,11 +42,11 @@ public class StepArgs {
 	@ArgGroup(exclusive = false)
 	private ProgressArgs progressArgs = new ProgressArgs();
 
-	public long getSleep() {
+	public RiotDuration getSleep() {
 		return sleep;
 	}
 
-	public void setSleep(long sleep) {
+	public void setSleep(RiotDuration sleep) {
 		this.sleep = sleep;
 	}
 

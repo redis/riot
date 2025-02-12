@@ -24,15 +24,3 @@ dependencies {
     api group: 'com.redis', name: 'spring-batch-resource', version: springBatchRedisVersion
     testImplementation 'org.slf4j:slf4j-simple'
 }
-
-compileJava {
-    options.compilerArgs += ["-AprojectPath=${project.group}/${project.name}"]
-}
-
-if (!(project.findProperty('automatic.module.name.skip') ?: false).toBoolean()) {
-    jar {
-        manifest {
-            attributes('Automatic-Module-Name': project.findProperty('automatic.module.name'))
-        }
-    }
-}

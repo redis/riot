@@ -37,7 +37,8 @@ public class ProgressStepExecutionListener<I, O> implements StepExecutionListene
 		ProgressBarBuilder progressBarBuilder = new ProgressBarBuilder();
 		progressBarBuilder.setTaskName(step.getTaskName());
 		progressBarBuilder.setStyle(progressBarStyle());
-		progressBarBuilder.setUpdateIntervalMillis(Math.toIntExact(progressArgs.getUpdateInterval().toMillis()));
+		progressBarBuilder
+				.setUpdateIntervalMillis(Math.toIntExact(progressArgs.getUpdateInterval().getValue().toMillis()));
 		progressBarBuilder.showSpeed();
 		if (progressArgs.getStyle() == ProgressStyle.LOG) {
 			Logger logger = LoggerFactory.getLogger(getClass());

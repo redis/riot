@@ -19,14 +19,14 @@ public class ExpireCommand extends AbstractOperationCommand {
 	@ArgGroup(exclusive = true)
 	private ExpireTtlArgs ttlArgs = new ExpireTtlArgs();
 
-	@Option(names = "--abs", description = "Timeout is POSIX time in milliseconds.")
+	@Option(names = "--abs", description = "TTL is a POSIX time in milliseconds.")
 	private boolean absolute;
 
 	@Override
 	public AbstractWriteOperation<String, String, Map<String, Object>> operation() {
 		if (absolute) {
 			ExpireAt<String, String, Map<String, Object>> operation = new ExpireAt<>(keyFunction());
-			if (isTtlValue()) {
+			if (ttlArgs.getTtlValue() > 0) {
 				operation.setTimestamp(ttlArgs.getTtlValue());
 			} else {
 				operation.setTimestampFunction(fieldTtl());
@@ -34,7 +34,7 @@ public class ExpireCommand extends AbstractOperationCommand {
 			return operation;
 		}
 		Expire<String, String, Map<String, Object>> operation = new Expire<>(keyFunction());
-		if (isTtlValue()) {
+		if (ttlArgs.getTtlValue() > 0) {
 			operation.setTtl(ttlArgs.getTtlValue());
 		} else {
 			operation.setTtlFunction(fieldTtl());
@@ -44,10 +44,6 @@ public class ExpireCommand extends AbstractOperationCommand {
 
 	private ToLongFunction<Map<String, Object>> fieldTtl() {
 		return toLong(ttlArgs.getTtlField());
-	}
-
-	private boolean isTtlValue() {
-		return ttlArgs.getTtlValue() > 0;
 	}
 
 	public ExpireTtlArgs getTtlArgs() {

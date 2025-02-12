@@ -1,7 +1,8 @@
 package com.redis.riot;
 
 import java.io.File;
-import java.time.Duration;
+
+import com.redis.riot.core.RiotDuration;
 
 import io.lettuce.core.protocol.ProtocolVersion;
 import lombok.ToString;
@@ -17,7 +18,7 @@ public class TargetRedisArgs implements RedisClientArgs {
 	private char[] password;
 
 	@Option(names = "--target-timeout", description = "Target Redis command timeout, e.g. 30s or 5m (default: ${DEFAULT-VALUE}).", paramLabel = "<dur>")
-	private Duration timeout = DEFAULT_TIMEOUT;
+	private RiotDuration timeout = DEFAULT_TIMEOUT;
 
 	@Option(names = "--target-tls", description = "Establish a secure TLS connection to target.")
 	private boolean tls;
@@ -92,11 +93,11 @@ public class TargetRedisArgs implements RedisClientArgs {
 	}
 
 	@Override
-	public Duration getTimeout() {
+	public RiotDuration getTimeout() {
 		return timeout;
 	}
 
-	public void setTimeout(Duration timeout) {
+	public void setTimeout(RiotDuration timeout) {
 		this.timeout = timeout;
 	}
 

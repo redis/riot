@@ -1,7 +1,8 @@
 package com.redis.riot;
 
 import java.io.File;
-import java.time.Duration;
+
+import com.redis.riot.core.RiotDuration;
 
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.protocol.ProtocolVersion;
@@ -34,7 +35,7 @@ public class RedisArgs implements RedisClientArgs {
 	private char[] password;
 
 	@Option(names = "--timeout", description = "Redis command timeout, e.g. 30s or 5m (default: ${DEFAULT-VALUE}).", paramLabel = "<dur>")
-	private Duration timeout = DEFAULT_TIMEOUT;
+	private RiotDuration timeout = DEFAULT_TIMEOUT;
 
 	@Option(names = { "-n", "--db" }, description = "Redis database number.", paramLabel = "<db>")
 	private int database = DEFAULT_DATABASE;
@@ -228,11 +229,11 @@ public class RedisArgs implements RedisClientArgs {
 	}
 
 	@Override
-	public Duration getTimeout() {
+	public RiotDuration getTimeout() {
 		return timeout;
 	}
 
-	public void setTimeout(Duration timeout) {
+	public void setTimeout(RiotDuration timeout) {
 		this.timeout = timeout;
 	}
 
