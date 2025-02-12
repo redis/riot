@@ -144,7 +144,6 @@ subprojects { p ->
         coverage {
             jacoco {
                 enabled = hasTestsAt(p.file('src/test'))
-		        toolVersion = jacocoPluginVersion
             }
         }
     }
@@ -153,6 +152,24 @@ subprojects { p ->
         resolutionStrategy.eachDependency { DependencyResolveDetails details ->
             if (details.requested.name == 'lettuce-core' ) {
                 details.useVersion lettuceVersion
+            }
+        }
+    }
+}
+
+gradleProjects {
+    subprojects {
+        dirs(['core']) {
+            compileJava {
+                options.compilerArgs += ["-AprojectPath=${project.group}/${project.name}"]
+            }
+
+            if (!(project.findProperty('automatic.module.name.skip') ?: false).toBoolean()) {
+                jar {
+                    manifest {
+                        attributes('Automatic-Module-Name': project.findProperty('automatic.module.name'))
+                    }
+                }
             }
         }
     }

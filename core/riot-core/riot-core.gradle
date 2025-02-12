@@ -26,18 +26,6 @@ dependencies {
     testImplementation 'org.awaitility:awaitility'
 }
 
-compileJava {
-    options.compilerArgs += ["-AprojectPath=${project.group}/${project.name}"]
-}
-
-if (!(project.findProperty('automatic.module.name.skip') ?: false).toBoolean()) {
-    jar {
-        manifest {
-            attributes('Automatic-Module-Name': project.findProperty('automatic.module.name'))
-        }
-    }
-}
-
 project.rootProject.gradle.addBuildListener(new BuildAdapter() {
     @Override
     void projectsEvaluated(Gradle gradle) {
