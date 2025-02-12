@@ -1,10 +1,9 @@
 package com.redis.riot;
 
 import java.io.File;
-import java.util.concurrent.TimeUnit;
+import java.time.Duration;
 
 import com.redis.lettucemod.RedisURIBuilder;
-import com.redis.riot.core.Duration;
 
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.protocol.ProtocolVersion;
@@ -13,7 +12,7 @@ public interface RedisClientArgs {
 
 	String DEFAULT_HOST = RedisURIBuilder.DEFAULT_HOST;
 	int DEFAULT_PORT = RedisURIBuilder.DEFAULT_PORT;
-	Duration DEFAULT_TIMEOUT = new Duration(RedisURI.DEFAULT_TIMEOUT, TimeUnit.SECONDS);
+	Duration DEFAULT_TIMEOUT = RedisURI.DEFAULT_TIMEOUT_DURATION;
 	int DEFAULT_DATABASE = 0;
 	ProtocolVersion DEFAULT_PROTOCOL_VERSION = ProtocolVersion.RESP2;
 	int DEFAULT_POOL_SIZE = 8;

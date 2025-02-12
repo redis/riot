@@ -1,14 +1,16 @@
 package com.redis.riot.core;
 
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.convert.DurationStyle;
 
-import com.redis.riot.core.processor.IdFunctionBuilder;
 import com.redis.riot.core.processor.FieldExtractorFactory.MissingFieldException;
+import com.redis.riot.core.processor.IdFunctionBuilder;
 
 class ConverterTests {
 
@@ -29,8 +31,7 @@ class ConverterTests {
 	void testSingleKeyConverter() {
 		String prefix = "beer";
 		String idField = "id";
-		Function<Map<String, Object>, String> keyMaker = new IdFunctionBuilder().prefix(prefix).fields(idField)
-				.build();
+		Function<Map<String, Object>, String> keyMaker = new IdFunctionBuilder().prefix(prefix).fields(idField).build();
 		Map<String, Object> map = new HashMap<>();
 		String id = "123";
 		map.put(idField, id);
@@ -67,6 +68,12 @@ class ConverterTests {
 		Function<Map<String, Object>, String> converter = new IdFunctionBuilder().prefix(prefix).fields("store", "sku")
 				.build();
 		Assertions.assertThrows(MissingFieldException.class, () -> converter.apply(map));
+	}
+
+	@Test
+	void testDurationStyle() {
+		Assertions.assertEquals(Duration.ofSeconds(30), DurationStyle.SIMPLE.parse("30s"));
+		Assertions.assertEquals(Duration.ofMillis(30), DurationStyle.SIMPLE.parse("30"));
 	}
 
 }

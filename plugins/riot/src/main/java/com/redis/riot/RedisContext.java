@@ -83,7 +83,7 @@ public class RedisContext implements InitializingBean, AutoCloseable {
 		builder.host(args.getHost());
 		builder.password(args.getPassword());
 		builder.port(args.getPort());
-		builder.timeout(args.getTimeout().toJavaTime());
+		builder.timeout(args.getTimeout());
 		builder.socket(args.getSocket());
 		builder.tls(args.isTls());
 		builder.username(args.getUsername());

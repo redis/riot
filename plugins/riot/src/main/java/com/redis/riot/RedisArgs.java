@@ -1,8 +1,7 @@
 package com.redis.riot;
 
 import java.io.File;
-
-import com.redis.riot.core.Duration;
+import java.time.Duration;
 
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.protocol.ProtocolVersion;

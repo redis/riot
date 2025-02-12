@@ -1,6 +1,6 @@
 package com.redis.riot.core;
 
-import java.util.concurrent.TimeUnit;
+import java.time.Duration;
 
 import lombok.ToString;
 import picocli.CommandLine.Option;
@@ -8,7 +8,7 @@ import picocli.CommandLine.Option;
 @ToString
 public class ProgressArgs {
 
-	public static final Duration DEFAULT_UPDATE_INTERVAL = new Duration(1, TimeUnit.SECONDS);
+	public static final Duration DEFAULT_UPDATE_INTERVAL = Duration.ofSeconds(1);
 	public static final ProgressStyle DEFAULT_STYLE = ProgressStyle.ASCII;
 
 	@Option(names = "--progress", description = "Progress style: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<style>")

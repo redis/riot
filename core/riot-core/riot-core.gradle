@@ -20,6 +20,7 @@ dependencies {
     implementation 'org.slf4j:slf4j-simple'
     api group: 'info.picocli', name: 'picocli', version: picocliVersion
     annotationProcessor group: 'info.picocli', name: 'picocli-codegen', version: picocliVersion
+    implementation 'org.springframework.boot:spring-boot'
     implementation group: 'me.tongfei', name: 'progressbar', version: progressbarVersion
     api group: 'com.redis', name: 'spring-batch-redis-infrastructure', version: springBatchRedisVersion
     testImplementation 'org.awaitility:awaitility'
