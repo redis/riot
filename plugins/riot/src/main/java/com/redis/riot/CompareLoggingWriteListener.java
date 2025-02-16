@@ -1,20 +1,17 @@
 package com.redis.riot;
 
 import java.util.function.Function;
-import java.util.stream.StreamSupport;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.core.ItemWriteListener;
-import org.springframework.batch.item.Chunk;
 
 import com.redis.spring.batch.item.redis.common.BatchUtils;
 import com.redis.spring.batch.item.redis.reader.KeyComparison;
-import com.redis.spring.batch.item.redis.reader.KeyComparison.Status;
+import com.redis.spring.batch.item.redis.reader.KeyComparisonListener;
 
 import io.lettuce.core.codec.RedisCodec;
 
-public class CompareLoggingWriteListener<K> implements ItemWriteListener<KeyComparison<K>> {
+public class CompareLoggingWriteListener<K> implements KeyComparisonListener<K> {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -25,11 +22,7 @@ public class CompareLoggingWriteListener<K> implements ItemWriteListener<KeyComp
 	}
 
 	@Override
-	public void afterWrite(Chunk<? extends KeyComparison<K>> items) {
-		StreamSupport.stream(items.spliterator(), false).filter(c -> c.getStatus() != Status.OK).forEach(this::log);
-	}
-
-	public void log(KeyComparison<K> comparison) {
+	public void comparison(KeyComparison<K> comparison) {
 		switch (comparison.getStatus()) {
 		case MISSING:
 			log.error("Missing {} {}", comparison.getSource().getType(), key(comparison));

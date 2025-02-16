@@ -7,7 +7,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -21,8 +20,9 @@ import org.springframework.util.StreamUtils;
 import com.redis.riot.core.AbstractJobCommand;
 import com.redis.riot.core.ProgressStyle;
 import com.redis.riot.operation.HsetCommand;
+import com.redis.spring.batch.item.redis.reader.KeyComparison;
+import com.redis.spring.batch.item.redis.reader.KeyComparison.Status;
 import com.redis.spring.batch.test.AbstractTargetTestBase;
-import com.redis.spring.batch.test.KeyspaceComparison;
 
 import io.lettuce.core.RedisURI;
 
@@ -214,9 +214,9 @@ abstract class FileTests extends AbstractTargetTestBase {
 		fileImport.getRedisArgs().setUri(RedisURI.create(getTargetRedisServer().getRedisURI()));
 		fileImport.getRedisArgs().setCluster(getTargetRedisServer().isRedisCluster());
 		fileImport.call();
-		KeyspaceComparison<String> comparison = compare(info);
-		Assertions.assertFalse(comparison.getAll().isEmpty());
-		Assertions.assertEquals(Collections.emptyList(), comparison.mismatches());
+		List<KeyComparison<String>> comparisons = compare(info);
+		Assertions.assertFalse(comparisons.isEmpty());
+		Assertions.assertFalse(comparisons.stream().anyMatch(c -> c.getStatus() != Status.OK));
 	}
 
 	@Test

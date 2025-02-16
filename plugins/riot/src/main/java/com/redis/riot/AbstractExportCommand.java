@@ -15,6 +15,7 @@ import com.redis.riot.core.AbstractJobCommand;
 import com.redis.riot.core.Step;
 import com.redis.spring.batch.item.redis.RedisItemReader;
 import com.redis.spring.batch.item.redis.RedisItemReader.ReaderMode;
+import com.redis.spring.batch.item.redis.RedisItemWriter;
 import com.redis.spring.batch.item.redis.common.KeyValue;
 
 import io.lettuce.core.AbstractRedisClient;
@@ -58,6 +59,11 @@ public abstract class AbstractExportCommand extends AbstractJobCommand {
 		sourceRedisContext.configure(reader);
 		log.info("Configuring {} with {}", reader.getName(), sourceRedisReaderArgs);
 		sourceRedisReaderArgs.configure(reader);
+	}
+
+	protected void configureSourceRedisWriter(RedisItemWriter<?, ?, ?> writer) {
+		log.info("Configuring source writer with Redis context");
+		sourceRedisContext.configure(writer);
 	}
 
 	protected abstract RedisContext sourceRedisContext();

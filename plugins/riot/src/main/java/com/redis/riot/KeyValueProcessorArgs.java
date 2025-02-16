@@ -30,11 +30,11 @@ public class KeyValueProcessorArgs {
 	@Option(names = "--ttl-proc", description = "SpEL expression to transform key expiration times.", paramLabel = "<exp>")
 	private Expression ttlExpression;
 
-	@Option(names = "--ttl", description = "Propagate key expiration times. True by default.", negatable = true, defaultValue = "true", fallbackValue = "true")
-	private boolean propagateTtl = true;
+	@Option(names = "--no-ttl", description = "Do not propagate key expiration times.")
+	private boolean noTtl;
 
-	@Option(names = "--stream-id", description = "Propagate stream message IDs. True by default.", negatable = true, defaultValue = "true", fallbackValue = "true")
-	private boolean propagateIds = true;
+	@Option(names = "--no-stream-id", description = "Do not propagate stream message IDs.")
+	private boolean noStreamIds;
 
 	@Option(names = "--stream-prune", description = "Drop empty streams.")
 	private boolean prune;
@@ -44,7 +44,7 @@ public class KeyValueProcessorArgs {
 		if (keyExpression != null) {
 			processors.add(processor(t -> t.setKey(keyExpression.getValue(context, t))));
 		}
-		if (!propagateTtl) {
+		if (noTtl) {
 			processors.add(processor(t -> t.setTtl(0)));
 		}
 		if (ttlExpression != null) {
@@ -53,9 +53,9 @@ public class KeyValueProcessorArgs {
 		if (typeExpression != null) {
 			processors.add(processor(t -> t.setType(typeExpression.getString(context, t))));
 		}
-		if (!propagateIds || prune) {
+		if (noStreamIds || prune) {
 			StreamItemProcessor streamProcessor = new StreamItemProcessor();
-			streamProcessor.setDropMessageIds(!propagateIds);
+			streamProcessor.setDropMessageIds(noStreamIds);
 			streamProcessor.setPrune(prune);
 			processors.add(streamProcessor);
 		}
@@ -90,20 +90,20 @@ public class KeyValueProcessorArgs {
 		this.ttlExpression = expression;
 	}
 
-	public boolean isPropagateTtl() {
-		return propagateTtl;
+	public boolean isNoTtl() {
+		return noTtl;
 	}
 
-	public void setPropagateTtl(boolean propagate) {
-		this.propagateTtl = propagate;
+	public void setNoTtl(boolean noTtl) {
+		this.noTtl = noTtl;
 	}
 
-	public boolean isPropagateIds() {
-		return propagateIds;
+	public boolean isNoStreamIds() {
+		return noStreamIds;
 	}
 
-	public void setPropagateIds(boolean propagateIds) {
-		this.propagateIds = propagateIds;
+	public void setNoStreamIds(boolean noStreamIds) {
+		this.noStreamIds = noStreamIds;
 	}
 
 	public boolean isPrune() {
