@@ -78,7 +78,7 @@ loadScripts(document, 'script');</script>
 <div class="inheritance"><a href="core/AbstractJobCommand.html" title="class in com.redis.riot.core">com.redis.riot.core.AbstractJobCommand</a>
 <div class="inheritance"><a href="AbstractExportCommand.html" title="class in com.redis.riot">com.redis.riot.AbstractExportCommand</a>
 <div class="inheritance"><a href="AbstractRedisTargetExportCommand.html" title="class in com.redis.riot">com.redis.riot.AbstractRedisTargetExportCommand</a>
-<div class="inheritance"><a href="AbstractReplicateCommand.html" title="class in com.redis.riot">com.redis.riot.AbstractReplicateCommand</a>
+<div class="inheritance"><a href="AbstractCompareCommand.html" title="class in com.redis.riot">com.redis.riot.AbstractCompareCommand</a>
 <div class="inheritance">com.redis.riot.Replicate</div>
 </div>
 </div>
@@ -94,7 +94,7 @@ loadScripts(document, 'script');</script>
 </dl>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">Replicate</span>
-<span class="extends-implements">extends <a href="AbstractReplicateCommand.html" title="class in com.redis.riot">AbstractReplicateCommand</a></span></div>
+<span class="extends-implements">extends <a href="AbstractCompareCommand.html" title="class in com.redis.riot">AbstractCompareCommand</a></span></div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -130,8 +130,8 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color">&nbsp;</div>
 </div>
 <div class="inherited-list">
-<h3 id="fields-inherited-from-class-com.redis.riot.AbstractReplicateCommand">Fields inherited from class&nbsp;com.redis.riot.<a href="AbstractReplicateCommand.html" title="class in com.redis.riot">AbstractReplicateCommand</a></h3>
-<code><a href="AbstractReplicateCommand.html#DEFAULT_COMPARE_STREAM_MESSAGE_ID">DEFAULT_COMPARE_STREAM_MESSAGE_ID</a>, <a href="AbstractReplicateCommand.html#DEFAULT_TTL_TOLERANCE">DEFAULT_TTL_TOLERANCE</a></code></div>
+<h3 id="fields-inherited-from-class-com.redis.riot.AbstractCompareCommand">Fields inherited from class&nbsp;com.redis.riot.<a href="AbstractCompareCommand.html" title="class in com.redis.riot">AbstractCompareCommand</a></h3>
+<code><a href="AbstractCompareCommand.html#DEFAULT_COMPARE_STREAM_MESSAGE_ID">DEFAULT_COMPARE_STREAM_MESSAGE_ID</a>, <a href="AbstractCompareCommand.html#DEFAULT_TTL_TOLERANCE">DEFAULT_TTL_TOLERANCE</a></code></div>
 <div class="inherited-list">
 <h3 id="fields-inherited-from-class-com.redis.riot.AbstractRedisTargetExportCommand">Fields inherited from class&nbsp;com.redis.riot.<a href="AbstractRedisTargetExportCommand.html" title="class in com.redis.riot">AbstractRedisTargetExportCommand</a></h3>
 <code><a href="AbstractRedisTargetExportCommand.html#DEFAULT_TARGET_POOL_SIZE">DEFAULT_TARGET_POOL_SIZE</a></code></div>
@@ -173,32 +173,38 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected com.redis.spring.batch.item.redis.reader.KeyComparisonItemReader&lt;byte[],<wbr>byte[]&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#compareReader()" class="member-name-link">compareReader</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#configureTargetRedisWriter(com.redis.spring.batch.item.redis.RedisItemWriter)" class="member-name-link">configureTargetRedisWriter</a><wbr>(com.redis.spring.batch.item.redis.RedisItemWriter&lt;?,<wbr>?,<wbr>?&gt;&nbsp;writer)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#configureTargetRedisWriter(com.redis.spring.batch.item.redis.RedisItemWriter)" class="member-name-link">configureTargetRedisWriter</a><wbr>(com.redis.spring.batch.item.redis.RedisItemWriter&lt;?,<wbr>?,<wbr>?&gt;&nbsp;writer)</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="CompareMode.html" title="enum class in com.redis.riot">CompareMode</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getCompareMode()" class="member-name-link">getCompareMode</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="CompareMode.html" title="enum class in com.redis.riot">CompareMode</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getCompareMode()" class="member-name-link">getCompareMode</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="RedisWriterArgs.html" title="class in com.redis.riot">RedisWriterArgs</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTargetRedisWriterArgs()" class="member-name-link">getTargetRedisWriterArgs</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="RedisWriterArgs.html" title="class in com.redis.riot">RedisWriterArgs</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTargetRedisWriterArgs()" class="member-name-link">getTargetRedisWriterArgs</a>()</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Replicate.Type.html" title="enum class in com.redis.riot">Replicate.Type</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getType()" class="member-name-link">getType</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="Replicate.Type.html" title="enum class in com.redis.riot">Replicate.Type</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getType()" class="member-name-link">getType</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isLogKeys()" class="member-name-link">isLogKeys</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isQuickCompare()" class="member-name-link">isQuickCompare</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isLogKeys()" class="member-name-link">isLogKeys</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isStruct()" class="member-name-link">isStruct</a>()</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isQuickCompare()" class="member-name-link">isQuickCompare</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected org.springframework.batch.core.Job</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#job()" class="member-name-link">job</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isStruct()" class="member-name-link">isStruct</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected org.springframework.batch.core.Job</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#job()" class="member-name-link">job</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected com.redis.spring.batch.item.redis.RedisItemReader&lt;byte[],<wbr>byte[]&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#reader()" class="member-name-link">reader</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected <a href="core/Step.html" title="class in com.redis.riot.core">Step</a>&lt;com.redis.spring.batch.item.redis.common.KeyValue&lt;byte[]&gt;,<wbr>com.redis.spring.batch.item.redis.common.KeyValue&lt;byte[]&gt;&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#replicateStep()" class="member-name-link">replicateStep</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected org.springframework.batch.item.ItemWriter&lt;com.redis.spring.batch.item.redis.common.KeyValue&lt;byte[]&gt;&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#replicateWriter()" class="member-name-link">replicateWriter</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setCompareMode(com.redis.riot.CompareMode)" class="member-name-link">setCompareMode</a><wbr>(<a href="CompareMode.html" title="enum class in com.redis.riot">CompareMode</a>&nbsp;compareMode)</code></div>
@@ -215,21 +221,18 @@ loadScripts(document, 'script');</script>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setType(com.redis.riot.Replicate.Type)" class="member-name-link">setType</a><wbr>(<a href="Replicate.Type.html" title="enum class in com.redis.riot">Replicate.Type</a>&nbsp;type)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected <a href="core/Step.html" title="class in com.redis.riot.core">Step</a>&lt;com.redis.spring.batch.item.redis.common.KeyValue&lt;byte[]&gt;,<wbr>com.redis.spring.batch.item.redis.common.KeyValue&lt;byte[]&gt;&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#step()" class="member-name-link">step</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
 </div>
 <div class="inherited-list">
-<h3 id="methods-inherited-from-class-com.redis.riot.AbstractReplicateCommand">Methods inherited from class&nbsp;com.redis.riot.<a href="AbstractReplicateCommand.html" title="class in com.redis.riot">AbstractReplicateCommand</a></h3>
-<code><a href="AbstractReplicateCommand.html#compareStep()">compareStep</a>, <a href="AbstractReplicateCommand.html#getProcessorArgs()">getProcessorArgs</a>, <a href="AbstractReplicateCommand.html#getTtlToleranceMillis()">getTtlToleranceMillis</a>, <a href="AbstractReplicateCommand.html#isIgnoreStreamMessageId()">isIgnoreStreamMessageId</a>, <a href="AbstractReplicateCommand.html#isShowDiffs()">isShowDiffs</a>, <a href="AbstractReplicateCommand.html#processor()">processor</a>, <a href="AbstractReplicateCommand.html#setProcessorArgs(com.redis.riot.KeyValueProcessorArgs)">setProcessorArgs</a>, <a href="AbstractReplicateCommand.html#setShowDiffs(boolean)">setShowDiffs</a>, <a href="AbstractReplicateCommand.html#setTtlToleranceMillis(long)">setTtlToleranceMillis</a></code></div>
+<h3 id="methods-inherited-from-class-com.redis.riot.AbstractCompareCommand">Methods inherited from class&nbsp;com.redis.riot.<a href="AbstractCompareCommand.html" title="class in com.redis.riot">AbstractCompareCommand</a></h3>
+<code><a href="AbstractCompareCommand.html#compareStep()">compareStep</a>, <a href="AbstractCompareCommand.html#filter()">filter</a>, <a href="AbstractCompareCommand.html#getProcessorArgs()">getProcessorArgs</a>, <a href="AbstractCompareCommand.html#getTtlTolerance()">getTtlTolerance</a>, <a href="AbstractCompareCommand.html#isIgnoreStreamMessageId()">isIgnoreStreamMessageId</a>, <a href="AbstractCompareCommand.html#isShowDiffs()">isShowDiffs</a>, <a href="AbstractCompareCommand.html#processingWriter(org.springframework.batch.item.ItemWriter)">processingWriter</a>, <a href="AbstractCompareCommand.html#setProcessorArgs(com.redis.riot.KeyValueProcessorArgs)">setProcessorArgs</a>, <a href="AbstractCompareCommand.html#setShowDiffs(boolean)">setShowDiffs</a>, <a href="AbstractCompareCommand.html#setTtlTolerance(com.redis.riot.core.RiotDuration)">setTtlTolerance</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-com.redis.riot.AbstractRedisTargetExportCommand">Methods inherited from class&nbsp;com.redis.riot.<a href="AbstractRedisTargetExportCommand.html" title="class in com.redis.riot">AbstractRedisTargetExportCommand</a></h3>
 <code><a href="AbstractRedisTargetExportCommand.html#configure(org.springframework.expression.spel.support.StandardEvaluationContext)">configure</a>, <a href="AbstractRedisTargetExportCommand.html#configureTargetRedisReader(com.redis.spring.batch.item.redis.RedisItemReader)">configureTargetRedisReader</a>, <a href="AbstractRedisTargetExportCommand.html#getSourceRedisArgs()">getSourceRedisArgs</a>, <a href="AbstractRedisTargetExportCommand.html#getSourceRedisUri()">getSourceRedisUri</a>, <a href="AbstractRedisTargetExportCommand.html#getTargetRedisArgs()">getTargetRedisArgs</a>, <a href="AbstractRedisTargetExportCommand.html#getTargetRedisUri()">getTargetRedisUri</a>, <a href="AbstractRedisTargetExportCommand.html#initialize()">initialize</a>, <a href="AbstractRedisTargetExportCommand.html#setSourceRedisArgs(com.redis.riot.SourceRedisArgs)">setSourceRedisArgs</a>, <a href="AbstractRedisTargetExportCommand.html#setSourceRedisUri(io.lettuce.core.RedisURI)">setSourceRedisUri</a>, <a href="AbstractRedisTargetExportCommand.html#setTargetRedisArgs(com.redis.riot.TargetRedisArgs)">setTargetRedisArgs</a>, <a href="AbstractRedisTargetExportCommand.html#setTargetRedisUri(io.lettuce.core.RedisURI)">setTargetRedisUri</a>, <a href="AbstractRedisTargetExportCommand.html#sourceRedisContext()">sourceRedisContext</a>, <a href="AbstractRedisTargetExportCommand.html#targetRedisContext()">targetRedisContext</a>, <a href="AbstractRedisTargetExportCommand.html#teardown()">teardown</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-com.redis.riot.AbstractExportCommand">Methods inherited from class&nbsp;com.redis.riot.<a href="AbstractExportCommand.html" title="class in com.redis.riot">AbstractExportCommand</a></h3>
-<code><a href="AbstractExportCommand.html#checkNotifyConfig(io.lettuce.core.AbstractRedisClient,org.slf4j.Logger)">checkNotifyConfig</a>, <a href="AbstractExportCommand.html#configureSourceRedisReader(com.redis.spring.batch.item.redis.RedisItemReader)">configureSourceRedisReader</a>, <a href="AbstractExportCommand.html#getSourceRedisReaderArgs()">getSourceRedisReaderArgs</a>, <a href="AbstractExportCommand.html#setSourceRedisReaderArgs(com.redis.riot.RedisReaderArgs)">setSourceRedisReaderArgs</a>, <a href="AbstractExportCommand.html#step(com.redis.spring.batch.item.redis.RedisItemReader,org.springframework.batch.item.ItemWriter)">step</a>, <a href="AbstractExportCommand.html#step(org.springframework.batch.item.ItemWriter)">step</a></code></div>
+<code><a href="AbstractExportCommand.html#checkNotifyConfig(io.lettuce.core.AbstractRedisClient,org.slf4j.Logger)">checkNotifyConfig</a>, <a href="AbstractExportCommand.html#configureSourceRedisReader(com.redis.spring.batch.item.redis.RedisItemReader)">configureSourceRedisReader</a>, <a href="AbstractExportCommand.html#configureSourceRedisWriter(com.redis.spring.batch.item.redis.RedisItemWriter)">configureSourceRedisWriter</a>, <a href="AbstractExportCommand.html#getSourceRedisReaderArgs()">getSourceRedisReaderArgs</a>, <a href="AbstractExportCommand.html#setSourceRedisReaderArgs(com.redis.riot.RedisReaderArgs)">setSourceRedisReaderArgs</a>, <a href="AbstractExportCommand.html#step(com.redis.spring.batch.item.redis.RedisItemReader,org.springframework.batch.item.ItemWriter)">step</a>, <a href="AbstractExportCommand.html#step(org.springframework.batch.item.ItemWriter)">step</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-com.redis.riot.core.AbstractJobCommand">Methods inherited from class&nbsp;com.redis.riot.core.<a href="core/AbstractJobCommand.html" title="class in com.redis.riot.core">AbstractJobCommand</a></h3>
 <code><a href="core/AbstractJobCommand.html#configureAsyncReader(com.redis.spring.batch.item.AbstractAsyncItemReader)">configureAsyncReader</a>, <a href="core/AbstractJobCommand.html#execute()">execute</a>, <a href="core/AbstractJobCommand.html#getJobArgs()">getJobArgs</a>, <a href="core/AbstractJobCommand.html#getJobExplorer()">getJobExplorer</a>, <a href="core/AbstractJobCommand.html#getJobLauncher()">getJobLauncher</a>, <a href="core/AbstractJobCommand.html#getJobName()">getJobName</a>, <a href="core/AbstractJobCommand.html#getJobRepository()">getJobRepository</a>, <a href="core/AbstractJobCommand.html#getJobRepositoryName()">getJobRepositoryName</a>, <a href="core/AbstractJobCommand.html#getTransactionManager()">getTransactionManager</a>, <a href="core/AbstractJobCommand.html#job(com.redis.riot.core.Step...)">job</a>, <a href="core/AbstractJobCommand.html#job(java.util.Collection)">job</a>, <a href="core/AbstractJobCommand.html#setJobArgs(com.redis.riot.core.StepArgs)">setJobArgs</a>, <a href="core/AbstractJobCommand.html#setJobExplorer(org.springframework.batch.core.explore.JobExplorer)">setJobExplorer</a>, <a href="core/AbstractJobCommand.html#setJobLauncher(org.springframework.batch.core.launch.JobLauncher)">setJobLauncher</a>, <a href="core/AbstractJobCommand.html#setJobName(java.lang.String)">setJobName</a>, <a href="core/AbstractJobCommand.html#setJobRepository(org.springframework.batch.core.repository.JobRepository)">setJobRepository</a>, <a href="core/AbstractJobCommand.html#setJobRepositoryName(java.lang.String)">setJobRepositoryName</a>, <a href="core/AbstractJobCommand.html#setTransactionManager(org.springframework.transaction.PlatformTransactionManager)">setTransactionManager</a>, <a href="core/AbstractJobCommand.html#shouldShowProgress()">shouldShowProgress</a></code></div>
@@ -296,7 +299,7 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isQuickCompare</span>()</div>
 <dl class="notes">
 <dt>Specified by:</dt>
-<dd><code><a href="AbstractReplicateCommand.html#isQuickCompare()">isQuickCompare</a></code>&nbsp;in class&nbsp;<code><a href="AbstractReplicateCommand.html" title="class in com.redis.riot">AbstractReplicateCommand</a></code></dd>
+<dd><code><a href="AbstractCompareCommand.html#isQuickCompare()">isQuickCompare</a></code>&nbsp;in class&nbsp;<code><a href="AbstractCompareCommand.html" title="class in com.redis.riot">AbstractCompareCommand</a></code></dd>
 </dl>
 </section>
 </li>
@@ -321,9 +324,21 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="step()">
-<h3>step</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="core/Step.html" title="class in com.redis.riot.core">Step</a>&lt;com.redis.spring.batch.item.redis.common.KeyValue&lt;byte[]&gt;,<wbr>com.redis.spring.batch.item.redis.common.KeyValue&lt;byte[]&gt;&gt;</span>&nbsp;<span class="element-name">step</span>()</div>
+<section class="detail" id="replicateStep()">
+<h3>replicateStep</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="core/Step.html" title="class in com.redis.riot.core">Step</a>&lt;com.redis.spring.batch.item.redis.common.KeyValue&lt;byte[]&gt;,<wbr>com.redis.spring.batch.item.redis.common.KeyValue&lt;byte[]&gt;&gt;</span>&nbsp;<span class="element-name">replicateStep</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="replicateWriter()">
+<h3>replicateWriter</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">org.springframework.batch.item.ItemWriter&lt;com.redis.spring.batch.item.redis.common.KeyValue&lt;byte[]&gt;&gt;</span>&nbsp;<span class="element-name">replicateWriter</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="reader()">
+<h3>reader</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">com.redis.spring.batch.item.redis.RedisItemReader&lt;byte[],<wbr>byte[]&gt;</span>&nbsp;<span class="element-name">reader</span>()</div>
 </section>
 </li>
 <li>
@@ -332,17 +347,7 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isStruct</span>()</div>
 <dl class="notes">
 <dt>Specified by:</dt>
-<dd><code><a href="AbstractReplicateCommand.html#isStruct()">isStruct</a></code>&nbsp;in class&nbsp;<code><a href="AbstractReplicateCommand.html" title="class in com.redis.riot">AbstractReplicateCommand</a></code></dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="compareReader()">
-<h3>compareReader</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">com.redis.spring.batch.item.redis.reader.KeyComparisonItemReader&lt;byte[],<wbr>byte[]&gt;</span>&nbsp;<span class="element-name">compareReader</span>()</div>
-<dl class="notes">
-<dt>Overrides:</dt>
-<dd><code><a href="AbstractReplicateCommand.html#compareReader()">compareReader</a></code>&nbsp;in class&nbsp;<code><a href="AbstractReplicateCommand.html" title="class in com.redis.riot">AbstractReplicateCommand</a></code></dd>
+<dd><code><a href="AbstractCompareCommand.html#isStruct()">isStruct</a></code>&nbsp;in class&nbsp;<code><a href="AbstractCompareCommand.html" title="class in com.redis.riot">AbstractCompareCommand</a></code></dd>
 </dl>
 </section>
 </li>

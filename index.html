@@ -92,7 +92,7 @@ $(addBlockSwitches);
 <h1>Redis Input/Output Tools (RIOT)</h1>
 <div class="details">
 <span id="author" class="author">Julien Ruaux</span><br>
-<span id="revnumber">version 4.2.2</span>
+<span id="revnumber">version 4.2.3</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -137,10 +137,10 @@ $(addBlockSwitches);
 <div class="paragraph">
 <p>RIOT includes the following features:</p>
 </div>
-<div class="ulist">
-<ul>
-<li>
-<p>Files (CSV, JSON, XML)</p>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Files (CSV, JSON, XML)</dt>
+<dd>
 <div class="ulist">
 <ul>
 <li>
@@ -151,9 +151,9 @@ $(addBlockSwitches);
 </li>
 </ul>
 </div>
-</li>
-<li>
-<p>Databases</p>
+</dd>
+<dt class="hdlist1">Databases</dt>
+<dd>
 <div class="ulist">
 <ul>
 <li>
@@ -164,9 +164,9 @@ $(addBlockSwitches);
 </li>
 </ul>
 </div>
-</li>
-<li>
-<p>Data Generators</p>
+</dd>
+<dt class="hdlist1">Data Generators</dt>
+<dd>
 <div class="ulist">
 <ul>
 <li>
@@ -177,11 +177,12 @@ $(addBlockSwitches);
 </li>
 </ul>
 </div>
-</li>
-<li>
-<p><a href="#_replication">Replication</a>: Redis &#8594; Redis</p>
-</li>
-</ul>
+</dd>
+<dt class="hdlist1"><a href="#_replication">Replication</a></dt>
+<dd>
+<p>Redis &#8594; Redis</p>
+</dd>
+</dl>
 </div>
 <div class="paragraph">
 <p>RIOT is supported by Redis, Inc. on a good faith effort basis. To report bugs, request features, or receive assistance, please <a href="https://github.com/redis/riot/issues">file an issue</a> or contact your Redis account team.</p>
@@ -250,10 +251,10 @@ scoop install riot</code></pre>
 </td>
 <td class="content">
 <div class="paragraph">
-<p><code>riot-4.2.2.zip</code> requires Java 11 or greater to be installed.</p>
+<p><code>riot-4.2.3.zip</code> requires Java 11 or greater to be installed.</p>
 </div>
 <div class="paragraph">
-<p><code>riot-standalone-4.2.2-*.zip</code> includes its own Java runtime and does not require a Java installation.</p>
+<p><code>riot-standalone-4.2.3-*.zip</code> includes its own Java runtime and does not require a Java installation.</p>
 </div>
 </td>
 </tr>
@@ -315,24 +316,30 @@ Here, only one reader is being accessed from multiple threads.</p>
 <h3 id="_concepts_processing"><a class="anchor" href="#_concepts_processing"></a>Processing</h3>
 <div class="paragraph">
 <p>RIOT lets you transform incoming records using processors.
-These processors allow you to create/update/delete fields using the Spring Expression Language (<a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#expressions">SpEL</a>).
-For example, import commands like <code>file-import</code>, <code>db-import</code>, and <code>faker</code> have a <code>--proc</code> option that allow for field-level processing:</p>
+These processors allow you to create/update/delete fields using the Spring Expression Language (<a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#expressions">SpEL</a>).</p>
 </div>
-<div class="ulist">
-<ul>
-<li>
-<p><code>--proc field1="'foo'"</code> &#8594; generate a field named <code>field1</code> containing the string <code>foo</code></p>
-</li>
-<li>
-<p><code>--proc temp="(temp-32)*5/9"</code> &#8594; convert from Fahrenheit to Celsius</p>
-</li>
-<li>
-<p><code>--proc name='remove("first").concat(remove("last"))'</code> &#8594; concatenate <code>first</code> and <code>last</code> fields and delete them</p>
-</li>
-<li>
-<p><code>field2=null</code> &#8594; delete <code>field2</code></p>
-</li>
-</ul>
+<div class="paragraph">
+<p>For example, import commands like <code>file-import</code>, <code>db-import</code>, and <code>faker</code> have a <code>--proc</code> option that allow for field-level processing:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><code>--proc field1="'foo'"</code></dt>
+<dd>
+<p>Generate a field named <code>field1</code> containing the string <code>foo</code></p>
+</dd>
+<dt class="hdlist1"><code>--proc temp="(temp-32)*5/9"</code></dt>
+<dd>
+<p>Convert from Fahrenheit to Celsius</p>
+</dd>
+<dt class="hdlist1"><code>--proc name='remove("first").concat(remove("last"))'</code></dt>
+<dd>
+<p>Concatenate <code>first</code> and <code>last</code> fields and delete them</p>
+</dd>
+<dt class="hdlist1"><code>--proc field2=null</code></dt>
+<dd>
+<p>Delete <code>field2</code></p>
+</dd>
+</dl>
 </div>
 <div class="paragraph">
 <p>Input fields are accessed by name (e.g. <code>field3=field1+field2</code>).</p>
@@ -578,30 +585,32 @@ You can provide the database, password and timeouts within the Redis URI.
 <div class="paragraph">
 <p>RIOT includes 2 commands for data generation:</p>
 </div>
-<div class="ulist">
-<ul>
-<li>
-<p><a href="#_datagen_struct"><code>generate</code></a>: Generate Redis data structures</p>
-</li>
-<li>
-<p><a href="#_datagen_faker"><code>faker</code></a>: Import data from <a href="http://www.datafaker.net">Datafaker</a></p>
-</li>
-</ul>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><a href="#_datagen_struct"><code>generate</code></a></dt>
+<dd>
+<p>Generate Redis data structures</p>
+</dd>
+<dt class="hdlist1"><a href="#_datagen_faker"><code>faker</code></a></dt>
+<dd>
+<p>Import data from <a href="http://www.datafaker.net">Datafaker</a></p>
+</dd>
+</dl>
 </div>
 <div class="sect3">
 <h4 id="_datagen_struct"><a class="anchor" href="#_datagen_struct"></a>Data Structure Generator</h4>
 <div class="paragraph">
-<p>The <code>generate</code> command generates Redis data structures as well as JSON and Timeseries.</p>
+<p>The <code>gen</code> command generates Redis data structures as well as JSON and Timeseries.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="console">riot generate [OPTIONS]</code></pre>
+<pre class="CodeRay highlight"><code data-lang="console">riot gen [OPTIONS]</code></pre>
 </div>
 </div>
 <div class="listingblock">
 <div class="title">Example</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="console">riot generate --type string hash json timeseries</code></pre>
+<pre class="CodeRay highlight"><code data-lang="console">riot gen --type string hash json timeseries</code></pre>
 </div>
 </div>
 </div>
@@ -731,15 +740,17 @@ Most providers don&#8217;t take any arguments and can be called directly:</p>
 <div class="paragraph">
 <p>RIOT includes two commands for interaction with relational databases:</p>
 </div>
-<div class="ulist">
-<ul>
-<li>
-<p><a href="#_db_import"><code>db-import</code></a>: Import database tables into Redis</p>
-</li>
-<li>
-<p><a href="#_db_export"><code>db-export</code></a>: Export Redis data structures to a database</p>
-</li>
-</ul>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><a href="#_db_import"><code>db-import</code></a></dt>
+<dd>
+<p>Import database tables into Redis</p>
+</dd>
+<dt class="hdlist1"><a href="#_db_export"><code>db-export</code></a></dt>
+<dd>
+<p>Export Redis data structures to a database</p>
+</dd>
+</dl>
 </div>
 <div class="sect3">
 <h4 id="_db_drivers"><a class="anchor" href="#_db_drivers"></a>Drivers</h4>
@@ -777,15 +788,17 @@ It includes JDBC drivers for the most common database systems:</p>
 <div class="paragraph">
 <p>For non-included databases you must install the corresponding JDBC driver under the <code>lib</code> directory and modify the <code>CLASSPATH</code>:</p>
 </div>
-<div class="ulist">
-<ul>
-<li>
-<p>*nix: <code>bin/riot</code> &#8594; <code>CLASSPATH=$APP_HOME/lib/myjdbc.jar:$APP_HOME/lib/&#8230;&#8203;</code></p>
-</li>
-<li>
-<p>Windows: <code>bin\riot.bat</code> &#8594; <code>set CLASSPATH=%APP_HOME%\lib\myjdbc.jar;%APP_HOME%\lib...</code></p>
-</li>
-</ul>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">*nix</dt>
+<dd>
+<p><code>bin/riot</code> &#8594; <code>CLASSPATH=$APP_HOME/lib/myjdbc.jar:$APP_HOME/lib/&#8230;&#8203;</code></p>
+</dd>
+<dt class="hdlist1">Windows</dt>
+<dd>
+<p><code>bin\riot.bat</code> &#8594; <code>set CLASSPATH=%APP_HOME%\lib\myjdbc.jar;%APP_HOME%\lib...</code></p>
+</dd>
+</dl>
 </div>
 </td>
 </tr>
@@ -812,7 +825,7 @@ See the <a href="#_db_drivers">Drivers</a> section for more details.
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="console">riot db-import --jdbc-url &lt;jdbc url&gt; SQL [REDIS COMMAND...]</code></pre>
+<pre class="CodeRay highlight"><code data-lang="console">riot db-import --jdbc-url &lt;jdbc url&gt; --uri &lt;redis uri&gt; SQL [REDIS COMMAND...]</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -833,17 +846,7 @@ See the <a href="#_db_drivers">Drivers</a> section for more details.
 <i class="fa icon-important" title="Important"></i>
 </td>
 <td class="content">
-<div class="paragraph">
-<p>Redis connection options apply to the root command (<code>riot</code>) and not to subcommands.</p>
-</div>
-<div class="paragraph">
-<p>In this example the Redis options will not be taken into account:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="CodeRay highlight"><code>riot db-import &quot;SELECT * FROM customers&quot; hset -h myredis.com -p 6380</code></pre>
-</div>
-</div>
+Redis connection options apply to the root command (<code>riot</code>) and not to subcommands.
 </td>
 </tr>
 </table>
@@ -938,15 +941,17 @@ See the <a href="#_db_drivers">Drivers</a> section for more details.
 <div class="paragraph">
 <p>RIOT includes two commands to work with files in various formats:</p>
 </div>
-<div class="ulist">
-<ul>
-<li>
-<p><a href="#_file_import"><code>file-import</code></a>: Import data from files</p>
-</li>
-<li>
-<p><a href="#_file_export"><code>file-export</code></a>: Export Redis data structures to files</p>
-</li>
-</ul>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><a href="#_file_import"><code>file-import</code></a></dt>
+<dd>
+<p>Import data from files</p>
+</dd>
+<dt class="hdlist1"><a href="#_file_export"><code>file-export</code></a></dt>
+<dd>
+<p>Export Redis data structures to files</p>
+</dd>
+</dl>
 </div>
 <div class="sect3">
 <h4 id="_file_import"><a class="anchor" href="#_file_import"></a>File Import</h4>
@@ -1760,15 +1765,17 @@ Adjust number of threads, batch and queue sizes accordingly.
 <div class="paragraph">
 <p>There are 2 comparison modes available through <code>--compare</code> (<code>--quick</code> for <code>compare</code> command):</p>
 </div>
-<div class="ulist">
-<ul>
-<li>
-<p>Quick (default): compares key types and TTLs.</p>
-</li>
-<li>
-<p>Full: compares key types, TTLs, and values.</p>
-</li>
-</ul>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Quick (default)</dt>
+<dd>
+<p>Compare key types and TTLs.</p>
+</dd>
+<dt class="hdlist1">Full</dt>
+<dd>
+<p>Compare key types, TTLs, and values.</p>
+</dd>
+</dl>
 </div>
 <div class="paragraph">
 <p>To show which keys differ, use the <code>--show-diffs</code> option.</p>
@@ -2121,8 +2128,8 @@ Either increase max JVM heap size (<code>export JAVA_OPTS="-Xmx8g"</code>) or re
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 4.2.2<br>
-Last updated 2025-01-30 02:35:06 UTC
+Version 4.2.3<br>
+Last updated 2025-02-16 18:44:09 UTC
 </div>
 </div>
 <link rel="stylesheet" href="./coderay-asciidoctor.css">

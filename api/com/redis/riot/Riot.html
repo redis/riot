@@ -75,7 +75,9 @@ loadScripts(document, 'script');</script>
 <div class="inheritance" title="Inheritance Tree"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">java.lang.Object</a>
 <div class="inheritance"><a href="core/BaseCommand.html" title="class in com.redis.riot.core">com.redis.riot.core.BaseCommand</a>
 <div class="inheritance"><a href="core/MainCommand.html" title="class in com.redis.riot.core">com.redis.riot.core.MainCommand</a>
+<div class="inheritance"><a href="RiotMainCommand.html" title="class in com.redis.riot">com.redis.riot.RiotMainCommand</a>
 <div class="inheritance">com.redis.riot.Riot</div>
+</div>
 </div>
 </div>
 </div>
@@ -86,7 +88,7 @@ loadScripts(document, 'script');</script>
 </dl>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">Riot</span>
-<span class="extends-implements">extends <a href="core/MainCommand.html" title="class in com.redis.riot.core">MainCommand</a></span></div>
+<span class="extends-implements">extends <a href="RiotMainCommand.html" title="class in com.redis.riot">RiotMainCommand</a></span></div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -117,61 +119,24 @@ loadScripts(document, 'script');</script>
 <section class="method-summary" id="method-summary">
 <h2>Method Summary</h2>
 <div id="method-summary-table">
-<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="method-summary-table-tab0" role="tab" aria-selected="true" aria-controls="method-summary-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table', 3)" class="active-table-tab">All Methods</button><button id="method-summary-table-tab1" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab1', 3)" class="table-tab">Static Methods</button><button id="method-summary-table-tab2" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab2', 3)" class="table-tab">Instance Methods</button><button id="method-summary-table-tab4" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab4', 3)" class="table-tab">Concrete Methods</button></div>
+<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="method-summary-table-tab0" role="tab" aria-selected="true" aria-controls="method-summary-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table', 3)" class="active-table-tab">All Methods</button><button id="method-summary-table-tab1" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab1', 3)" class="table-tab">Static Methods</button><button id="method-summary-table-tab4" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab4', 3)" class="table-tab">Concrete Methods</button></div>
 <div id="method-summary-table.tabpanel" role="tabpanel" aria-labelledby="method-summary-table-tab0">
 <div class="summary-table three-column-summary">
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected picocli.CommandLine</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#commandLine()" class="member-name-link">commandLine</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected <a href="Compare.html" title="class in com.redis.riot">Compare</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#compare()" class="member-name-link">compare</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected <a href="DatabaseExport.html" title="class in com.redis.riot">DatabaseExport</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#databaseExport()" class="member-name-link">databaseExport</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected <a href="DatabaseImport.html" title="class in com.redis.riot">DatabaseImport</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#databaseImport()" class="member-name-link">databaseImport</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected int</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#execute(picocli.CommandLine.ParseResult,picocli.CommandLine.IExecutionStrategy)" class="member-name-link">execute</a><wbr>(picocli.CommandLine.ParseResult&nbsp;parseResult,
- picocli.CommandLine.IExecutionStrategy&nbsp;defaultStrategy)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected <a href="FakerImport.html" title="class in com.redis.riot">FakerImport</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#fakerImport()" class="member-name-link">fakerImport</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected <a href="AbstractFileExport.html" title="class in com.redis.riot">AbstractFileExport</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#fileExport()" class="member-name-link">fileExport</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected <a href="AbstractFileImport.html" title="class in com.redis.riot">AbstractFileImport</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#fileImport()" class="member-name-link">fileImport</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected <a href="Generate.html" title="class in com.redis.riot">Generate</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#generate()" class="member-name-link">generate</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected picocli.AutoComplete.GenerateCompletion</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#generateCompletion()" class="member-name-link">generateCompletion</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#main(java.lang.String%5B%5D)" class="member-name-link">main</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>[]&nbsp;args)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected <a href="Ping.html" title="class in com.redis.riot">Ping</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#ping()" class="member-name-link">ping</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected <a href="Replicate.html" title="class in com.redis.riot">Replicate</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#replicate()" class="member-name-link">replicate</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#subcommands()" class="member-name-link">subcommands</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
 </div>
 <div class="inherited-list">
+<h3 id="methods-inherited-from-class-com.redis.riot.RiotMainCommand">Methods inherited from class&nbsp;com.redis.riot.<a href="RiotMainCommand.html" title="class in com.redis.riot">RiotMainCommand</a></h3>
+<code><a href="RiotMainCommand.html#executionStrategy(picocli.CommandLine.ParseResult)">executionStrategy</a>, <a href="RiotMainCommand.html#registerConverters(picocli.CommandLine)">registerConverters</a></code></div>
+<div class="inherited-list">
 <h3 id="methods-inherited-from-class-com.redis.riot.core.MainCommand">Methods inherited from class&nbsp;com.redis.riot.core.<a href="core/MainCommand.html" title="class in com.redis.riot.core">MainCommand</a></h3>
-<code><a href="core/MainCommand.html#call()">call</a>, <a href="core/MainCommand.html#getErr()">getErr</a>, <a href="core/MainCommand.html#getOut()">getOut</a>, <a href="core/MainCommand.html#run(java.lang.String...)">run</a>, <a href="core/MainCommand.html#setErr(java.io.PrintWriter)">setErr</a>, <a href="core/MainCommand.html#setOut(java.io.PrintWriter)">setOut</a></code></div>
+<code><a href="core/MainCommand.html#call()">call</a>, <a href="core/MainCommand.html#commandLine()">commandLine</a>, <a href="core/MainCommand.html#getErr()">getErr</a>, <a href="core/MainCommand.html#getOut()">getOut</a>, <a href="core/MainCommand.html#run(java.lang.String...)">run</a>, <a href="core/MainCommand.html#setErr(java.io.PrintWriter)">setErr</a>, <a href="core/MainCommand.html#setOut(java.io.PrintWriter)">setOut</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-java.lang.Object">Methods inherited from class&nbsp;java.lang.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></h3>
 <code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#clone()" title="class or interface in java.lang" class="external-link">clone</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="external-link">equals</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#finalize()" title="class or interface in java.lang" class="external-link">finalize</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#getClass()" title="class or interface in java.lang" class="external-link">getClass</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="external-link">hashCode</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#notify()" title="class or interface in java.lang" class="external-link">notify</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#notifyAll()" title="class or interface in java.lang" class="external-link">notifyAll</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#toString()" title="class or interface in java.lang" class="external-link">toString</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait()" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait(long)" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait(long,int)" title="class or interface in java.lang" class="external-link">wait</a></code></div>
@@ -204,89 +169,6 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="main(java.lang.String[])">
 <h3>main</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">main</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>[]&nbsp;args)</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="commandLine()">
-<h3>commandLine</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">picocli.CommandLine</span>&nbsp;<span class="element-name">commandLine</span>()</div>
-<dl class="notes">
-<dt>Overrides:</dt>
-<dd><code><a href="core/MainCommand.html#commandLine()">commandLine</a></code>&nbsp;in class&nbsp;<code><a href="core/MainCommand.html" title="class in com.redis.riot.core">MainCommand</a></code></dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="subcommands()">
-<h3>subcommands</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;</span>&nbsp;<span class="element-name">subcommands</span>()</div>
-</section>
-</li>
-<li>
-<section class="detail" id="generateCompletion()">
-<h3>generateCompletion</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">picocli.AutoComplete.GenerateCompletion</span>&nbsp;<span class="element-name">generateCompletion</span>()</div>
-</section>
-</li>
-<li>
-<section class="detail" id="compare()">
-<h3>compare</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="Compare.html" title="class in com.redis.riot">Compare</a></span>&nbsp;<span class="element-name">compare</span>()</div>
-</section>
-</li>
-<li>
-<section class="detail" id="replicate()">
-<h3>replicate</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="Replicate.html" title="class in com.redis.riot">Replicate</a></span>&nbsp;<span class="element-name">replicate</span>()</div>
-</section>
-</li>
-<li>
-<section class="detail" id="ping()">
-<h3>ping</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="Ping.html" title="class in com.redis.riot">Ping</a></span>&nbsp;<span class="element-name">ping</span>()</div>
-</section>
-</li>
-<li>
-<section class="detail" id="generate()">
-<h3>generate</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="Generate.html" title="class in com.redis.riot">Generate</a></span>&nbsp;<span class="element-name">generate</span>()</div>
-</section>
-</li>
-<li>
-<section class="detail" id="fileImport()">
-<h3>fileImport</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="AbstractFileImport.html" title="class in com.redis.riot">AbstractFileImport</a></span>&nbsp;<span class="element-name">fileImport</span>()</div>
-</section>
-</li>
-<li>
-<section class="detail" id="fileExport()">
-<h3>fileExport</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="AbstractFileExport.html" title="class in com.redis.riot">AbstractFileExport</a></span>&nbsp;<span class="element-name">fileExport</span>()</div>
-</section>
-</li>
-<li>
-<section class="detail" id="fakerImport()">
-<h3>fakerImport</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="FakerImport.html" title="class in com.redis.riot">FakerImport</a></span>&nbsp;<span class="element-name">fakerImport</span>()</div>
-</section>
-</li>
-<li>
-<section class="detail" id="databaseImport()">
-<h3>databaseImport</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="DatabaseImport.html" title="class in com.redis.riot">DatabaseImport</a></span>&nbsp;<span class="element-name">databaseImport</span>()</div>
-</section>
-</li>
-<li>
-<section class="detail" id="databaseExport()">
-<h3>databaseExport</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="DatabaseExport.html" title="class in com.redis.riot">DatabaseExport</a></span>&nbsp;<span class="element-name">databaseExport</span>()</div>
-</section>
-</li>
-<li>
-<section class="detail" id="execute(picocli.CommandLine.ParseResult,picocli.CommandLine.IExecutionStrategy)">
-<h3>execute</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">execute</span><wbr><span class="parameters">(picocli.CommandLine.ParseResult&nbsp;parseResult,
- picocli.CommandLine.IExecutionStrategy&nbsp;defaultStrategy)</span></div>
 </section>
 </li>
 </ul>

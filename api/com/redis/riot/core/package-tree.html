@@ -70,10 +70,15 @@ loadScripts(document, 'script');</script>
 <li class="circle">com.redis.riot.core.<a href="MainCommand.html" class="type-name-link" title="class in com.redis.riot.core">MainCommand</a> (implements java.util.concurrent.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/concurrent/Callable.html" title="class or interface in java.util.concurrent" class="external-link">Callable</a>&lt;V&gt;, com.redis.riot.core.<a href="IO.html" title="interface in com.redis.riot.core">IO</a>)</li>
 </ul>
 </li>
-<li class="circle">com.redis.riot.core.<a href="Duration.html" class="type-name-link" title="class in com.redis.riot.core">Duration</a> (implements java.lang.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Comparable.html" title="class or interface in java.lang" class="external-link">Comparable</a>&lt;T&gt;)</li>
+<li class="circle">com.redis.riot.core.<a href="CompositeExecutionStrategy.html" class="type-name-link" title="class in com.redis.riot.core">CompositeExecutionStrategy</a> (implements picocli.CommandLine.IExecutionStrategy)</li>
 <li class="circle">com.redis.riot.core.<a href="Expression.html" class="type-name-link" title="class in com.redis.riot.core">Expression</a>
 <ul>
 <li class="circle">com.redis.riot.core.<a href="TemplateExpression.html" class="type-name-link" title="class in com.redis.riot.core">TemplateExpression</a></li>
+</ul>
+</li>
+<li class="circle">org.springframework.batch.item.ItemStreamSupport (implements org.springframework.batch.item.ItemStream)
+<ul>
+<li class="circle">com.redis.riot.core.<a href="ProcessingItemWriter.html" class="type-name-link" title="class in com.redis.riot.core">ProcessingItemWriter</a>&lt;S,<wbr>T&gt; (implements org.springframework.batch.item.ItemStreamWriter&lt;T&gt;)</li>
 </ul>
 </li>
 <li class="circle">com.redis.riot.core.<a href="LoggingMixin.html" class="type-name-link" title="class in com.redis.riot.core">LoggingMixin</a></li>
@@ -86,6 +91,7 @@ loadScripts(document, 'script');</script>
 <li class="circle">com.redis.riot.core.<a href="PrintExceptionMessageHandler.html" class="type-name-link" title="class in com.redis.riot.core">PrintExceptionMessageHandler</a> (implements picocli.CommandLine.IExecutionExceptionHandler)</li>
 <li class="circle">com.redis.riot.core.<a href="ProgressArgs.html" class="type-name-link" title="class in com.redis.riot.core">ProgressArgs</a></li>
 <li class="circle">com.redis.riot.core.<a href="ProgressStepExecutionListener.html" class="type-name-link" title="class in com.redis.riot.core">ProgressStepExecutionListener</a>&lt;I,<wbr>O&gt; (implements org.springframework.batch.core.ItemWriteListener&lt;S&gt;, org.springframework.batch.core.StepExecutionListener)</li>
+<li class="circle">com.redis.riot.core.<a href="RiotDuration.html" class="type-name-link" title="class in com.redis.riot.core">RiotDuration</a></li>
 <li class="circle">com.redis.riot.core.<a href="RiotUtils.html" class="type-name-link" title="class in com.redis.riot.core">RiotUtils</a></li>
 <li class="circle">com.redis.riot.core.<a href="RiotVersion.html" class="type-name-link" title="class in com.redis.riot.core">RiotVersion</a></li>
 <li class="circle">com.redis.riot.core.<a href="Step.html" class="type-name-link" title="class in com.redis.riot.core">Step</a>&lt;I,<wbr>O&gt;</li>
@@ -95,8 +101,11 @@ loadScripts(document, 'script');</script>
 <ul>
 <li class="circle">java.lang.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Exception.html" class="type-name-link external-link" title="class or interface in java.lang">Exception</a>
 <ul>
-<li class="circle">com.redis.riot.core.<a href="RiotExecutionException.html" class="type-name-link" title="class in com.redis.riot.core">RiotExecutionException</a></li>
-<li class="circle">com.redis.riot.core.<a href="RiotInitializationException.html" class="type-name-link" title="class in com.redis.riot.core">RiotInitializationException</a></li>
+<li class="circle">java.lang.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/RuntimeException.html" class="type-name-link external-link" title="class or interface in java.lang">RuntimeException</a>
+<ul>
+<li class="circle">com.redis.riot.core.<a href="RiotException.html" class="type-name-link" title="class in com.redis.riot.core">RiotException</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

@@ -61,6 +61,17 @@ loadScripts(document, 'script');</script>
 <h2 title="com.redis">com.redis.*</h2>
 <ul class="block-list">
 <li>
+<div class="caption"><span>com.redis.riot.<a href="com/redis/riot/AbstractCompareCommand.html" title="class in com.redis.riot">AbstractCompareCommand</a></span></div>
+<div class="summary-table three-column-summary">
+<div class="table-header col-first">Modifier and Type</div>
+<div class="table-header col-second">Constant Field</div>
+<div class="table-header col-last">Value</div>
+<div class="col-first even-row-color"><code id="com.redis.riot.AbstractCompareCommand.DEFAULT_COMPARE_STREAM_MESSAGE_ID">public&nbsp;static&nbsp;final&nbsp;boolean</code></div>
+<div class="col-second even-row-color"><code><a href="com/redis/riot/AbstractCompareCommand.html#DEFAULT_COMPARE_STREAM_MESSAGE_ID">DEFAULT_COMPARE_STREAM_MESSAGE_ID</a></code></div>
+<div class="col-last even-row-color"><code>true</code></div>
+</div>
+</li>
+<li>
 <div class="caption"><span>com.redis.riot.<a href="com/redis/riot/AbstractExportCommand.html" title="class in com.redis.riot">AbstractExportCommand</a></span></div>
 <div class="summary-table three-column-summary">
 <div class="table-header col-first">Modifier and Type</div>
@@ -108,17 +119,6 @@ loadScripts(document, 'script');</script>
 </div>
 </li>
 <li>
-<div class="caption"><span>com.redis.riot.<a href="com/redis/riot/AbstractReplicateCommand.html" title="class in com.redis.riot">AbstractReplicateCommand</a></span></div>
-<div class="summary-table three-column-summary">
-<div class="table-header col-first">Modifier and Type</div>
-<div class="table-header col-second">Constant Field</div>
-<div class="table-header col-last">Value</div>
-<div class="col-first even-row-color"><code id="com.redis.riot.AbstractReplicateCommand.DEFAULT_COMPARE_STREAM_MESSAGE_ID">public&nbsp;static&nbsp;final&nbsp;boolean</code></div>
-<div class="col-second even-row-color"><code><a href="com/redis/riot/AbstractReplicateCommand.html#DEFAULT_COMPARE_STREAM_MESSAGE_ID">DEFAULT_COMPARE_STREAM_MESSAGE_ID</a></code></div>
-<div class="col-last even-row-color"><code>true</code></div>
-</div>
-</li>
-<li>
 <div class="caption"><span>com.redis.riot.<a href="com/redis/riot/DatabaseExport.html" title="class in com.redis.riot">DatabaseExport</a></span></div>
 <div class="summary-table three-column-summary">
 <div class="table-header col-first">Modifier and Type</div>
@@ -141,9 +141,6 @@ loadScripts(document, 'script');</script>
 <div class="col-first odd-row-color"><code id="com.redis.riot.DatabaseReaderArgs.DEFAULT_MAX_RESULT_SET_ROWS">public&nbsp;static&nbsp;final&nbsp;int</code></div>
 <div class="col-second odd-row-color"><code><a href="com/redis/riot/DatabaseReaderArgs.html#DEFAULT_MAX_RESULT_SET_ROWS">DEFAULT_MAX_RESULT_SET_ROWS</a></code></div>
 <div class="col-last odd-row-color"><code>-1</code></div>
-<div class="col-first even-row-color"><code id="com.redis.riot.DatabaseReaderArgs.DEFAULT_QUERY_TIMEOUT">public&nbsp;static&nbsp;final&nbsp;int</code></div>
-<div class="col-second even-row-color"><code><a href="com/redis/riot/DatabaseReaderArgs.html#DEFAULT_QUERY_TIMEOUT">DEFAULT_QUERY_TIMEOUT</a></code></div>
-<div class="col-last even-row-color"><code>-1</code></div>
 </div>
 </li>
 <li>
@@ -155,15 +152,18 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color"><code id="com.redis.riot.EvaluationContextArgs.DEFAULT_DATE_FORMAT">public&nbsp;static&nbsp;final&nbsp;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
 <div class="col-second even-row-color"><code><a href="com/redis/riot/EvaluationContextArgs.html#DEFAULT_DATE_FORMAT">DEFAULT_DATE_FORMAT</a></code></div>
 <div class="col-last even-row-color"><code>"yyyy-MM-dd\'T\'HH:mm:ss.SSSZ"</code></div>
-<div class="col-first odd-row-color"><code id="com.redis.riot.EvaluationContextArgs.VAR_DATE">public&nbsp;static&nbsp;final&nbsp;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second odd-row-color"><code><a href="com/redis/riot/EvaluationContextArgs.html#VAR_DATE">VAR_DATE</a></code></div>
-<div class="col-last odd-row-color"><code>"date"</code></div>
-<div class="col-first even-row-color"><code id="com.redis.riot.EvaluationContextArgs.VAR_FAKER">public&nbsp;static&nbsp;final&nbsp;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second even-row-color"><code><a href="com/redis/riot/EvaluationContextArgs.html#VAR_FAKER">VAR_FAKER</a></code></div>
-<div class="col-last even-row-color"><code>"faker"</code></div>
-<div class="col-first odd-row-color"><code id="com.redis.riot.EvaluationContextArgs.VAR_NUMBER">public&nbsp;static&nbsp;final&nbsp;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second odd-row-color"><code><a href="com/redis/riot/EvaluationContextArgs.html#VAR_NUMBER">VAR_NUMBER</a></code></div>
-<div class="col-last odd-row-color"><code>"number"</code></div>
+<div class="col-first odd-row-color"><code id="com.redis.riot.EvaluationContextArgs.DEFAULT_NUMBER_FORMAT">public&nbsp;static&nbsp;final&nbsp;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second odd-row-color"><code><a href="com/redis/riot/EvaluationContextArgs.html#DEFAULT_NUMBER_FORMAT">DEFAULT_NUMBER_FORMAT</a></code></div>
+<div class="col-last odd-row-color"><code>"#,###.##"</code></div>
+<div class="col-first even-row-color"><code id="com.redis.riot.EvaluationContextArgs.VAR_DATE">public&nbsp;static&nbsp;final&nbsp;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second even-row-color"><code><a href="com/redis/riot/EvaluationContextArgs.html#VAR_DATE">VAR_DATE</a></code></div>
+<div class="col-last even-row-color"><code>"date"</code></div>
+<div class="col-first odd-row-color"><code id="com.redis.riot.EvaluationContextArgs.VAR_FAKER">public&nbsp;static&nbsp;final&nbsp;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second odd-row-color"><code><a href="com/redis/riot/EvaluationContextArgs.html#VAR_FAKER">VAR_FAKER</a></code></div>
+<div class="col-last odd-row-color"><code>"faker"</code></div>
+<div class="col-first even-row-color"><code id="com.redis.riot.EvaluationContextArgs.VAR_NUMBER">public&nbsp;static&nbsp;final&nbsp;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second even-row-color"><code><a href="com/redis/riot/EvaluationContextArgs.html#VAR_NUMBER">VAR_NUMBER</a></code></div>
+<div class="col-last even-row-color"><code>"number"</code></div>
 </div>
 </li>
 <li>

@@ -78,12 +78,12 @@ loadScripts(document, 'script');</script>
 <section class="class-description" id="class-description">
 <dl class="notes">
 <dt>All Implemented Interfaces:</dt>
-<dd><code>org.springframework.batch.core.ItemWriteListener&lt;com.redis.spring.batch.item.redis.reader.KeyComparison&lt;K&gt;&gt;</code>, <code>org.springframework.batch.core.StepListener</code></dd>
+<dd><code>com.redis.spring.batch.item.redis.reader.KeyComparisonListener&lt;K&gt;</code></dd>
 </dl>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">CompareLoggingWriteListener&lt;K&gt;</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>
-implements org.springframework.batch.core.ItemWriteListener&lt;com.redis.spring.batch.item.redis.reader.KeyComparison&lt;K&gt;&gt;</span></div>
+implements com.redis.spring.batch.item.redis.reader.KeyComparisonListener&lt;K&gt;</span></div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -112,20 +112,14 @@ implements org.springframework.batch.core.ItemWriteListener&lt;com.redis.spring.
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#afterWrite(org.springframework.batch.item.Chunk)" class="member-name-link">afterWrite</a><wbr>(org.springframework.batch.item.Chunk&lt;? extends com.redis.spring.batch.item.redis.reader.KeyComparison&lt;<a href="CompareLoggingWriteListener.html" title="type parameter in CompareLoggingWriteListener">K</a>&gt;&gt;&nbsp;items)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#comparison(com.redis.spring.batch.item.redis.reader.KeyComparison)" class="member-name-link">comparison</a><wbr>(com.redis.spring.batch.item.redis.reader.KeyComparison&lt;<a href="CompareLoggingWriteListener.html" title="type parameter in CompareLoggingWriteListener">K</a>&gt;&nbsp;comparison)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#log(com.redis.spring.batch.item.redis.reader.KeyComparison)" class="member-name-link">log</a><wbr>(com.redis.spring.batch.item.redis.reader.KeyComparison&lt;<a href="CompareLoggingWriteListener.html" title="type parameter in CompareLoggingWriteListener">K</a>&gt;&nbsp;comparison)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
 </div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-java.lang.Object">Methods inherited from class&nbsp;java.lang.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></h3>
 <code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#clone()" title="class or interface in java.lang" class="external-link">clone</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="external-link">equals</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#finalize()" title="class or interface in java.lang" class="external-link">finalize</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#getClass()" title="class or interface in java.lang" class="external-link">getClass</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="external-link">hashCode</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#notify()" title="class or interface in java.lang" class="external-link">notify</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#notifyAll()" title="class or interface in java.lang" class="external-link">notifyAll</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#toString()" title="class or interface in java.lang" class="external-link">toString</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait()" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait(long)" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait(long,int)" title="class or interface in java.lang" class="external-link">wait</a></code></div>
-<div class="inherited-list">
-<h3 id="methods-inherited-from-class-org.springframework.batch.core.ItemWriteListener">Methods inherited from interface&nbsp;org.springframework.batch.core.ItemWriteListener</h3>
-<code>beforeWrite, onWriteError</code></div>
 </section>
 </li>
 </ul>
@@ -152,19 +146,13 @@ implements org.springframework.batch.core.ItemWriteListener&lt;com.redis.spring.
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="afterWrite(org.springframework.batch.item.Chunk)">
-<h3>afterWrite</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">afterWrite</span><wbr><span class="parameters">(org.springframework.batch.item.Chunk&lt;? extends com.redis.spring.batch.item.redis.reader.KeyComparison&lt;<a href="CompareLoggingWriteListener.html" title="type parameter in CompareLoggingWriteListener">K</a>&gt;&gt;&nbsp;items)</span></div>
+<section class="detail" id="comparison(com.redis.spring.batch.item.redis.reader.KeyComparison)">
+<h3>comparison</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">comparison</span><wbr><span class="parameters">(com.redis.spring.batch.item.redis.reader.KeyComparison&lt;<a href="CompareLoggingWriteListener.html" title="type parameter in CompareLoggingWriteListener">K</a>&gt;&nbsp;comparison)</span></div>
 <dl class="notes">
 <dt>Specified by:</dt>
-<dd><code>afterWrite</code>&nbsp;in interface&nbsp;<code>org.springframework.batch.core.ItemWriteListener&lt;<a href="CompareLoggingWriteListener.html" title="type parameter in CompareLoggingWriteListener">K</a>&gt;</code></dd>
+<dd><code>comparison</code>&nbsp;in interface&nbsp;<code>com.redis.spring.batch.item.redis.reader.KeyComparisonListener&lt;<a href="CompareLoggingWriteListener.html" title="type parameter in CompareLoggingWriteListener">K</a>&gt;</code></dd>
 </dl>
-</section>
-</li>
-<li>
-<section class="detail" id="log(com.redis.spring.batch.item.redis.reader.KeyComparison)">
-<h3>log</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">log</span><wbr><span class="parameters">(com.redis.spring.batch.item.redis.reader.KeyComparison&lt;<a href="CompareLoggingWriteListener.html" title="type parameter in CompareLoggingWriteListener">K</a>&gt;&nbsp;comparison)</span></div>
 </section>
 </li>
 </ul>
