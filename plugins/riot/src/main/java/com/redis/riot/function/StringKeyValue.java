@@ -15,11 +15,17 @@ public class StringKeyValue<K> implements Function<KeyValue<String>, KeyValue<K>
 		this.stringKeyFunction = BatchUtils.stringKeyFunction(codec);
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	public KeyValue apply(KeyValue item) {
-		item.setKey(stringKeyFunction.apply((String) item.getKey()));
-		return item;
+	public KeyValue<K> apply(KeyValue<String> item) {
+		KeyValue<K> keyValue = new KeyValue<>();
+		keyValue.setEvent(item.getEvent());
+		keyValue.setKey(stringKeyFunction.apply(item.getKey()));
+		keyValue.setMemoryUsage(item.getMemoryUsage());
+		keyValue.setTimestamp(item.getTimestamp());
+		keyValue.setTtl(item.getTtl());
+		keyValue.setType(item.getType());
+		keyValue.setValue(item.getValue());
+		return keyValue;
 	}
 
 }

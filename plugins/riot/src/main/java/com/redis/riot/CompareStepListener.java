@@ -40,7 +40,7 @@ public class CompareStepListener implements StepExecutionListener {
 		return new ExitStatus(ExitStatus.FAILED.getExitCode(), verificationFailedExitDescription());
 	}
 
-	private String verificationFailedExitDescription() {
+	protected String verificationFailedExitDescription() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("Verification failed:");
 		for (Entry<Status, List<KeyComparisonStat>> entry : statsByStatus(stats)) {

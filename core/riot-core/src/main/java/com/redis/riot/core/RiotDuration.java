@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 
 import org.springframework.boot.convert.DurationStyle;
+import org.springframework.util.Assert;
 
 /**
  * Wrapper around java.time.Duration with a custom toString
@@ -18,6 +19,8 @@ public class RiotDuration {
 	}
 
 	public RiotDuration(Duration duration, ChronoUnit displayUnit) {
+		Assert.notNull(duration, "Duration must not be null");
+		Assert.notNull(displayUnit, "Unit must not be null");
 		this.value = duration;
 		this.displayUnit = displayUnit;
 	}

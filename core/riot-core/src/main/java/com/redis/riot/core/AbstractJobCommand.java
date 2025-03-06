@@ -347,7 +347,7 @@ public abstract class AbstractJobCommand extends AbstractCallableCommand {
 		}
 		if (stepArgs.getSleep() != null) {
 			log.info("Throttling writer with sleep={}", stepArgs.getSleep());
-			writer = new ThrottledItemWriter<>(writer, stepArgs.getSleep().getValue().toMillis());
+			writer = new ThrottledItemWriter<>(writer, stepArgs.getSleep().getValue());
 		}
 		return writer;
 	}
