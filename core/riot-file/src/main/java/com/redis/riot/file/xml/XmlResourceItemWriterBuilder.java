@@ -23,7 +23,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.WritableResource;
 import org.springframework.util.Assert;
 
-import com.redis.riot.resource.AbstractFileItemWriter;
+import com.redis.spring.batch.resource.AbstractFileItemWriter;
 
 /**
  * Builder for {@link XmlResourceItemWriter}.

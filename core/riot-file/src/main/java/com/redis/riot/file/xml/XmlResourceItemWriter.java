@@ -26,7 +26,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.redis.riot.resource.AbstractFileItemWriter;
+import com.redis.spring.batch.resource.AbstractFileItemWriter;
 
 /**
  * Item writer that writes data in XML format to an output file. The location of

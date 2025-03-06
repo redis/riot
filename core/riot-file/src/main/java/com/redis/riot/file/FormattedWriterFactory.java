@@ -6,8 +6,8 @@ import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.file.transform.PassThroughFieldExtractor;
 import org.springframework.core.io.WritableResource;
 
-import com.redis.riot.resource.FlatFileItemWriterBuilder;
-import com.redis.riot.resource.FlatFileItemWriterBuilder.FormattedBuilder;
+import com.redis.spring.batch.resource.FlatFileItemWriterBuilder;
+import com.redis.spring.batch.resource.FlatFileItemWriterBuilder.FormattedBuilder;
 
 public class FormattedWriterFactory extends AbstractWriterFactory {
 

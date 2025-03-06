@@ -5,7 +5,7 @@ import org.springframework.batch.item.json.JacksonJsonObjectMarshaller;
 import org.springframework.core.io.WritableResource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.redis.riot.resource.JsonFileItemWriterBuilder;
+import com.redis.spring.batch.resource.JsonFileItemWriterBuilder;
 
 public class JsonWriterFactory extends AbstractWriterFactory {
 

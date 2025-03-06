@@ -4,7 +4,7 @@ import org.springframework.batch.item.ItemWriter;
 import org.springframework.core.io.WritableResource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.redis.riot.resource.FlatFileItemWriterBuilder;
+import com.redis.spring.batch.resource.FlatFileItemWriterBuilder;
 
 public class JsonLinesWriterFactory extends AbstractWriterFactory {
 

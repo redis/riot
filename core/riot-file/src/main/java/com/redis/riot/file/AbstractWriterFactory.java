@@ -12,8 +12,8 @@ import org.springframework.util.CollectionUtils;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.redis.riot.resource.FlatFileItemWriter;
-import com.redis.riot.resource.FlatFileItemWriterBuilder;
+import com.redis.spring.batch.resource.FlatFileItemWriter;
+import com.redis.spring.batch.resource.FlatFileItemWriterBuilder;
 
 public abstract class AbstractWriterFactory implements WriterFactory {
 
