@@ -43,9 +43,13 @@ public class MainCommand extends BaseCommand implements Callable<Integer>, IO {
 
 	protected void registerConverters(CommandLine commandLine) {
 		commandLine.registerConverter(RiotDuration.class, RiotDuration::parse);
-		commandLine.registerConverter(DataSize.class, DataSize::parse);
+		commandLine.registerConverter(DataSize.class, MainCommand::parseDataSize);
 		commandLine.registerConverter(Expression.class, Expression::parse);
 		commandLine.registerConverter(TemplateExpression.class, Expression::parseTemplate);
+	}
+
+	public static DataSize parseDataSize(String string) {
+		return DataSize.parse(string.toUpperCase());
 	}
 
 	@Override

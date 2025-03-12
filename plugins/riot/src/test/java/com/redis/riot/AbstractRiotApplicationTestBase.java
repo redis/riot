@@ -90,8 +90,8 @@ abstract class AbstractRiotApplicationTestBase extends AbstractRiotTestBase {
 		}
 
 		private void configure(RedisReaderArgs args) {
-			args.setIdleTimeout(DEFAULT_IDLE_TIMEOUT);
-			args.setEventQueueCapacity(DEFAULT_EVENT_QUEUE_CAPACITY);
+			args.getLiveArgs().setIdleTimeout(DEFAULT_IDLE_TIMEOUT);
+			args.getLiveArgs().setEventQueueCapacity(DEFAULT_EVENT_QUEUE_CAPACITY);
 		}
 
 	}

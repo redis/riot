@@ -67,7 +67,7 @@ abstract class RiotTests extends AbstractRiotApplicationTestBase {
 		replicate.getSourceRedisArgs().setCluster(getRedisServer().isRedisCluster());
 		replicate.setTargetRedisUri(targetRedisURI);
 		replicate.getTargetRedisArgs().setCluster(getTargetRedisServer().isRedisCluster());
-		replicate.getSourceRedisReaderArgs().setIdleTimeout(DEFAULT_IDLE_TIMEOUT);
+		replicate.getSourceRedisReaderArgs().getLiveArgs().setIdleTimeout(DEFAULT_IDLE_TIMEOUT);
 		replicate.call();
 	}
 
@@ -127,7 +127,8 @@ abstract class RiotTests extends AbstractRiotApplicationTestBase {
 		Replicate replication = new Replicate();
 		replication.getSourceRedisReaderArgs().setMode(ReaderMode.LIVE);
 		replication.setCompareMode(CompareMode.NONE);
-		replication.getSourceRedisReaderArgs().getKeyFilterArgs().setSlots(Arrays.asList(new Range(0, 8000)));
+		replication.getSourceRedisReaderArgs().getScanArgs().getKeyFilterArgs()
+				.setSlots(Arrays.asList(new Range(0, 8000)));
 		generateAsync(info, generator(100));
 		execute(replication, info);
 		Assertions.assertTrue(targetRedisCommands.keys("*").stream().map(SlotHash::getSlot).allMatch(between(0, 8000)));
