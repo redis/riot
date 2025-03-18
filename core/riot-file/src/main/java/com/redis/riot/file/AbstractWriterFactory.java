@@ -1,7 +1,6 @@
 package com.redis.riot.file;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +44,6 @@ public abstract class AbstractWriterFactory implements WriterFactory {
 			Map<String, Object> headerRecord = options.getHeaderSupplier().get();
 			if (!CollectionUtils.isEmpty(headerRecord)) {
 				List<String> fields = new ArrayList<>(headerRecord.keySet());
-				Collections.sort(fields);
 				Map<String, Object> fieldMap = new LinkedHashMap<>();
 				fields.forEach(f -> fieldMap.put(f, f));
 				String headerLine = aggregator.aggregate(fieldMap);
