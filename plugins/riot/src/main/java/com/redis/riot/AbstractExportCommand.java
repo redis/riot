@@ -17,21 +17,33 @@ import com.redis.spring.batch.item.redis.RedisItemReader;
 import com.redis.spring.batch.item.redis.RedisItemReader.ReaderMode;
 import com.redis.spring.batch.item.redis.RedisItemWriter;
 import com.redis.spring.batch.item.redis.common.KeyValue;
+import com.redis.spring.batch.item.redis.reader.KeyValueRead;
 
 import io.lettuce.core.AbstractRedisClient;
 import io.lettuce.core.RedisException;
 import picocli.CommandLine.ArgGroup;
+import picocli.CommandLine.Option;
 
 public abstract class AbstractExportCommand extends AbstractJobCommand {
 
+	public static final ReaderMode DEFAULT_MODE = RedisItemReader.DEFAULT_MODE;
 	public static final String NOTIFY_CONFIG = "notify-keyspace-events";
 	public static final String NOTIFY_CONFIG_VALUE = "KEA";
 
 	private static final String TASK_NAME = "Exporting";
 	private static final String VAR_SOURCE = "source";
 
+	@Option(names = "--mode", description = "Source for keys: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE})", paramLabel = "<name>")
+	private ReaderMode mode = DEFAULT_MODE;
+
 	@ArgGroup(exclusive = false)
-	private RedisReaderArgs sourceRedisReaderArgs = new RedisReaderArgs();
+	private RedisReaderArgs readerArgs = new RedisReaderArgs();
+
+	@ArgGroup(exclusive = false)
+	private RedisReaderLiveArgs readerLiveArgs = new RedisReaderLiveArgs();
+
+	@ArgGroup(exclusive = false)
+	private MemoryUsageArgs readerMemoryUsageArgs = new MemoryUsageArgs();
 
 	private RedisContext sourceRedisContext;
 
@@ -57,8 +69,18 @@ public abstract class AbstractExportCommand extends AbstractJobCommand {
 	protected void configureSourceRedisReader(RedisItemReader<?, ?> reader) {
 		configureAsyncReader(reader);
 		sourceRedisContext.configure(reader);
-		log.info("Configuring {} with {}", reader.getName(), sourceRedisReaderArgs);
-		sourceRedisReaderArgs.configure(reader);
+		log.info("Configuring {} in {} mode", reader.getName(), mode);
+		reader.setMode(mode);
+		log.info("Configuring {} with {}", reader.getName(), readerArgs);
+		readerArgs.configure(reader);
+		if (mode != ReaderMode.SCAN) {
+			log.info("Configuring {} with {}", reader.getName(), readerLiveArgs);
+			readerLiveArgs.configure(reader);
+		}
+		if (readerMemoryUsageArgs.getLimit() != null && reader.getOperation() instanceof KeyValueRead) {
+			log.info("Configuring {} with {}", reader.getName(), readerMemoryUsageArgs);
+			readerMemoryUsageArgs.configure(reader);
+		}
 	}
 
 	protected void configureSourceRedisWriter(RedisItemWriter<?, ?, ?> writer) {
@@ -114,12 +136,36 @@ public abstract class AbstractExportCommand extends AbstractJobCommand {
 		return string.codePoints().mapToObj(c -> (char) c).collect(Collectors.toSet());
 	}
 
-	public RedisReaderArgs getSourceRedisReaderArgs() {
-		return sourceRedisReaderArgs;
+	public ReaderMode getMode() {
+		return mode;
 	}
 
-	public void setSourceRedisReaderArgs(RedisReaderArgs args) {
-		this.sourceRedisReaderArgs = args;
+	public void setMode(ReaderMode mode) {
+		this.mode = mode;
+	}
+
+	public RedisReaderArgs getReaderArgs() {
+		return readerArgs;
+	}
+
+	public void setReaderArgs(RedisReaderArgs args) {
+		this.readerArgs = args;
+	}
+
+	public RedisReaderLiveArgs getReaderLiveArgs() {
+		return readerLiveArgs;
+	}
+
+	public void setReaderLiveArgs(RedisReaderLiveArgs args) {
+		this.readerLiveArgs = args;
+	}
+
+	public MemoryUsageArgs getReaderMemoryUsageArgs() {
+		return readerMemoryUsageArgs;
+	}
+
+	public void setReaderMemoryUsageArgs(MemoryUsageArgs args) {
+		this.readerMemoryUsageArgs = args;
 	}
 
 }
