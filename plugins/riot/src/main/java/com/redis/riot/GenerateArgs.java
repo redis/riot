@@ -30,7 +30,7 @@ public class GenerateArgs {
 	@Option(names = "--keyspace", description = "Keyspace prefix for generated data structures (default: ${DEFAULT-VALUE}).", paramLabel = "<str>")
 	private String keyspace = GeneratorItemReader.DEFAULT_KEYSPACE;
 
-	@Option(names = "--key-range", description = "Range of keys to generate in the form '<start>-<end>' (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
+	@Option(names = "--key-range", description = "Range of keys to generate in the form 'start-end' (default: ${DEFAULT-VALUE}).", paramLabel = "<int>")
 	private Range keyRange = GeneratorItemReader.DEFAULT_KEY_RANGE;
 
 	@Option(arity = "1..*", names = "--type", description = "Types of data structures to generate: ${COMPLETION-CANDIDATES} (default: ${DEFAULT-VALUE}).", paramLabel = "<type>")
