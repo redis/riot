@@ -1,0 +1,15 @@
+= Exporting
+
+When exporting data from Redis the following options allow for filtering .
+
+== Key Filtering
+
+Key filtering can be done through multiple options in {project-title}:
+
+`--key-pattern`:: Glob-style pattern used for https://redis.io/docs/latest/commands/scan/[scan] and https://redis.io/docs/latest/develop/use/keyspace-notifications/[keyspace notification] registration.
+
+`--key-type`:: Type of keys to consider for scan and keyspace notification registration.
+
+`--key-include` & `--key-exclude`:: Glob-style pattern(s) to futher filter keys on the client (RIOT) side, i.e. after they are received through scan or keyspace notifications.
+
+`--mem-limit`: Ignore keys whose memory usage exceeds the given limit. For example `--mem-limit 10mb` skips keys over 10 MB in size.

@@ -1,11 +1,43 @@
 [[_concepts]]
 = Concepts
 
-{project-title} is essentially an {link_etl} tool where data is extracted from the source system, transformed (see <<_concepts_processing,Processing>>), and loaded into the target system.
+{project-title} is essentially an {link_etl} tool where data is extracted from the source system, transformed (see <<_processing,Processing>>), and loaded into the target system.
 
 image::architecture.svg[]
 
-[[_concepts_batching]]
+== Redis URI
+
+{project-title} follows the https://github.com/redis/redis-specifications/tree/master/uri[Redis URI] specification, which supports standalone, sentinel and cluster Redis deployments with plain, SSL, TLS and unix domain socket connections.
+
+TIP: You can use the `host:port` short hand for `redis://host:port`.
+
+Redis Standalone::
+  `redis :// [[username :] password@] host [:port][/database]
+          [?[timeout=timeout[d|h|m|s|ms|us|ns]] [&clientName=clientName]
+          [&libraryName=libraryName] [&libraryVersion=libraryVersion] ]`
+Redis Standalone (SSL)::
+  `rediss :// [[username :] password@] host [: port][/database]
+           [?[timeout=timeout[d|h|m|s|ms|us|ns]] [&clientName=clientName]
+           [&libraryName=libraryName] [&libraryVersion=libraryVersion] ]`
+Redis Sentinel::
+  `redis-sentinel :// [[username :] password@] host1[:port1] [, host2[:port2]] [, hostN[:portN]] [/database]
+                   [?[timeout=timeout[d|h|m|s|ms|us|ns]] [&sentinelMasterId=sentinelMasterId]
+                   [&clientName=clientName] [&libraryName=libraryName]
+                   [&libraryVersion=libraryVersion] ]`
+
+TIP: You can provide the database, password and timeouts within the Redis URI. For example `redis://localhost:6379/1` selects database `1`.
+
+.Timeout Units
+[horizontal]
+`d`:: Days
+`h`:: Hours
+`m`:: Minutes
+`s`:: Seconds
+`ms`:: Milliseconds
+`us`:: Microseconds
+`ns`:: Nanoseconds
+
+
 == Batching
 
 Processing in {project-title} is done in batches: a fixed number of records is read from the source, processed, and written to the target.
@@ -15,7 +47,6 @@ If the source/target is Redis, reading/writing of a batch is done in a single ht
 You can change the batch size (and hence pipeline size) using the `--batch` option.
 The optimal batch size in terms of throughput depends on many factors like record size and command types (see https://stackoverflow.com/a/32165090[Redis Pipeline Tuning] for details).
 
-[[_concepts_threads]]
 == Multi-threading
 
 By default processing happens in a single thread, but it is possible to parallelize processing by using multiple threads.
@@ -31,104 +62,8 @@ To set the number of threads, use the `--threads` option.
 include::{testdir}/db-import-postgresql-multithreaded[]
 ----
 
-[[_concepts_processing]]
-== Processing
+include::import.adoc[leveloffset=+1]
+include::export.adoc[leveloffset=+1]
 
-{project-title} lets you transform incoming records using processors.
-These processors allow you to create/update/delete fields using the Spring Expression Language ({link_spel}).
 
-For example, import commands like `file-import`, `db-import`, and `faker` have a `--proc` option that allow for field-level processing:
-
-`--proc field1="'foo'"`:: Generate a field named `field1` containing the string `foo`
-`--proc temp="(temp-32)*5/9"`:: Convert from Fahrenheit to Celsius
-`--proc name='remove("first").concat(remove("last"))'`:: Concatenate `first` and `last` fields and delete them
-`--proc field2=null`:: Delete `field2`
-
-Input fields are accessed by name (e.g. `field3=field1+field2`).
-
-Processors have access to the following context variables and functions:
-
-`date`:: Date parsing and formatting object.
-Instance of Java https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html[SimpleDateFormat].
-
-`number`:: Number parsing and formatting object.
-Instance of Java https://docs.oracle.com/javase/8/docs/api/java/text/DecimalFormat.html[DecimalFormat].
-
-`faker`:: https://s01.oss.sonatype.org/service/local/repositories/releases/archive/net/datafaker/datafaker/2.3.1/datafaker-2.3.1-javadoc.jar/!/net/datafaker/Faker.html[Faker] object.
-
-`redis`:: Redis commands object.
-Instance of Lettuce https://www.lettuce.io/core/release/api/io/lettuce/core/api/sync/RedisCommands.html[RedisCommands].
-The `replicate` command exposes 2 command objects named `source` and `target`.
-
-`geo`:: Convenience function that takes a longitude and a latitude to produce a RediSearch geo-location string in the form `longitude,latitude` (e.g. `location=#geo(lon,lat)`)
-
-.Processor example
-[source,console]
-----
-riot file-import --proc epoch="#date.parse(mydate).getTime()" location="#geo(lon,lat)" name="#redis.hget('person1','lastName')" ...
-----
-
-.Faker processor example
-[source,console]
-----
-include::{testdir}/file-import-process-faker[]
-----
-
-You can register your own variables using `--var`.
-
-.Custom variable example
-[source,console]
-----
-include::{testdir}/file-import-process-var[]
-----
-
-[[_concepts_filtering]]
-== Filtering
-
-Filters allow you to exclude records that don't match a {link_spel} boolean expression.
-
-For example this filter will only keep records where the `value` field is a series of digits:
-
-[source,console]
-----
-riot file-import --filter "value matches '\\d+'" ...
-----
-
-[[_concepts_redis_uri]]
-== Redis URI
-
-{project-title} follows the https://github.com/redis/redis-specifications/tree/master/uri[Redis URI] specification, which supports standalone, sentinel and cluster Redis deployments with plain, SSL, TLS and unix domain socket connections.
-
-TIP: You can use the `host:port` short hand for `redis://host:port`.
-
-TIP: You can provide the database, password and timeouts within the Redis URI.
-
-Redis Standalone::
-  `redis :// [[username :] password@] host [:port][/database]
-          [?[timeout=timeout[d|h|m|s|ms|us|ns]] [&clientName=clientName]
-          [&libraryName=libraryName] [&libraryVersion=libraryVersion] ]`
-Redis Standalone (SSL)::
-  `rediss :// [[username :] password@] host [: port][/database]
-           [?[timeout=timeout[d|h|m|s|ms|us|ns]] [&clientName=clientName]
-           [&libraryName=libraryName] [&libraryVersion=libraryVersion] ]`
-Redis Standalone (Unix Domain Sockets)::
-  `redis-socket :// [[username :] password@]path
-                 [?[timeout=timeout[d|h|m|s|ms|us|ns]] [&database=database]
-                 [&clientName=clientName] [&libraryName=libraryName]
-                 [&libraryVersion=libraryVersion] ]`
-Redis Sentinel::
-  `redis-sentinel :// [[username :] password@] host1[:port1] [, host2[:port2]] [, hostN[:portN]] [/database]
-                   [?[timeout=timeout[d|h|m|s|ms|us|ns]] [&sentinelMasterId=sentinelMasterId]
-                   [&clientName=clientName] [&libraryName=libraryName]
-                   [&libraryVersion=libraryVersion] ]`
-
-.Timeout Units
-[horizontal]
-`d`:: Days
-`h`:: Hours
-`m`:: Minutes
-`s`:: Seconds
-`ms`:: Milliseconds
-`us`:: Microseconds
-`ns`:: Nanoseconds
 

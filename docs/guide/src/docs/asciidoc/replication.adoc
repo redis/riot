@@ -20,7 +20,7 @@ The basic usage is:
 riot replicate [OPTIONS] SOURCE TARGET
 ----
 
-where SOURCE and TARGET are <<_concepts_redis_uri,Redis URIs>>.
+where SOURCE and TARGET are <<_redis_uri,Redis URIs>>.
 
 For the full usage, run:
 [source,console]
@@ -201,7 +201,7 @@ To show which keys differ, use the `--show-diffs` option.
 == Performance
 
 Performance tuning is an art but {project-title} offers some options to identify potential bottlenecks.
-In addition to <<_concepts_batching,batch>> and <<_concepts_threads,threads>> options you have the `--dry-run` option which disables writing to the target Redis database so that you can tune the reader in isolation.
+In addition to <<_batching,`--batch`>> and <<_multi_threading,`--threads`>> options you have the `--dry-run` option which disables writing to the target Redis database so that you can tune the reader in isolation.
 Add that option to your existing `replicate` command-line to compare replication speeds with and without writing to the target Redis database.
 
 

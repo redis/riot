@@ -1,0 +1,63 @@
+= Importing
+
+When importing data into Redis (`file-import`, `db-import`, `faker`) the following options allow for field-level processing and filtering.
+
+== Processing
+
+Processors allow you to create/update/delete fields using the Spring Expression Language ({link_spel}).
+
+.Examples
+`--proc field1="'foo'"`:: Generate a field named `field1` containing the string `foo`
+`--proc temp="(temp-32)*5/9"`:: Convert from Fahrenheit to Celsius
+`--proc name='remove("first").concat(remove("last"))'`:: Concatenate `first` and `last` fields and delete them
+`--proc field2=null`:: Delete `field2`
+
+Input fields are accessed by name (e.g. `field3=field1+field2`).
+
+Processors have access to the following context variables and functions:
+
+`date`:: Date parsing and formatting object.
+Instance of Java https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html[SimpleDateFormat].
+
+`number`:: Number parsing and formatting object.
+Instance of Java https://docs.oracle.com/javase/8/docs/api/java/text/DecimalFormat.html[DecimalFormat].
+
+`faker`:: https://s01.oss.sonatype.org/service/local/repositories/releases/archive/net/datafaker/datafaker/2.3.1/datafaker-2.3.1-javadoc.jar/!/net/datafaker/Faker.html[Faker] object.
+
+`redis`:: Redis commands object.
+Instance of Lettuce https://www.lettuce.io/core/release/api/io/lettuce/core/api/sync/RedisCommands.html[RedisCommands].
+The `replicate` command exposes 2 command objects named `source` and `target`.
+
+`geo`:: Convenience function that takes a longitude and a latitude to produce a RediSearch geo-location string in the form `longitude,latitude` (e.g. `location=#geo(lon,lat)`)
+
+.Processor example
+[source,console]
+----
+riot file-import --proc epoch="#date.parse(mydate).getTime()" location="#geo(lon,lat)" name="#redis.hget('person1','lastName')" ...
+----
+
+.Faker processor example
+[source,console]
+----
+include::{testdir}/file-import-process-faker[]
+----
+
+You can register your own variables using `--var`.
+
+.Custom variable example
+[source,console]
+----
+include::{testdir}/file-import-process-var[]
+----
+
+== Filtering
+
+Filters allow you to exclude records that don't match a {link_spel} boolean expression.
+
+For example this filter will only keep records where the `value` field is a series of digits:
+
+[source,console]
+----
+riot file-import --filter "value matches '\\d+'" ...
+----
+

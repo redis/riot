@@ -38,7 +38,7 @@ See the <<_db_drivers,Drivers>> section for more details.
 
 [source,console]
 ----
-riot db-import --jdbc-url <jdbc url> --uri <redis uri> SQL [REDIS COMMAND...]
+riot db-import --jdbc-url <jdbc url> -u <Redis URI> SQL [REDIS COMMAND...]
 ----
 
 To show the full usage, run:
