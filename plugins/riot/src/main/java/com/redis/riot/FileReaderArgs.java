@@ -11,6 +11,9 @@ import picocli.CommandLine.Option;
 @ToString
 public class FileReaderArgs extends FileArgs {
 
+	@Option(names = "--header", description = "Use first line as field names for CSV/fixed-length files")
+	private boolean header;
+
 	@Option(names = "--ranges", arity = "1..*", description = "Column ranges for fixed-length files.", paramLabel = "<string>")
 	private List<String> columnRanges;
 
@@ -35,6 +38,7 @@ public class FileReaderArgs extends FileArgs {
 	public ReadOptions readOptions() {
 		ReadOptions options = new ReadOptions();
 		apply(options);
+		options.setHeader(header);
 		options.setColumnRanges(columnRanges);
 		options.setContinuationString(continuationString);
 		options.setFields(fields);
@@ -43,6 +47,14 @@ public class FileReaderArgs extends FileArgs {
 		options.setLinesToSkip(linesToSkip);
 		options.setMaxItemCount(maxItemCount);
 		return options;
+	}
+
+	public boolean isHeader() {
+		return header;
+	}
+
+	public void setHeader(boolean header) {
+		this.header = header;
 	}
 
 	public List<String> getColumnRanges() {

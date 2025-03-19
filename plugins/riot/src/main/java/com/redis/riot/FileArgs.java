@@ -24,9 +24,6 @@ public class FileArgs {
 	@Option(names = "--encoding", description = "File encoding (default: ${DEFAULT-VALUE}).", paramLabel = "<charset>")
 	private String encoding = FileOptions.DEFAULT_ENCODING;
 
-	@Option(names = "--header", description = "Use first line as field names for CSV/fixed-length files")
-	private boolean header;
-
 	@Option(names = "--quote", description = "Escape character for CSV files (default: ${DEFAULT-VALUE}).", paramLabel = "<char>")
 	private char quoteCharacter = FileOptions.DEFAULT_QUOTE_CHARACTER;
 
@@ -78,18 +75,9 @@ public class FileArgs {
 		this.delimiter = delimiter;
 	}
 
-	public boolean isHeader() {
-		return header;
-	}
-
-	public void setHeader(boolean header) {
-		this.header = header;
-	}
-
 	public void apply(FileOptions options) {
 		options.setDelimiter(delimiter);
 		options.setEncoding(encoding);
-		options.setHeader(header);
 		options.setQuoteCharacter(quoteCharacter);
 		options.setS3Options(s3Args.s3Options());
 		options.setGoogleStorageOptions(googleStorageArgs.googleStorageOptions());
