@@ -3,9 +3,8 @@ package com.redis.riot;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import com.redis.spring.batch.item.redis.common.Range;
-
 import io.lettuce.core.RedisURI;
+import picocli.CommandLine.Range;
 
 class RedisArgsTests {
 
@@ -32,10 +31,9 @@ class RedisArgsTests {
 
 	@Test
 	void parseRange() {
-		RangeConverter converter = new RangeConverter();
-		Assertions.assertEquals(new Range(123, 123), converter.convert("123"));
-		Assertions.assertEquals(new Range(0, 123), converter.convert("0-123"));
-		Assertions.assertEquals(new Range(123, Range.UPPER_BORDER_NOT_DEFINED), converter.convert("123-"));
+		Assertions.assertEquals(new Range(123, 123, false, false, null), Range.valueOf("123"));
+		Assertions.assertEquals(new Range(0, 123, false, false, null), Range.valueOf("0..123"));
+		Assertions.assertEquals(new Range(123, Integer.MAX_VALUE, true, false, null), Range.valueOf("123..*"));
 	}
 
 }

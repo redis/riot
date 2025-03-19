@@ -225,6 +225,7 @@ abstract class FileTests extends AbstractTargetTestBase {
 		StreamUtils.copy(getClass().getClassLoader().getResourceAsStream("files/redis-export.json"),
 				new FileOutputStream(file));
 		FileImport fileImport = new FileImport();
+		fileImport.getJobArgs().getProgressArgs().setStyle(ProgressStyle.NONE);
 		fileImport.setFiles(file.toString());
 		fileImport.getRedisArgs().setUri(redisURI);
 		fileImport.call();

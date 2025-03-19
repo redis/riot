@@ -65,11 +65,12 @@ abstract class AbstractRiotApplicationTestBase extends AbstractRiotTestBase {
 					configure(((AbstractRedisImportCommand) command).getRedisArgs());
 				}
 				if (command instanceof AbstractExportCommand) {
-					configure(((AbstractExportCommand) command).getSourceRedisReaderArgs());
+					AbstractExportCommand exportCommand = (AbstractExportCommand) command;
+					exportCommand.getReaderLiveArgs().setIdleTimeout(DEFAULT_IDLE_TIMEOUT);
+					exportCommand.getReaderLiveArgs().setEventQueueCapacity(DEFAULT_EVENT_QUEUE_CAPACITY);
 				}
 				if (command instanceof AbstractRedisTargetExportCommand) {
 					AbstractRedisTargetExportCommand targetCommand = (AbstractRedisTargetExportCommand) command;
-					configure(targetCommand.getSourceRedisReaderArgs());
 					targetCommand.setSourceRedisUri(redisURI);
 					targetCommand.getSourceRedisArgs().setCluster(getRedisServer().isRedisCluster());
 					targetCommand.setTargetRedisUri(targetRedisURI);
@@ -87,11 +88,6 @@ abstract class AbstractRiotApplicationTestBase extends AbstractRiotTestBase {
 		private void configure(RedisArgs redisArgs) {
 			redisArgs.setUri(redisURI);
 			redisArgs.setCluster(getRedisServer().isRedisCluster());
-		}
-
-		private void configure(RedisReaderArgs args) {
-			args.getLiveArgs().setIdleTimeout(DEFAULT_IDLE_TIMEOUT);
-			args.getLiveArgs().setEventQueueCapacity(DEFAULT_EVENT_QUEUE_CAPACITY);
 		}
 
 	}
