@@ -2,12 +2,10 @@ package com.redis.riot.function;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.function.UnaryOperator;
 
 import com.redis.lettucemod.timeseries.Sample;
 import com.redis.riot.core.processor.CollectionToMapFunction;
@@ -20,12 +18,12 @@ import io.lettuce.core.StreamMessage;
 public class KeyValueMap implements Function<KeyValue<String>, Map<String, Object>> {
 
 	private Function<String, Map<String, String>> key = t -> Collections.emptyMap();
-	private UnaryOperator<Map<String, String>> hash = UnaryOperator.identity();
-	private Function<Collection<Sample>, Map<String, String>> timeseries = this::timeseriesToMap;
-	private StreamMap stream = new StreamMap();
-	private CollectionToMapFunction list = new CollectionToMapFunction();
-	private CollectionToMapFunction set = new CollectionToMapFunction();
-	private ZsetMap zset = new ZsetMap();
+	private Function<Map<String, String>, Map<String, String>> hash = new HashToMapFunction();
+	private Function<Collection<Sample>, Map<String, String>> timeseries = new TimeSeriesToMapFunction();
+	private Function<Collection<StreamMessage<String, String>>, Map<String, String>> stream = new StreamToMapFunction();
+	private Function<Collection<String>, Map<String, String>> list = new CollectionToMapFunction();
+	private Function<Collection<String>, Map<String, String>> set = new CollectionToMapFunction();
+	private Function<Set<ScoredValue<String>>, Map<String, String>> zset = new ZsetToMapFunction();
 	private Function<String, Map<String, String>> json = new StringToMapFunction();
 	private Function<String, Map<String, String>> string = new StringToMapFunction();
 	private Function<Object, Map<String, String>> defaultFunction = s -> Collections.emptyMap();
@@ -34,7 +32,8 @@ public class KeyValueMap implements Function<KeyValue<String>, Map<String, Objec
 	public Map<String, Object> apply(KeyValue<String> item) {
 		Map<String, Object> map = new LinkedHashMap<>();
 		map.putAll(key.apply(item.getKey()));
-		map.putAll(value(item));
+		Map<String, String> value = value(item);
+		map.putAll(value);
 		return map;
 	}
 
@@ -68,37 +67,27 @@ public class KeyValueMap implements Function<KeyValue<String>, Map<String, Objec
 		}
 	}
 
-	private Map<String, String> timeseriesToMap(Collection<Sample> source) {
-		Map<String, String> result = new HashMap<>();
-		int index = 0;
-		for (Sample sample : source) {
-			result.put(String.valueOf(index), sample.getTimestamp() + ":" + sample.getValue());
-			index++;
-		}
-		return result;
-	}
-
 	public void setKey(Function<String, Map<String, String>> key) {
 		this.key = key;
 	}
 
-	public void setHash(UnaryOperator<Map<String, String>> function) {
+	public void setHash(Function<Map<String, String>, Map<String, String>> function) {
 		this.hash = function;
 	}
 
-	public void setStream(StreamMap function) {
+	public void setStream(Function<Collection<StreamMessage<String, String>>, Map<String, String>> function) {
 		this.stream = function;
 	}
 
-	public void setList(CollectionToMapFunction function) {
+	public void setList(Function<Collection<String>, Map<String, String>> function) {
 		this.list = function;
 	}
 
-	public void setSet(CollectionToMapFunction function) {
+	public void setSet(Function<Collection<String>, Map<String, String>> function) {
 		this.set = function;
 	}
 
-	public void setZset(ZsetMap function) {
+	public void setZset(Function<Set<ScoredValue<String>>, Map<String, String>> function) {
 		this.zset = function;
 	}
 
@@ -108,6 +97,14 @@ public class KeyValueMap implements Function<KeyValue<String>, Map<String, Objec
 
 	public void setDefaultFunction(Function<Object, Map<String, String>> function) {
 		this.defaultFunction = function;
+	}
+
+	public void setJson(Function<String, Map<String, String>> function) {
+		this.json = function;
+	}
+
+	public void setTimeseries(Function<Collection<Sample>, Map<String, String>> function) {
+		this.timeseries = function;
 	}
 
 }

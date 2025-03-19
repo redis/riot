@@ -7,7 +7,7 @@ import java.util.function.Function;
 
 import io.lettuce.core.ScoredValue;
 
-public class ZsetMap implements Function<Set<ScoredValue<String>>, Map<String, String>> {
+public class ZsetToMapFunction implements Function<Set<ScoredValue<String>>, Map<String, String>> {
 
 	public static final String DEFAULT_SCORE_KEY_FORMAT = "score[%s]";
 	public static final String DEFAULT_VALUE_KEY_FORMAT = "value[%s]";
