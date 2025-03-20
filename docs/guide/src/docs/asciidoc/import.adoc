@@ -30,6 +30,10 @@ The `replicate` command exposes 2 command objects named `source` and `target`.
 
 `geo`:: Convenience function that takes a longitude and a latitude to produce a RediSearch geo-location string in the form `longitude,latitude` (e.g. `location=#geo(lon,lat)`)
 
+`parseHex`:: Parse a hexadecimal string to a byte array.
+
+`parseUuid`:: Parse a UUID string to a byte array.
+
 .Processor example
 [source,console]
 ----
