@@ -92,7 +92,7 @@ $(addBlockSwitches);
 <h1>Redis Input/Output Tools (RIOT)</h1>
 <div class="details">
 <span id="author" class="author">Julien Ruaux</span><br>
-<span id="revnumber">version 4.2.3</span>
+<span id="revnumber">version 4.2.4</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -101,11 +101,11 @@ $(addBlockSwitches);
 <li><a href="#_install">Install</a></li>
 <li><a href="#_concepts">Concepts</a>
 <ul class="sectlevel2">
-<li><a href="#_concepts_batching">Batching</a></li>
-<li><a href="#_concepts_threads">Multi-threading</a></li>
-<li><a href="#_concepts_processing">Processing</a></li>
-<li><a href="#_concepts_filtering">Filtering</a></li>
-<li><a href="#_concepts_redis_uri">Redis URI</a></li>
+<li><a href="#_redis_uri">Redis URI</a></li>
+<li><a href="#_batching">Batching</a></li>
+<li><a href="#_multi_threading">Multi-threading</a></li>
+<li><a href="#_importing">Importing</a></li>
+<li><a href="#_exporting">Exporting</a></li>
 </ul>
 </li>
 <li><a href="#_usage">Usage</a>
@@ -251,10 +251,10 @@ scoop install riot</code></pre>
 </td>
 <td class="content">
 <div class="paragraph">
-<p><code>riot-4.2.3.zip</code> requires Java 11 or greater to be installed.</p>
+<p><code>riot-4.2.4.zip</code> requires Java 11 or greater to be installed.</p>
 </div>
 <div class="paragraph">
-<p><code>riot-standalone-4.2.3-*.zip</code> includes its own Java runtime and does not require a Java installation.</p>
+<p><code>riot-standalone-4.2.4-*.zip</code> includes its own Java runtime and does not require a Java installation.</p>
 </div>
 </td>
 </tr>
@@ -275,7 +275,7 @@ scoop install riot</code></pre>
 <h2 id="_concepts"><a class="anchor" href="#_concepts"></a>Concepts</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>RIOT is essentially an <a href="https://en.wikipedia.org/wiki/Extract,_transform,_load">ETL</a> tool where data is extracted from the source system, transformed (see <a href="#_concepts_processing">Processing</a>), and loaded into the target system.</p>
+<p>RIOT is essentially an <a href="https://en.wikipedia.org/wiki/Extract,_transform,_load">ETL</a> tool where data is extracted from the source system, transformed (see <a href="#_processing">Processing</a>), and loaded into the target system.</p>
 </div>
 <div class="imageblock">
 <div class="content">
@@ -283,7 +283,121 @@ scoop install riot</code></pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_concepts_batching"><a class="anchor" href="#_concepts_batching"></a>Batching</h3>
+<h3 id="_redis_uri"><a class="anchor" href="#_redis_uri"></a>Redis URI</h3>
+<div class="paragraph">
+<p>RIOT follows the <a href="https://github.com/redis/redis-specifications/tree/master/uri">Redis URI</a> specification, which supports standalone, sentinel and cluster Redis deployments with plain, SSL, TLS and unix domain socket connections.</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+You can use the <code>host:port</code> short hand for <code>redis://host:port</code>.
+</td>
+</tr>
+</table>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Redis Standalone</dt>
+<dd>
+<p><code>redis :// [[username :] password@] host [:port][/database]
+        [?[timeout=timeout[d|h|m|s|ms|us|ns]] [&amp;clientName=clientName]
+        [&amp;libraryName=libraryName] [&amp;libraryVersion=libraryVersion] ]</code></p>
+</dd>
+<dt class="hdlist1">Redis Standalone (SSL)</dt>
+<dd>
+<p><code>rediss :// [[username :] password@] host [: port][/database]
+         [?[timeout=timeout[d|h|m|s|ms|us|ns]] [&amp;clientName=clientName]
+         [&amp;libraryName=libraryName] [&amp;libraryVersion=libraryVersion] ]</code></p>
+</dd>
+<dt class="hdlist1">Redis Sentinel</dt>
+<dd>
+<p><code>redis-sentinel :// [[username :] password@] host1[:port1] [, host2[:port2]] [, hostN[:portN]] [/database]
+                 [?[timeout=timeout[d|h|m|s|ms|us|ns]] [&amp;sentinelMasterId=sentinelMasterId]
+                 [&amp;clientName=clientName] [&amp;libraryName=libraryName]
+                 [&amp;libraryVersion=libraryVersion] ]</code></p>
+</dd>
+</dl>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+You can provide the database, password and timeouts within the Redis URI. For example <code>redis://localhost:6379/1</code> selects database <code>1</code>.
+</td>
+</tr>
+</table>
+</div>
+<div class="hdlist">
+<div class="title">Timeout Units</div>
+<table>
+<tr>
+<td class="hdlist1">
+<code>d</code>
+</td>
+<td class="hdlist2">
+<p>Days</p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+<code>h</code>
+</td>
+<td class="hdlist2">
+<p>Hours</p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+<code>m</code>
+</td>
+<td class="hdlist2">
+<p>Minutes</p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+<code>s</code>
+</td>
+<td class="hdlist2">
+<p>Seconds</p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+<code>ms</code>
+</td>
+<td class="hdlist2">
+<p>Milliseconds</p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+<code>us</code>
+</td>
+<td class="hdlist2">
+<p>Microseconds</p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+<code>ns</code>
+</td>
+<td class="hdlist2">
+<p>Nanoseconds</p>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_batching"><a class="anchor" href="#_batching"></a>Batching</h3>
 <div class="paragraph">
 <p>Processing in RIOT is done in batches: a fixed number of records is read from the source, processed, and written to the target.
 The default batch size is <code>50</code>, which means that an execution step reads 50 items at a time from the source, processes them, and finally writes then to the target.
@@ -295,7 +409,7 @@ The optimal batch size in terms of throughput depends on many factors like recor
 </div>
 </div>
 <div class="sect2">
-<h3 id="_concepts_threads"><a class="anchor" href="#_concepts_threads"></a>Multi-threading</h3>
+<h3 id="_multi_threading"><a class="anchor" href="#_multi_threading"></a>Multi-threading</h3>
 <div class="paragraph">
 <p>By default processing happens in a single thread, but it is possible to parallelize processing by using multiple threads.
 In that configuration, each chunk of items is read, processed, and written in a separate thread of execution.
@@ -313,15 +427,17 @@ Here, only one reader is being accessed from multiple threads.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_concepts_processing"><a class="anchor" href="#_concepts_processing"></a>Processing</h3>
+<h3 id="_importing"><a class="anchor" href="#_importing"></a>Importing</h3>
 <div class="paragraph">
-<p>RIOT lets you transform incoming records using processors.
-These processors allow you to create/update/delete fields using the Spring Expression Language (<a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#expressions">SpEL</a>).</p>
+<p>When importing data into Redis (<code>file-import</code>, <code>db-import</code>, <code>faker</code>) the following options allow for field-level processing and filtering.</p>
 </div>
+<div class="sect3">
+<h4 id="_processing"><a class="anchor" href="#_processing"></a>Processing</h4>
 <div class="paragraph">
-<p>For example, import commands like <code>file-import</code>, <code>db-import</code>, and <code>faker</code> have a <code>--proc</code> option that allow for field-level processing:</p>
+<p>Processors allow you to create/update/delete fields using the Spring Expression Language (<a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#expressions">SpEL</a>).</p>
 </div>
 <div class="dlist">
+<div class="title">Examples</div>
 <dl>
 <dt class="hdlist1"><code>--proc field1="'foo'"</code></dt>
 <dd>
@@ -397,8 +513,8 @@ The <code>replicate</code> command exposes 2 command objects named <code>source<
 </div>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_concepts_filtering"><a class="anchor" href="#_concepts_filtering"></a>Filtering</h3>
+<div class="sect3">
+<h4 id="_filtering"><a class="anchor" href="#_filtering"></a>Filtering</h4>
 <div class="paragraph">
 <p>Filters allow you to exclude records that don&#8217;t match a <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#expressions">SpEL</a> boolean expression.</p>
 </div>
@@ -411,125 +527,36 @@ The <code>replicate</code> command exposes 2 command objects named <code>source<
 </div>
 </div>
 </div>
+</div>
 <div class="sect2">
-<h3 id="_concepts_redis_uri"><a class="anchor" href="#_concepts_redis_uri"></a>Redis URI</h3>
+<h3 id="_exporting"><a class="anchor" href="#_exporting"></a>Exporting</h3>
 <div class="paragraph">
-<p>RIOT follows the <a href="https://github.com/redis/redis-specifications/tree/master/uri">Redis URI</a> specification, which supports standalone, sentinel and cluster Redis deployments with plain, SSL, TLS and unix domain socket connections.</p>
+<p>When exporting data from Redis the following options allow for filtering .</p>
 </div>
-<div class="admonitionblock tip">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-tip" title="Tip"></i>
-</td>
-<td class="content">
-You can use the <code>host:port</code> short hand for <code>redis://host:port</code>.
-</td>
-</tr>
-</table>
-</div>
-<div class="admonitionblock tip">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-tip" title="Tip"></i>
-</td>
-<td class="content">
-You can provide the database, password and timeouts within the Redis URI.
-</td>
-</tr>
-</table>
+<div class="sect3">
+<h4 id="_key_filtering"><a class="anchor" href="#_key_filtering"></a>Key Filtering</h4>
+<div class="paragraph">
+<p>Key filtering can be done through multiple options in RIOT:</p>
 </div>
 <div class="dlist">
 <dl>
-<dt class="hdlist1">Redis Standalone</dt>
+<dt class="hdlist1"><code>--key-pattern</code></dt>
 <dd>
-<p><code>redis :// [[username :] password@] host [:port][/database]
-        [?[timeout=timeout[d|h|m|s|ms|us|ns]] [&amp;clientName=clientName]
-        [&amp;libraryName=libraryName] [&amp;libraryVersion=libraryVersion] ]</code></p>
+<p>Glob-style pattern used for <a href="https://redis.io/docs/latest/commands/scan/">scan</a> and <a href="https://redis.io/docs/latest/develop/use/keyspace-notifications/">keyspace notification</a> registration.</p>
 </dd>
-<dt class="hdlist1">Redis Standalone (SSL)</dt>
+<dt class="hdlist1"><code>--key-type</code></dt>
 <dd>
-<p><code>rediss :// [[username :] password@] host [: port][/database]
-         [?[timeout=timeout[d|h|m|s|ms|us|ns]] [&amp;clientName=clientName]
-         [&amp;libraryName=libraryName] [&amp;libraryVersion=libraryVersion] ]</code></p>
+<p>Type of keys to consider for scan and keyspace notification registration.</p>
 </dd>
-<dt class="hdlist1">Redis Standalone (Unix Domain Sockets)</dt>
+<dt class="hdlist1"><code>--key-include</code> &amp; <code>--key-exclude</code></dt>
 <dd>
-<p><code>redis-socket :// [[username :] password@]path
-               [?[timeout=timeout[d|h|m|s|ms|us|ns]] [&amp;database=database]
-               [&amp;clientName=clientName] [&amp;libraryName=libraryName]
-               [&amp;libraryVersion=libraryVersion] ]</code></p>
-</dd>
-<dt class="hdlist1">Redis Sentinel</dt>
-<dd>
-<p><code>redis-sentinel :// [[username :] password@] host1[:port1] [, host2[:port2]] [, hostN[:portN]] [/database]
-                 [?[timeout=timeout[d|h|m|s|ms|us|ns]] [&amp;sentinelMasterId=sentinelMasterId]
-                 [&amp;clientName=clientName] [&amp;libraryName=libraryName]
-                 [&amp;libraryVersion=libraryVersion] ]</code></p>
+<p>Glob-style pattern(s) to futher filter keys on the client (RIOT) side, i.e. after they are received through scan or keyspace notifications.</p>
 </dd>
 </dl>
 </div>
-<div class="hdlist">
-<div class="title">Timeout Units</div>
-<table>
-<tr>
-<td class="hdlist1">
-<code>d</code>
-</td>
-<td class="hdlist2">
-<p>Days</p>
-</td>
-</tr>
-<tr>
-<td class="hdlist1">
-<code>h</code>
-</td>
-<td class="hdlist2">
-<p>Hours</p>
-</td>
-</tr>
-<tr>
-<td class="hdlist1">
-<code>m</code>
-</td>
-<td class="hdlist2">
-<p>Minutes</p>
-</td>
-</tr>
-<tr>
-<td class="hdlist1">
-<code>s</code>
-</td>
-<td class="hdlist2">
-<p>Seconds</p>
-</td>
-</tr>
-<tr>
-<td class="hdlist1">
-<code>ms</code>
-</td>
-<td class="hdlist2">
-<p>Milliseconds</p>
-</td>
-</tr>
-<tr>
-<td class="hdlist1">
-<code>us</code>
-</td>
-<td class="hdlist2">
-<p>Microseconds</p>
-</td>
-</tr>
-<tr>
-<td class="hdlist1">
-<code>ns</code>
-</td>
-<td class="hdlist2">
-<p>Nanoseconds</p>
-</td>
-</tr>
-</table>
+<div class="paragraph">
+<p><code>--mem-limit</code>: Ignore keys whose memory usage exceeds the given limit. For example <code>--mem-limit 10mb</code> skips keys over 10 MB in size.</p>
+</div>
 </div>
 </div>
 </div>
@@ -825,7 +852,7 @@ See the <a href="#_db_drivers">Drivers</a> section for more details.
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="console">riot db-import --jdbc-url &lt;jdbc url&gt; --uri &lt;redis uri&gt; SQL [REDIS COMMAND...]</code></pre>
+<pre class="CodeRay highlight"><code data-lang="console">riot db-import --jdbc-url &lt;jdbc url&gt; -u &lt;Redis URI&gt; SQL [REDIS COMMAND...]</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1446,7 +1473,7 @@ Otherwise specify the field names using the <code>--fields</code> option.</p>
 </div>
 </div>
 <div class="paragraph">
-<p>where SOURCE and TARGET are <a href="#_concepts_redis_uri">Redis URIs</a>.</p>
+<p>where SOURCE and TARGET are <a href="#_redis_uri">Redis URIs</a>.</p>
 </div>
 <div class="paragraph">
 <p>For the full usage, run:</p>
@@ -1785,7 +1812,7 @@ Adjust number of threads, batch and queue sizes accordingly.
 <h4 id="_replication_performance"><a class="anchor" href="#_replication_performance"></a>Performance</h4>
 <div class="paragraph">
 <p>Performance tuning is an art but RIOT offers some options to identify potential bottlenecks.
-In addition to <a href="#_concepts_batching">batch</a> and <a href="#_concepts_threads">threads</a> options you have the <code>--dry-run</code> option which disables writing to the target Redis database so that you can tune the reader in isolation.
+In addition to <a href="#_batching"><code>--batch</code></a> and <a href="#_multi_threading"><code>--threads</code></a> options you have the <code>--dry-run</code> option which disables writing to the target Redis database so that you can tune the reader in isolation.
 Add that option to your existing <code>replicate</code> command-line to compare replication speeds with and without writing to the target Redis database.</p>
 </div>
 </div>
@@ -2128,8 +2155,8 @@ Either increase max JVM heap size (<code>export JAVA_OPTS="-Xmx8g"</code>) or re
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 4.2.3<br>
-Last updated 2025-02-16 18:44:09 UTC
+Version 4.2.4<br>
+Last updated 2025-03-21 16:47:10 UTC
 </div>
 </div>
 <link rel="stylesheet" href="./coderay-asciidoctor.css">
