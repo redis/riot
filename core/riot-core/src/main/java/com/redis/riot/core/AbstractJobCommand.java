@@ -50,8 +50,8 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.CollectionUtils;
 
 import com.redis.spring.batch.JobUtils;
-import com.redis.spring.batch.item.AbstractAsyncItemReader;
-import com.redis.spring.batch.item.AbstractPollableItemReader;
+import com.redis.spring.batch.item.AbstractAsyncItemStreamSupport;
+import com.redis.spring.batch.item.PollableItemReader;
 import com.redis.spring.batch.step.FlushingStepBuilder;
 
 import picocli.CommandLine.ArgGroup;
@@ -121,7 +121,7 @@ public abstract class AbstractJobCommand extends AbstractCallableCommand {
 		return launcher;
 	}
 
-	protected void configureAsyncReader(AbstractAsyncItemReader<?, ?> reader) {
+	protected void configureAsyncStreamSupport(AbstractAsyncItemStreamSupport<?, ?> reader) {
 		reader.setJobRepository(jobRepository);
 	}
 
@@ -327,7 +327,7 @@ public abstract class AbstractJobCommand extends AbstractCallableCommand {
 	}
 
 	private <I, O> ItemReader<? extends I> reader(Step<I, O> step) {
-		if (stepArgs.getThreads() == 1 || step.getReader() instanceof AbstractPollableItemReader) {
+		if (stepArgs.getThreads() == 1 || step.getReader() instanceof PollableItemReader) {
 			return step.getReader();
 		}
 		log.info("Synchronizing reader in step {}", step.getName());

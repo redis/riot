@@ -8,10 +8,10 @@ import org.springframework.batch.item.function.FunctionItemProcessor;
 import com.redis.riot.core.RiotDuration;
 import com.redis.riot.core.processor.FunctionPredicate;
 import com.redis.riot.core.processor.PredicateOperator;
-import com.redis.spring.batch.item.AbstractAsyncItemReader;
+import com.redis.spring.batch.item.AbstractAsyncItemStreamSupport;
 import com.redis.spring.batch.item.AbstractPollableItemReader;
 import com.redis.spring.batch.item.redis.RedisItemReader;
-import com.redis.spring.batch.item.redis.common.KeyValue;
+import com.redis.spring.batch.item.redis.reader.KeyEvent;
 
 import io.lettuce.core.codec.RedisCodec;
 import lombok.ToString;
@@ -23,8 +23,8 @@ public class RedisReaderArgs {
 
 	public static final long DEFAULT_SCAN_COUNT = 1000;
 	public static final int DEFAULT_QUEUE_CAPACITY = RedisItemReader.DEFAULT_QUEUE_CAPACITY;
-	public static final int DEFAULT_THREADS = AbstractAsyncItemReader.DEFAULT_THREADS;
-	public static final int DEFAULT_CHUNK_SIZE = AbstractAsyncItemReader.DEFAULT_CHUNK_SIZE;
+	public static final int DEFAULT_THREADS = AbstractAsyncItemStreamSupport.DEFAULT_THREADS;
+	public static final int DEFAULT_CHUNK_SIZE = AbstractAsyncItemStreamSupport.DEFAULT_CHUNK_SIZE;
 	public static final RiotDuration DEFAULT_POLL_TIMEOUT = RiotDuration
 			.of(AbstractPollableItemReader.DEFAULT_POLL_TIMEOUT, ChronoUnit.MILLIS);
 
@@ -71,8 +71,8 @@ public class RedisReaderArgs {
 		reader.setProcessor(keyProcessor(reader.getCodec(), keyFilterArgs));
 	}
 
-	private <K> ItemProcessor<KeyValue<K>, KeyValue<K>> keyProcessor(RedisCodec<K, ?> codec, KeyFilterArgs args) {
-		return args.predicate(codec).map(p -> new FunctionPredicate<KeyValue<K>, K>(KeyValue::getKey, p))
+	private <K> ItemProcessor<KeyEvent<K>, KeyEvent<K>> keyProcessor(RedisCodec<K, ?> codec, KeyFilterArgs args) {
+		return args.predicate(codec).map(p -> new FunctionPredicate<KeyEvent<K>, K>(KeyEvent::getKey, p))
 				.map(PredicateOperator::new).map(FunctionItemProcessor::new).orElse(null);
 	}
 

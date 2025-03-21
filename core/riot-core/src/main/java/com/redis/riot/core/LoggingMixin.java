@@ -14,6 +14,12 @@ import picocli.CommandLine.ParseResult;
 import picocli.CommandLine.Spec;
 
 public class LoggingMixin {
+
+	public static final boolean DEFAULT_SHOW_DATE_TIME = true;
+	public static final boolean DEFAULT_SHOW_THREAD_NAME = true;
+	public static final boolean DEFAULT_SHOW_LOG_NAME = true;
+	public static final Level DEFAULT_LEVEL = Level.WARN;
+
 	/**
 	 * This mixin is able to climb the command hierarchy because the
 	 * {@code @Spec(Target.MIXEE)}-annotated field gets a reference to the command
@@ -22,15 +28,15 @@ public class LoggingMixin {
 	private @Spec(MIXEE) CommandSpec mixee; // spec of the command where the @Mixin is used
 
 	private String file;
-	private boolean showDateTime;
+	private boolean showDateTime = DEFAULT_SHOW_DATE_TIME;
 	private String dateTimeFormat;
 	private boolean showThreadId;
-	private boolean hideThreadName;
-	private boolean hideLogName;
+	private boolean showThreadName = DEFAULT_SHOW_THREAD_NAME;
+	private boolean showLogName = DEFAULT_SHOW_LOG_NAME;
 	private boolean showShortLogName;
 	private boolean levelInBrackets;
 	private Map<String, Level> levels = new LinkedHashMap<>();
-	private Level level = Level.WARN;
+	private Level level = DEFAULT_LEVEL;
 
 	private static LoggingMixin getTopLevelCommandLoggingMixin(CommandSpec commandSpec) {
 		return ((MainCommand) commandSpec.root().userObject()).loggingMixin;
@@ -41,7 +47,7 @@ public class LoggingMixin {
 		getTopLevelCommandLoggingMixin(mixee).file = file;
 	}
 
-	@Option(names = "--log-time", description = "Include current date and time in log messages.")
+	@Option(names = "--log-time", description = "Include current date and time in log messages. True by default.", negatable = true, defaultValue = "true", fallbackValue = "true")
 	public void setShowDateTime(boolean show) {
 		getTopLevelCommandLoggingMixin(mixee).showDateTime = show;
 	}
@@ -56,18 +62,18 @@ public class LoggingMixin {
 		getTopLevelCommandLoggingMixin(mixee).showThreadId = show;
 	}
 
-	@Option(names = "--no-log-thread", description = "Hide current thread name in log messages.", hidden = true)
-	public void setHideThreadName(boolean hide) {
-		getTopLevelCommandLoggingMixin(mixee).hideThreadName = hide;
+	@Option(names = "--log-thread", description = "Show current thread name in log messages. True by default.", negatable = true, defaultValue = "true", fallbackValue = "true", hidden = true)
+	public void setShowThreadName(boolean show) {
+		getTopLevelCommandLoggingMixin(mixee).showThreadName = show;
 	}
 
-	@Option(names = "--no-log-name", description = "Hide logger instance name in log messages.", hidden = true)
-	public void setHideLogName(boolean hide) {
-		getTopLevelCommandLoggingMixin(mixee).hideLogName = hide;
-	}
-
-	@Option(names = "--log-short", description = "Include last component of logger instance name in log messages.", hidden = true)
+	@Option(names = "--log-name", description = "Show logger instance name in log messages. True by default.", negatable = true, defaultValue = "true", fallbackValue = "true", hidden = true)
 	public void setShowLogName(boolean show) {
+		getTopLevelCommandLoggingMixin(mixee).showLogName = show;
+	}
+
+	@Option(names = "--log-short", description = "Include last component of logger instance name in log messages. True by default.", negatable = true, defaultValue = "true", fallbackValue = "true", hidden = true)
+	public void setShowShortLogName(boolean show) {
 		getTopLevelCommandLoggingMixin(mixee).showShortLogName = show;
 	}
 
@@ -123,8 +129,8 @@ public class LoggingMixin {
 			System.setProperty(SimpleLogger.DATE_TIME_FORMAT_KEY, mixin.dateTimeFormat);
 		}
 		setBoolean(SimpleLogger.SHOW_THREAD_ID_KEY, mixin.showThreadId);
-		setBoolean(SimpleLogger.SHOW_THREAD_NAME_KEY, !mixin.hideThreadName);
-		setBoolean(SimpleLogger.SHOW_LOG_NAME_KEY, !mixin.hideLogName);
+		setBoolean(SimpleLogger.SHOW_THREAD_NAME_KEY, mixin.showThreadName);
+		setBoolean(SimpleLogger.SHOW_LOG_NAME_KEY, mixin.showLogName);
 		setBoolean(SimpleLogger.SHOW_SHORT_LOG_NAME_KEY, mixin.showShortLogName);
 		setBoolean(SimpleLogger.LEVEL_IN_BRACKETS_KEY, mixin.levelInBrackets);
 		setLogLevel("com.amazonaws.internal", Level.ERROR);

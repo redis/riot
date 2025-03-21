@@ -61,7 +61,7 @@ public abstract class AbstractRedisTargetExportCommand extends AbstractExportCom
 	}
 
 	protected void configureTargetRedisReader(RedisItemReader<?, ?> reader) {
-		configureAsyncReader(reader);
+		configureAsyncStreamSupport(reader);
 		targetRedisContext.configure(reader);
 	}
 

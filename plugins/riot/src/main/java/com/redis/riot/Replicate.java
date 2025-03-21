@@ -74,7 +74,7 @@ public class Replicate extends AbstractCompareCommand {
 	protected Step<KeyValue<byte[]>, KeyValue<byte[]>> replicateStep() {
 		RedisItemReader<byte[], byte[]> reader = reader();
 		configureSourceRedisReader(reader);
-		Step<KeyValue<byte[]>, KeyValue<byte[]>> step = step(reader, replicateWriter());
+		Step<KeyValue<byte[]>, KeyValue<byte[]>> step = new ExportStepHelper(log).step(reader, replicateWriter());
 		step.processor(filter());
 		step.taskName(taskName(reader));
 		if (logKeys) {

@@ -8,11 +8,11 @@ import org.springframework.batch.core.ItemWriteListener;
 import org.springframework.batch.item.Chunk;
 
 import com.redis.spring.batch.item.redis.common.BatchUtils;
-import com.redis.spring.batch.item.redis.common.KeyValue;
+import com.redis.spring.batch.item.redis.reader.KeyEvent;
 
 import io.lettuce.core.codec.RedisCodec;
 
-public class ReplicateReadLogger<K> implements ItemReadListener<KeyValue<K>>, ItemWriteListener<KeyValue<K>> {
+public class ReplicateReadLogger<K> implements ItemReadListener<KeyEvent<K>>, ItemWriteListener<KeyEvent<K>> {
 
 	private final Logger logger;
 	private final Function<K, String> toString;
@@ -22,41 +22,41 @@ public class ReplicateReadLogger<K> implements ItemReadListener<KeyValue<K>>, It
 		this.toString = BatchUtils.toStringKeyFunction(codec);
 	}
 
-	private void log(String format, Iterable<? extends KeyValue<K>> keys) {
+	private void log(String format, KeyEvent<K> keyEvent) {
+		logger.info(format, string(keyEvent));
+	}
+
+	protected String string(KeyEvent<K> key) {
+		return toString.apply(key.getKey());
+	}
+
+	private void log(String format, Iterable<? extends KeyEvent<K>> keys) {
 		if (logger.isInfoEnabled()) {
 			keys.forEach(k -> log(format, k));
 		}
 	}
 
-	private void log(String format, KeyValue<K> keyEvent) {
-		logger.info(format, string(keyEvent));
-	}
-
-	protected String string(KeyValue<K> key) {
-		return toString.apply(key.getKey());
-	}
-
 	@Override
-	public void afterRead(KeyValue<K> item) {
+	public void afterRead(KeyEvent<K> item) {
 		if (logger.isInfoEnabled()) {
 			log("Key {}", item);
 		}
 	}
 
 	@Override
-	public void beforeWrite(Chunk<? extends KeyValue<K>> items) {
+	public void beforeWrite(Chunk<? extends KeyEvent<K>> items) {
 		log("Fetching {}", items);
 	}
 
 	@Override
-	public void afterWrite(Chunk<? extends KeyValue<K>> items) {
+	public void afterWrite(Chunk<? extends KeyEvent<K>> items) {
 		log("Fetched {}", items);
 	}
 
 	@Override
-	public void onWriteError(Exception exception, Chunk<? extends KeyValue<K>> items) {
+	public void onWriteError(Exception exception, Chunk<? extends KeyEvent<K>> items) {
 		if (logger.isErrorEnabled()) {
-			for (KeyValue<K> item : items) {
+			for (KeyEvent<K> item : items) {
 				logger.error("Could not fetch {}", string(item), exception);
 			}
 		}

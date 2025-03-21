@@ -34,7 +34,7 @@ public abstract class AbstractRedisCommand extends AbstractJobCommand {
 	}
 
 	protected void configure(RedisItemReader<?, ?> reader) {
-		configureAsyncReader(reader);
+		configureAsyncStreamSupport(reader);
 		redisContext.configure(reader);
 	}
 
