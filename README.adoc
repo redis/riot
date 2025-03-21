@@ -2,7 +2,7 @@
 :project-owner:   redis
 :project-name:    riot
 :project-group:   com.redis
-:project-version: 4.2.3
+:project-version: 4.2.4
 :project-title:   RIOT
 
 image::docs/guide/src/docs/resources/images/riot.svg[RIOT]
