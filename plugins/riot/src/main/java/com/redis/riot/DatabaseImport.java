@@ -3,7 +3,7 @@ package com.redis.riot;
 import java.util.Map;
 
 import org.springframework.batch.core.Job;
-import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder;
+import org.springframework.batch.item.database.JdbcCursorItemReader;
 
 import picocli.CommandLine.ArgGroup;
 import picocli.CommandLine.Command;
@@ -23,10 +23,12 @@ public class DatabaseImport extends AbstractRedisImportCommand {
 
 	@Override
 	protected Job job() {
+		return job(step(reader()));
+	}
+
+	protected JdbcCursorItemReader<Map<String, Object>> reader() {
 		log.info("Creating JDBC reader with sql=\"{}\" {} {}", sql, dataSourceArgs, readerArgs);
-		JdbcCursorItemReaderBuilder<Map<String, Object>> reader = JdbcCursorItemReaderFactory.create(sql,
-				dataSourceArgs, readerArgs);
-		return job(step(reader.build()));
+		return JdbcCursorItemReaderFactory.create(sql, dataSourceArgs, readerArgs).build();
 	}
 
 	public String getSql() {
