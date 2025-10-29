@@ -9,6 +9,21 @@ image::docs/guide/src/docs/resources/images/riot.svg[RIOT]
 
 ---
 
+[IMPORTANT]
+====
+*⚠️ This project is no longer maintained.*
+
+RIOT has been superseded by https://github.com/redis/riotx[*RIOT-X*], an enterprise-grade version with enhanced features and active support from Redis, Inc.
+
+* *For new projects:* Please use https://redis.github.io/riotx/[RIOT-X]
+* *Existing users:* You can continue using RIOT, but no new features or bug fixes will be provided
+* *Support:* All support requests should be directed to the RIOT-X project
+
+https://github.com/redis/riotx[→ Go to RIOT-X on GitHub]
+====
+
+---
+
 Get data in and out of Redis with link:http://redis.github.io/riot/[{project-title}]!
 
 Redis Input/Output Tools ({project-title}) is a command-line utility designed to help you get data in and out of Redis.
@@ -26,9 +41,11 @@ link:http://redis.github.io/riot/[redis.github.io/riot]
 
 == Support
 
-{project-title} is supported by Redis, Inc. on a good faith effort basis.
+*This project is no longer actively maintained.*
 
-To report bugs, request features, or receive assistance, please https://github.com/{project-owner}/{project-name}/issues[file an issue].
+For support, please use https://github.com/redis/riotx[RIOT-X], the actively maintained successor to this project.
+
+Existing issues will remain open for historical reference, but new issues and pull requests will not be addressed.
 
 == Badges
 
