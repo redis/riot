@@ -24,6 +24,8 @@ public class EvaluationContextArgs {
 	public static final String VAR_DATE = "date";
 	public static final String VAR_NUMBER = "number";
 	public static final String VAR_FAKER = "faker";
+	public static final String PARSE_HEX = "parseHex";
+	public static final String PARSE_UUID = "parseUuid";
 
 	@Option(arity = "1..*", names = "--var", description = "SpEL expressions for context variables, in the form var=\"exp\". For details see https://docs.spring.io/spring-framework/reference/core/expressions.html", paramLabel = "<v=exp>")
 	private Map<String, Expression> varExpressions = new LinkedHashMap<>();
@@ -39,6 +41,9 @@ public class EvaluationContextArgs {
 	public StandardEvaluationContext evaluationContext() {
 		StandardEvaluationContext context = new StandardEvaluationContext();
 		RiotUtils.registerFunction(context, "geo", GeoLocation.class, "toString", String.class, String.class);
+		RiotUtils.registerFunction(context, PARSE_HEX, SpelUtils.class, "parseHex", String.class);
+		RiotUtils.registerFunction(context, PARSE_UUID, SpelUtils.class, "parseUuid", String.class);
+
 		context.setVariable(VAR_DATE, new SimpleDateFormat(dateFormat));
 		context.setVariable(VAR_NUMBER, new DecimalFormat(numberFormat));
 		context.setVariable(VAR_FAKER, new Faker());
